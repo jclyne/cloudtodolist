@@ -19,7 +19,7 @@ class TodoListDb(object):
             where= self.__build_id_where_clause(id_list)
         return tuple( self.db.select('entries',  where=where, order='id') )
 
-    def set_entry(self,id=None,title=None,notes=None,complete=None,**kwargs):
+    def set_entry(self,id=None,title=None,notes=None,complete=None):
 
         vars={}
         if id: vars['id']=id
@@ -44,13 +44,13 @@ class TodoListDb(object):
 
         try:
             self.db.query(query,vars)
-        except _mysql_exceptions.OperationalError,e:
+        except _mysql_exceptions.OperationalError:
             raise web.badrequest()
 
         if not id:
             id = self.__call_func("last_insert_id()")
 
-        return self.get_entry(id,)
+        return self.get_entry( (id,) )
 
     def delete_entry(self,id_list):
         where=self.__build_id_where_clause(id_list)

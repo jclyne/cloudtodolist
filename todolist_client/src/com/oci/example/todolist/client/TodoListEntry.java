@@ -10,6 +10,7 @@ class TodoListEntry extends JavaScriptObject {
 
     protected TodoListEntry() {
     }
+
     public final native int getId() /*-{
         return this.id;
     }-*/;
@@ -23,7 +24,7 @@ class TodoListEntry extends JavaScriptObject {
     }-*/;
 
     public final native boolean isComplete() /*-{
-        return this.complete;
+        return this.complete == 1;
     }-*/;
 }
 

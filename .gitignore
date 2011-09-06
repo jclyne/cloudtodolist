@@ -1,0 +1,3 @@
+out/
+todolist_server/static/*
+*.pyc

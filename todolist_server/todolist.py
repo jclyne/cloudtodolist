@@ -37,7 +37,7 @@ class ServletBase:
         else:
             return None
 
-    @staticmethod
+    @ staticmethod
     def to_json(data):
         web.header('Content-Type', 'application/json')
         return json.dumps(data,indent=2)
@@ -52,14 +52,14 @@ class GetEntry(ServletBase):
 
 class SetEntry(ServletBase):
 
-    def POST(self):
+    def PUT(self):
         data = dict(web.input())
-        new_id=self.db.set_entry(**data)
-        return self.to_json(new_id)
+        new_entry=self.db.set_entry(**data)
+        return self.to_json(new_entry)
 
 class DelEntry(ServletBase):
 
-    def POST(self):
+    def PUT(self):
         data = web.input()
         id_list= self.parse_id_parameters(data)
         deleted_entries=()
