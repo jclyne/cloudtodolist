@@ -1,8 +1,6 @@
 package com.oci.example.todolist.client;
 
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.FieldUpdater;
-import com.google.gwt.cell.client.TextInputCell;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
@@ -16,7 +14,6 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
@@ -55,65 +52,84 @@ public class TodoList implements EntryPoint {
     private final TextBox newEntry = new TextBox();
     private final InlineLabel statusLabel = new InlineLabel("");
 
-
-    private static final int POLL_INTERVAL = 1000;
-
     public void onModuleLoad() {
 
         todoList.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.ENABLED);
         todoList.setSelectionModel(noEntrySelectionModel);
 
-        Column<TodoListEntry,Boolean> completeColumn = buildCheckCompleteColumn();
-        Column<TodoListEntry, String> titleColumn = buildEntryTitleColumn();
+        Column<TodoListEntry, Boolean> completeColumn = addColumn(
+                new Column<TodoListEntry, Boolean>(new CheckboxCell()) {
+                    @Override
+                    public Boolean getValue(TodoListEntry entry) {
+                        return entry.isComplete();
+                    }
+                },
+                new FieldUpdater<TodoListEntry, Boolean>() {
+                    public void update(int index, TodoListEntry entry, Boolean value) {
+                        entry.setComplete(value);
+                        todoList.redraw();
+                        String urlString = SET_ENTRY_URL + "id=" + entry.getId() + ";complete=" + (value ? '1' : '0');
+                        sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
+                            @Override
+                            public void onSuccess(Request request, Response response) {
+                            }
+                        });
+                    }
+                }
+        );
 
-        todoList.addColumn(completeColumn);
-        todoList.addColumn(titleColumn, "Todo List");
+        Column<TodoListEntry, String> titleColumn = addColumn(
+                new Column<TodoListEntry, String>(new EditTextCell()) {
+                    @Override
+                    public String getValue(TodoListEntry entry) {
+                        return entry.getTitle();
+                    }
+                    @Override
+                    public String getCellStyleNames(Cell.Context context, TodoListEntry entry) {
+                        return (entry.isComplete() ? "todo-list-complete-text" : "todo-list-text");
+                    }
+                },
+                new FieldUpdater<TodoListEntry, String>() {
+                    @Override
+                    public void update(int index, TodoListEntry entry, String value) {
+                        entry.setTitle(value);
+                        String urlString = SET_ENTRY_URL + "id=" + entry.getId() + ";title=" + value;
+                        sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
+                            @Override
+                            public void onSuccess(Request request, Response response) {
+                            }
+                        });
+                    }
+                },
+                "TodoList"
+        );
 
         todoList.setWidth("75%", true);
-        todoList.setColumnWidth(completeColumn, 35.0, Style.Unit.PX);
+        todoList.setColumnWidth(completeColumn, 45.0, Style.Unit.PX);
         todoList.setColumnWidth(titleColumn, 100.0, Style.Unit.PCT);
-
 
         todoListDataProvider.addDataDisplay(todoList);
 
-        newEntry.addValueChangeHandler(new ValueChangeHandler<String> (){
+        newEntry.addValueChangeHandler(new ValueChangeHandler<String>() {
             @Override
             public void onValueChange(ValueChangeEvent<String> stringValueChangeEvent) {
-                String newTitle= stringValueChangeEvent.getValue();
+                String newTitle = stringValueChangeEvent.getValue();
                 newEntry.setText("");
                 String urlString = SET_ENTRY_URL + "title=" + newTitle;
-                RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, URL.encode(urlString));
-
-                try {
-                    builder.sendRequest(null, new RequestCallback() {
-                        public void onError(Request request, Throwable e) {
-                            statusLabel.setText("Server Error: " + e.toString());
+                sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
+                    @Override
+                    public void onSuccess(Request request, Response response) {
+                        List<TodoListEntry> todoListEntries = todoListDataProvider.getList();
+                        JsArray<TodoListEntryResponse> entries = parseSetEntryResponse(response.getText());
+                        for (int i = 0; i < entries.length(); i++) {
+                            TodoListEntryResponse entry = entries.get(i);
+                            todoListEntries.add(new TodoListEntry(entry.getId(),
+                                    entry.getTitle(),
+                                    entry.getNotes(),
+                                    entry.isComplete()));
                         }
-
-                        private native JsArray<TodoListEntryResponse> parseGetEntryResponse(String json) /*-{
-                            return eval(json);
-                        }-*/;
-
-                        public void onResponseReceived(Request request, Response response) {
-                            if (response.getStatusCode() == 200) {
-                                List<TodoListEntry> todoListEntries = todoListDataProvider.getList();
-                                JsArray<TodoListEntryResponse> entries = parseGetEntryResponse(response.getText());
-                                for (int i = 0; i < entries.length(); i++) {
-                                    TodoListEntryResponse entry = entries.get(i);
-                                    todoListEntries.add(new TodoListEntry(entry.getId(),
-                                            entry.getTitle(),
-                                            entry.getNotes(),
-                                            entry.isComplete()));
-                                }
-                            } else {
-                                statusLabel.setText("Server Error: '"+response.getStatusCode() +"' "
-                                                    +response.getStatusText());
-                            }
-                        }
-                    });
-                } catch (RequestException e) {
-                    statusLabel.setText("Server Error: " + e.toString());
-                }
+                    }
+                });
             }
         });
 
@@ -129,7 +145,7 @@ public class TodoList implements EntryPoint {
             public void onClick(ClickEvent event) {
                 String urlString = DEL_ENTRY_URL;
                 int count = 0;
-                for (TodoListEntry entry: todoListDataProvider.getList()) {
+                for (TodoListEntry entry : todoListDataProvider.getList()) {
                     if (entry.isComplete()) {
                         if (count++ == 0) {
                             urlString += "id=" + Integer.toString(entry.getId());
@@ -140,40 +156,22 @@ public class TodoList implements EntryPoint {
                 }
 
                 if (count > 0) {
-                    RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, URL.encode(urlString));
-                    try {
-                        builder.sendRequest(null, new RequestCallback(){
-                            public void onError(Request request, Throwable e) {
-                                statusLabel.setText("Server Error: " + e.toString());
-                            }
-
-                            private native JsArrayNumber parseDeleteEntryResponse(String json) /*-{
-                                return eval(json);
-                            }-*/;
-
-                            public void onResponseReceived(Request request, Response response) {
-                                if (response.getStatusCode() == 200) {
-                                    List<TodoListEntry> todoListEntries = todoListDataProvider.getList();
-                                    JsArrayNumber deletedEntries = parseDeleteEntryResponse(response.getText());
-                                    for (int i = 0; i < deletedEntries.length(); i++){
-                                        for (int j = 0; j < todoListEntries.size(); j++){
-                                            if (todoListEntries.get(j).getId() == (int)deletedEntries.get(i)) {
-                                                todoListEntries.remove(j);
-                                                break;
-                                            }
-                                        }
+                    sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
+                        @Override
+                        public void onSuccess(Request request, Response response) {
+                            List<TodoListEntry> todoListEntries = todoListDataProvider.getList();
+                            JsArrayNumber deletedEntries = parseDeleteEntryResponse(response.getText());
+                            for (int i = 0; i < deletedEntries.length(); i++) {
+                                for (int j = 0; j < todoListEntries.size(); j++) {
+                                    if (todoListEntries.get(j).getId() == (int) deletedEntries.get(i)) {
+                                        todoListEntries.remove(j);
+                                        break;
                                     }
-                                    todoListDataProvider.refresh();
-                                } else {
-                                    statusLabel.setText("Server Error: '"+response.getStatusCode() +"' "
-                                                        +response.getStatusText());
                                 }
                             }
-                        } );
-
-                    } catch (RequestException e) {
-                        statusLabel.setText("Server Error: " + e.toString());
-                    }
+                            todoListDataProvider.refresh();
+                        }
+                    });
                 }
             }
         });
@@ -191,19 +189,6 @@ public class TodoList implements EntryPoint {
         RootPanel.get().add(mainPanel);
 
         refreshTodoListEntries();
-        startUpdatePollingTimer();
-    }
-
-
-    private void startUpdatePollingTimer() {
-        // Setup timer to refresh list automatically.
-        Timer refreshTimer = new Timer() {
-            @Override
-            public void run() {
-                refreshTodoListEntries();
-            }
-        };
-        refreshTimer.scheduleRepeating(POLL_INTERVAL);
     }
 
     final static class TodoListEntryResponse extends JavaScriptObject {
@@ -229,124 +214,74 @@ public class TodoList implements EntryPoint {
 
 
     private void refreshTodoListEntries() {
-        String url = URL.encode(GET_ENTRY_URL);
-        RequestBuilder builder = new RequestBuilder(RequestBuilder.GET, url);
+        sendRequest(GET_ENTRY_URL, RequestBuilder.GET, new RequestHandler() {
+            @Override
+            public void onSuccess(Request request, Response response) {
+                JsArray<TodoListEntryResponse> entries = parseSetEntryResponse(response.getText());
+                List<TodoListEntry> newDisplayList = new ArrayList<TodoListEntry>();
+                for (int i = 0; i < entries.length(); i++) {
+                    TodoListEntryResponse entry = entries.get(i);
+                    newDisplayList.add(new TodoListEntry(entry.getId(),
+                            entry.getTitle(),
+                            entry.getNotes(),
+                            entry.isComplete()));
+                }
+                Collections.sort(newDisplayList, new TodoListEntry.CompareId());
+                todoListDataProvider.setList(newDisplayList);
+                todoListDataProvider.refresh();
+            }
+        });
+    }
 
+    private <T> Column<TodoListEntry, T> addColumn(Column<TodoListEntry, T> column,
+                                                   FieldUpdater<TodoListEntry, T> fieldUpdater) {
+        column.setFieldUpdater(fieldUpdater);
+        todoList.addColumn(column, "");
+        return column;
+    }
+
+    private <T> Column<TodoListEntry, T> addColumn(Column<TodoListEntry, T> column,
+                                                   FieldUpdater<TodoListEntry, T> fieldUpdater,
+                                                   String label) {
+        column.setFieldUpdater(fieldUpdater);
+        todoList.addColumn(column, label);
+        return column;
+    }
+
+    abstract class RequestHandler implements RequestCallback {
+
+        abstract public void onSuccess(Request request, Response response);
+
+        @Override
+        public void onError(Request request, Throwable e) {
+            statusLabel.setText("Server Error: " + e.toString());
+        }
+
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            if (response.getStatusCode() == 200) {
+                onSuccess(request, response);
+            } else {
+                statusLabel.setText("Server Error: '" + response.getStatusCode() + "' "
+                        + response.getStatusText());
+            }
+        }
+
+        native JsArray<TodoListEntryResponse> parseSetEntryResponse(String json) /*-{
+            return eval(json);
+        }-*/;
+
+        native JsArrayNumber parseDeleteEntryResponse(String json) /*-{
+            return eval(json);
+        }-*/;
+    }
+
+    private void sendRequest(String url, RequestBuilder.Method httpMethod, RequestHandler handler) {
+        RequestBuilder builder = new RequestBuilder(httpMethod, URL.encode(url));
         try {
-            builder.sendRequest(null, new RequestCallback() {
-                public void onError(Request request, Throwable e) {
-                    statusLabel.setText("Server Error: " + e.toString());
-                }
-
-
-                private native JsArray<TodoListEntryResponse> parseGetEntryResponse(String json) /*-{
-                    return eval(json);
-                }-*/;
-
-                public void onResponseReceived(Request request, Response response) {
-                    if (response.getStatusCode() == 200) {
-                        JsArray<TodoListEntryResponse> entries = parseGetEntryResponse(response.getText());
-                        List<TodoListEntry> newDisplayList = new ArrayList<TodoListEntry>();
-                        for (int i = 0; i < entries.length(); i++) {
-                            TodoListEntryResponse entry = entries.get(i);
-                            newDisplayList.add(new TodoListEntry(entry.getId(),
-                                    entry.getTitle(),
-                                    entry.getNotes(),
-                                    entry.isComplete()));
-                        }
-                        Collections.sort(newDisplayList, new TodoListEntry.CompareId());
-                        todoListDataProvider.setList(newDisplayList);
-                        todoListDataProvider.refresh();
-                    } else {
-                        statusLabel.setText("Server Error: '"+response.getStatusCode() +"' "
-                                                    +response.getStatusText());
-                    }
-                }
-            });
+            builder.sendRequest(null, handler);
         } catch (RequestException e) {
             statusLabel.setText("Server Error: " + e.toString());
         }
-    }
-
-    private Column<TodoListEntry, Boolean> buildCheckCompleteColumn() {
-        // Create the column, mapping a TodoListEntry to the boolean
-        Column<TodoListEntry, Boolean> column =
-                new Column<TodoListEntry, Boolean>(new CheckboxCell()) {
-                    @Override
-                    public Boolean getValue(TodoListEntry entry) {
-                        return entry.isComplete();
-                    }
-                };
-
-        // Add a field updater to be notified when the user clears an item
-        column.setFieldUpdater(new FieldUpdater<TodoListEntry, Boolean>() {
-            public void update(int index, TodoListEntry entry, Boolean value) {
-                entry.setComplete(value);
-                String urlString = SET_ENTRY_URL + "id=" + entry.getId() + ";complete=" + (value ? '1' : '0');
-                RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, URL.encode(urlString));
-
-                try {
-                    builder.sendRequest(null, new RequestCallback() {
-                        public void onError(Request request, Throwable e) {
-                            statusLabel.setText("Server Error: " + e.toString());
-                        }
-
-                        public void onResponseReceived(Request request, Response response) {
-                            if (response.getStatusCode() == 200) {
-                            } else {
-                                statusLabel.setText("Server Error: '"+response.getStatusCode() +"' "
-                                                    +response.getStatusText());
-                            }
-                        }
-                    });
-                } catch (RequestException e) {
-                    statusLabel.setText("Server Error: " + e.toString());
-                }
-            }
-        });
-
-        return column;
-
-    }
-
-    private Column<TodoListEntry, String> buildEntryTitleColumn() {
-        // Create a modifiable title cell
-        Column<TodoListEntry, String> column =
-                new Column<TodoListEntry, String>(new TextInputCell()) {
-
-                    @Override
-                    public String getValue(TodoListEntry entry) {
-                        return entry.getTitle();
-                    }
-                };
-
-        // Add a field updater to be notified when the user enters a new name.
-        column.setFieldUpdater(new FieldUpdater<TodoListEntry, String>() {
-            public void update(int index, TodoListEntry entry, String value) {
-                entry.setTitle(value);
-                String urlString = SET_ENTRY_URL + "id=" + entry.getId() + ";title=" + value;
-                RequestBuilder builder = new RequestBuilder(RequestBuilder.PUT, URL.encode(urlString));
-
-                try {
-                    builder.sendRequest(null, new RequestCallback() {
-                        public void onError(Request request, Throwable e) {
-                            statusLabel.setText("Server Error: " + e.toString());
-                        }
-
-                        public void onResponseReceived(Request request, Response response) {
-                            if (response.getStatusCode() == 200) {
-                            } else {
-                                statusLabel.setText("Server Error: '"+response.getStatusCode() +"' "
-                                                    +response.getStatusText());
-                            }
-                        }
-                    });
-                } catch (RequestException e) {
-                    statusLabel.setText("Server Error: " + e.toString());
-                }
-            }
-        });
-
-        return column;
     }
 }

@@ -6,6 +6,13 @@ h1 {
     text-align: center;
 }
 
+.todo-list-text {
+}
+
+.todo-list-complete-text {
+    text-decoration: line-through;
+}
+
 body, td, a, div, .p {
     font-family: arial, sans-serif
 }
