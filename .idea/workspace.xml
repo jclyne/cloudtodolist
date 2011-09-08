@@ -78,17 +78,16 @@
       <file leaf-file-name="TodoList.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="51" column="45" selection-start="2369" selection-end="2421" vertical-scroll-proportion="0.2818792">
+            <state line="55" column="63" selection-start="2631" selection-end="2631" vertical-scroll-proportion="0.2533557">
               <folding>
-                <element signature="imports" expanded="true" />
-                <marker date="1315458379324" expanded="true" signature="9025:9064" placeholder="{...}" />
-                <marker date="1315458379324" expanded="true" signature="9119:9161" placeholder="{...}" />
-                <marker date="1315458379324" expanded="true" signature="9216:9258" placeholder="{...}" />
-                <marker date="1315458379324" expanded="true" signature="9316:9366" placeholder="{...}" />
-                <marker date="1315458379324" expanded="true" signature="11786:11828" placeholder="{...}" />
-                <marker date="1315458379324" expanded="true" signature="11786:11828" placeholder="{...}" />
-                <marker date="1315458379324" expanded="true" signature="11786:11828" placeholder="{...}" />
-                <marker date="1315458379324" expanded="true" signature="11904:11946" placeholder="{...}" />
+                <marker date="1315458590768" expanded="true" signature="9173:9212" placeholder="{...}" />
+                <marker date="1315458590768" expanded="true" signature="9267:9309" placeholder="{...}" />
+                <marker date="1315458590768" expanded="true" signature="9364:9406" placeholder="{...}" />
+                <marker date="1315458590768" expanded="true" signature="9464:9514" placeholder="{...}" />
+                <marker date="1315458590768" expanded="true" signature="11934:11976" placeholder="{...}" />
+                <marker date="1315458590768" expanded="true" signature="11934:11976" placeholder="{...}" />
+                <marker date="1315458590768" expanded="true" signature="11934:11976" placeholder="{...}" />
+                <marker date="1315458590768" expanded="true" signature="12052:12094" placeholder="{...}" />
               </folding>
             </state>
           </provider>
@@ -798,17 +797,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="51" column="45" selection-start="2369" selection-end="2421" vertical-scroll-proportion="0.2818792">
+        <state line="55" column="63" selection-start="2631" selection-end="2631" vertical-scroll-proportion="0.2533557">
           <folding>
-            <element signature="imports" expanded="true" />
-            <marker date="1315458379324" expanded="true" signature="9025:9064" placeholder="{...}" />
-            <marker date="1315458379324" expanded="true" signature="9119:9161" placeholder="{...}" />
-            <marker date="1315458379324" expanded="true" signature="9216:9258" placeholder="{...}" />
-            <marker date="1315458379324" expanded="true" signature="9316:9366" placeholder="{...}" />
-            <marker date="1315458379324" expanded="true" signature="11786:11828" placeholder="{...}" />
-            <marker date="1315458379324" expanded="true" signature="11786:11828" placeholder="{...}" />
-            <marker date="1315458379324" expanded="true" signature="11786:11828" placeholder="{...}" />
-            <marker date="1315458379324" expanded="true" signature="11904:11946" placeholder="{...}" />
+            <marker date="1315458590768" expanded="true" signature="9173:9212" placeholder="{...}" />
+            <marker date="1315458590768" expanded="true" signature="9267:9309" placeholder="{...}" />
+            <marker date="1315458590768" expanded="true" signature="9364:9406" placeholder="{...}" />
+            <marker date="1315458590768" expanded="true" signature="9464:9514" placeholder="{...}" />
+            <marker date="1315458590768" expanded="true" signature="11934:11976" placeholder="{...}" />
+            <marker date="1315458590768" expanded="true" signature="11934:11976" placeholder="{...}" />
+            <marker date="1315458590768" expanded="true" signature="11934:11976" placeholder="{...}" />
+            <marker date="1315458590768" expanded="true" signature="12052:12094" placeholder="{...}" />
           </folding>
         </state>
       </provider>

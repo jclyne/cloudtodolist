@@ -1,6 +1,9 @@
 package com.oci.example.todolist.client;
 
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.EditTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
@@ -84,6 +87,7 @@ public class TodoList implements EntryPoint {
                     public String getValue(TodoListEntry entry) {
                         return entry.getTitle();
                     }
+
                     @Override
                     public String getCellStyleNames(Cell.Context context, TodoListEntry entry) {
                         return (entry.isComplete() ? "todo-list-complete-text" : "todo-list-text");
