@@ -12,17 +12,6 @@ class TodoListEntry {
     private boolean complete = false;
 
 
-    TodoListEntry(int id, String title) {
-        this.id = id;
-        this.title = title;
-    }
-
-    TodoListEntry(int id, String title, String notes) {
-        this.id = id;
-        this.title = title;
-        this.notes = notes;
-    }
-
     TodoListEntry(int id, String title, String notes, boolean complete) {
         this.id = id;
         this.title = title;

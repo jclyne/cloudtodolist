@@ -1,11 +1,5 @@
 /** Add css rules here for your application. */
 
-h1 {
-    font-size: 2em;
-    font-weight: bold;
-    text-align: center;
-}
-
 .todo-list-text {
 }
 
@@ -13,6 +7,3 @@ h1 {
     text-decoration: line-through;
 }
 
-body, td, a, div, .p {
-    font-family: arial, sans-serif
-}

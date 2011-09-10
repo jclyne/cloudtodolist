@@ -1,9 +1,6 @@
 package com.oci.example.todolist.client;
 
-import com.google.gwt.cell.client.Cell;
-import com.google.gwt.cell.client.CheckboxCell;
-import com.google.gwt.cell.client.EditTextCell;
-import com.google.gwt.cell.client.FieldUpdater;
+import com.google.gwt.cell.client.*;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
@@ -71,6 +68,7 @@ public class TodoList implements EntryPoint {
                     public void update(int index, TodoListEntry entry, Boolean value) {
                         entry.setComplete(value);
                         todoList.redraw();
+
                         String urlString = SET_ENTRY_URL + "id=" + entry.getId() + ";complete=" + (value ? '1' : '0');
                         sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
                             @Override
@@ -81,8 +79,12 @@ public class TodoList implements EntryPoint {
                 }
         );
 
+        List<String> actions = new ArrayList<String>();
+        actions.add("notes");
+        actions.add("toggle complete");
+
         Column<TodoListEntry, String> titleColumn = addColumn(
-                new Column<TodoListEntry, String>(new EditTextCell()) {
+                new Column<TodoListEntry, String>(new ClickableTextCell()) {
                     @Override
                     public String getValue(TodoListEntry entry) {
                         return entry.getTitle();
@@ -90,22 +92,19 @@ public class TodoList implements EntryPoint {
 
                     @Override
                     public String getCellStyleNames(Cell.Context context, TodoListEntry entry) {
-                        return (entry.isComplete() ? "todo-list-complete-text" : "todo-list-text");
+                        String styles = "todo-list-text";
+                        if (entry.isComplete())
+                            styles+=" todo-list-complete-text";
+
+                        return styles;
                     }
                 },
                 new FieldUpdater<TodoListEntry, String>() {
                     @Override
                     public void update(int index, TodoListEntry entry, String value) {
-                        entry.setTitle(value);
-                        String urlString = SET_ENTRY_URL + "id=" + entry.getId() + ";title=" + value;
-                        sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
-                            @Override
-                            public void onSuccess(Request request, Response response) {
-                            }
-                        });
+                        showEntryInfoDialogBox(entry);
                     }
-                },
-                "TodoList"
+                }
         );
 
         todoList.setWidth("75%", true);
@@ -120,9 +119,10 @@ public class TodoList implements EntryPoint {
                 String newTitle = stringValueChangeEvent.getValue();
                 newEntry.setText("");
                 String urlString = SET_ENTRY_URL + "title=" + newTitle;
-                sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
+                sendRequest(urlString, RequestBuilder.POST, new RequestHandler() {
                     @Override
                     public void onSuccess(Request request, Response response) {
+                        @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
                         List<TodoListEntry> todoListEntries = todoListDataProvider.getList();
                         JsArray<TodoListEntryResponse> entries = parseSetEntryResponse(response.getText());
                         for (int i = 0; i < entries.length(); i++) {
@@ -189,12 +189,17 @@ public class TodoList implements EntryPoint {
         mainPanel.add(toolPanel);
         mainPanel.add(statusLabel);
 
-        // Add it to the root panel.
-        RootPanel.get().add(mainPanel);
-
         refreshTodoListEntries();
+
+        // Add it to the root panel.
+        RootPanel.get("todoList").add(mainPanel);
+
+        newEntry.setFocus(true);
+
+
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
     final static class TodoListEntryResponse extends JavaScriptObject {
         protected TodoListEntryResponse() {
         }
@@ -237,6 +242,76 @@ public class TodoList implements EntryPoint {
         });
     }
 
+    private void showEntryInfoDialogBox(final TodoListEntry entry){
+        final DialogBox dialogBox = new DialogBox();
+        dialogBox.setText("Entry");
+
+        // Enable animation.
+        dialogBox.setAnimationEnabled(true);
+
+        // Enable glass background.
+        dialogBox.setGlassEnabled(true);
+        dialogBox.setModal(true);
+
+        VerticalPanel dialogContents = new VerticalPanel();
+        dialogContents.setSpacing(4);
+
+
+        dialogContents.add(new InlineLabel("Title:"));
+        final TextBox titleText = new TextBox();
+        titleText.setText(entry.getTitle());
+        dialogContents.add(titleText);
+
+        dialogContents.add(new InlineLabel("Notes:"));
+        final TextArea notesText = new TextArea();
+        notesText.setVisibleLines(5);
+        notesText.setText(entry.getNotes());
+        dialogContents.add(notesText);
+
+        dialogBox.setWidget(dialogContents);
+        // Add OK Button
+        Button okButton = new Button("OK", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                String newTitle = titleText.getText();
+                String newNotes = notesText.getText();
+
+                boolean modified= false;
+
+                String urlString = SET_ENTRY_URL + "id=" + entry.getId();
+                if (!newTitle.equals(entry.getTitle())) {
+                    modified=true;
+                    entry.setTitle(newTitle);
+                    urlString+=";title";
+                    if (!newTitle.equals("")) urlString+="="+newTitle;
+                }
+
+                if (!newNotes.equals(entry.getNotes())) {
+                    modified=true;
+                    entry.setNotes(newNotes);
+                    urlString+=";notes";
+                    if (!newNotes.equals("")) urlString+="="+newNotes;
+                }
+
+                if (modified) {
+                    todoListDataProvider.refresh();
+                    sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
+                        @Override
+                        public void onSuccess(Request request, Response response) {
+                        }
+                    });
+                }
+
+                dialogBox.hide();
+            }
+        });
+
+        dialogContents.add(okButton);
+        dialogContents.setCellHorizontalAlignment(okButton, HasHorizontalAlignment.ALIGN_RIGHT);
+
+        dialogBox.center();
+    }
+
     private <T> Column<TodoListEntry, T> addColumn(Column<TodoListEntry, T> column,
                                                    FieldUpdater<TodoListEntry, T> fieldUpdater) {
         column.setFieldUpdater(fieldUpdater);
@@ -263,6 +338,7 @@ public class TodoList implements EntryPoint {
 
         @Override
         public void onResponseReceived(Request request, Response response) {
+            statusLabel.setText("");
             if (response.getStatusCode() == 200) {
                 onSuccess(request, response);
             } else {
