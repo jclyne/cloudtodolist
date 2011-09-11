@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS todolist_example;
-CREATE DATABASE todolist_example;
-USE todolist_example;
+DROP DATABASE IF EXISTS todolist;
+CREATE DATABASE todolist;
+USE todolist;
 
 CREATE TABLE entries (
     id INTEGER NOT NULL AUTO_INCREMENT,

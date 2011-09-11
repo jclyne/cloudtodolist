@@ -107,22 +107,27 @@ urls = (
     '/todolist/api/entrylist', 'EntryListHandler'
 )
 
-
 class TodoListDatabase(object):
-    ENTRIES_TABLE='entries'
 
-    def __init__(self,*args,**kwargs):
-        self.db = web.database(*args,**kwargs)
+    def __init__(self):
+        self.entries_table='entries'
+        self.db = web.database(
+            dbn='mysql',
+            db='todolist',
+            user='root',
+            passwd="Vel0city"
+        )
 
     @staticmethod
-    def build_id_where_clause(params):
+    def sqlwhere_or(key,values):
         """ Returns a SQL where clause,consisting of the id specified
         in the URL query string of the request
         """
-        try:
-            return " or ".join("id=%s"%id for id in params["id"].split() )
-        except (ValueError,KeyError):
-            return None
+        return " or ".join("%s=%s"%(key,value) for value in values )
+
+
+    def get_entries_table(self):
+        return self.entries_table
 
     def call_func(self,f,*args):
         """ Calls a database function and returns the result
@@ -136,12 +141,7 @@ class TodoListDatabase(object):
         except AttributeError:
             return getattr(self.db,item)
 
-db= TodoListDatabase(
-        dbn='mysql',
-        db='todolist_example',
-        user='root',
-        passwd="Vel0city"
-)
+db=TodoListDatabase()
 
 class encode_response(object):
     """ Method decorator that will encode returned responses, as well as
@@ -149,7 +149,7 @@ class encode_response(object):
     """
 
     @staticmethod
-    def do_encode(object):
+    def encode_json(object):
         """ Encodes the specified object into JSON, using the
          builtin JSON encoder. It also writes the correct content-type
          into the response header
@@ -161,16 +161,19 @@ class encode_response(object):
         out=  json.dumps(object,indent=2)
         return out
 
-    def __init__(self,method):
-        self.method=method
+    def __init__(self,encode_type):
+        self.encoder=getattr(self,"encode_"+encode_type)
 
-    def __call__(self,*args,**kwargs):
-        try:
-            return self.do_encode(self.method(*args,**kwargs))
-        except web.HTTPError,e:
-            if hasattr(e,'data'):
-                e.data=self.do_encode(e.data)
-            raise e
+    def __call__(self,method):
+        def encode_wrapper(*args,**kwargs):
+            try:
+                return self.encoder(method(*args,**kwargs))
+            except web.HTTPError,e:
+                if hasattr(e,'data'):
+                    e.data=self.encoder(e.data)
+                raise e
+
+        return encode_wrapper
 
 class parse_web_input(object):
     """ Method decorator to parse the incoming web input, validate it,
@@ -185,16 +188,41 @@ class parse_web_input(object):
         self.valid_params=set(valid_params)
         self.valid_empty=valid_empty
 
+    @staticmethod
+    def decode_id(value):
+        return tuple([int(id) for id in value.split()])
+
+    @staticmethod
+    def decode_title(value):
+        return value
+
+    @staticmethod
+    def decode_notes(value):
+        return value
+
+    @staticmethod
+    def decode_complete(value):
+        flag = int(value)
+        if flag:
+            return 1
+        return 0
+
     def __call__(self,method):
-        def validate_wrapper(*args):
-            input=web.input()
+        def validate_wrapper(*args,**kwargs):
+            input=dict(web.input())
             if not (input or self.valid_empty): raise web.badrequest()
             if not (set(input.keys()) <= self.valid_params): raise web.badrequest()
 
-            return method(*args,**input)
+            for key,value in input.items():
+                try:
+                    input[key]=getattr(self,"decode_"+key)(value)
+                except AttributeError:
+                    pass
+
+            kwargs.update(input)
+            return method(*args,**kwargs)
 
         return validate_wrapper
-
 
 class Index(object):
     """ Servlet to handle a redirect on the base module URL"""
@@ -204,7 +232,7 @@ class Index(object):
 class EntryHandler(object):
     """ Servlet to handle the /todolist/api/entry/(\d+) URL"""
 
-    @encode_response
+    @encode_response('json')
     def GET(self,id):
         """Returns a single todolist_entry, specified by id
 
@@ -216,7 +244,7 @@ class EntryHandler(object):
             410(gone) - entry with specified id does not exist
         """
         try:
-            return db.where('entries',  id=id )[0]
+            return db.where(db.get_entries_table(),  id=int(id) )[0]
         except IndexError:
             raise web.gone()
 
@@ -239,7 +267,7 @@ class EntryHandler(object):
             410(gone) - entry with specified id does not exist
         """
 
-        db.update('entries', where='id=$id',vars=locals(),**params)
+        db.update(db.get_entries_table(), where='id=$id',vars={'id':int(id)},**params)
         return self.GET(id)
 
     def DELETE(self,id):
@@ -251,15 +279,15 @@ class EntryHandler(object):
         Status Codes:
             200(ok) - ok, body is empty
         """
-        db.delete('entries', where='id=$id',vars=locals())
+        db.delete(db.get_entries_table(), where='id=$id',vars={'id':int(id)})
 
 
 class EntryListHandler(object):
     """ Servlet to handle the /todolist/api/entrylist? URL"""
 
 
+    @encode_response('json')
     @parse_web_input(('id',))
-    @encode_response
     def GET(self,**params):
         """Retrieves the list of todolist entries,
 
@@ -276,10 +304,15 @@ class EntryListHandler(object):
             400(bad request) - invalid query string  specified
         """
 
-        return db.select('entries',order='id', where=db.build_id_where_clause(params))
+        try:
+            where=db.sqlwhere_or('id',params['id'])
+        except KeyError:
+            where=None
 
+        return db.select(db.get_entries_table(),order='id', where=where)
+
+    @encode_response('json')
     @parse_web_input(('title', 'notes', 'complete'))
-    @encode_response
     def POST(self,**params):
         """Creates a new todolist entry
 
@@ -296,10 +329,10 @@ class EntryListHandler(object):
             400(bad request) - invalid query string  specified
         """
 
-        db.insert('entries',**params)
+        db.insert(db.get_entries_table(),**params)
         inserted_id= db.call_func("last_insert_id")
         try:
-            raise web.created(db.where('entries',  id=inserted_id )[0])
+            raise web.created(db.where(db.get_entries_table(),  id=inserted_id )[0])
         except IndexError:
             raise web.gone()
 
@@ -319,12 +352,12 @@ class EntryListHandler(object):
         Status Codes:
             200(ok) - ok, body is empty
         """
-        db.delete('entries', where=db.build_id_where_clause(params))
+        try:
+            where=db.sqlwhere_or('id',params['id'])
+        except KeyError:
+            where=None
 
-    DELETE.valid_params={'id'}
-
-app = web.application(urls, globals())
+        db.delete(db.get_entries_table(), where=where)
 
 if __name__ == '__main__':
-    app.run()
-  
+    web.application(urls, globals()).run()
