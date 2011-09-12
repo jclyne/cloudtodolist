@@ -15,6 +15,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
@@ -51,6 +52,8 @@ public class TodoList implements EntryPoint {
     private final TextBox newEntry = new TextBox();
     private final InlineLabel statusLabel = new InlineLabel("");
 
+    private static int REFRESH_INTERVAL=5000;
+
     public void onModuleLoad() {
 
         todoList.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.ENABLED);
@@ -65,9 +68,7 @@ public class TodoList implements EntryPoint {
                 },
                 new FieldUpdater<TodoListEntry, Boolean>() {
                     public void update(int index, TodoListEntry entry, Boolean value) {
-                        todoList.redraw();
-
-                        String urlString = ENTRY_URL + "id=" + entry.getId() + ";complete=" + (value ? '1' : '0');
+                        String urlString = ENTRY_URL + entry.getId() + "?complete=" + (value ? '1' : '0');
                         sendRequest(urlString, RequestBuilder.PUT, new EntryResponseHandler());
                     }
                 }
@@ -137,7 +138,7 @@ public class TodoList implements EntryPoint {
                 }
 
                 if (entryIdList.size() > 0) {
-                    sendRequest(urlString, RequestBuilder.PUT, new DeleteEntryResponseHandler(entryIdList));
+                    sendRequest(urlString, RequestBuilder.DELETE, new DeleteEntryResponseHandler(entryIdList));
                 }
             }
         });
@@ -157,6 +158,16 @@ public class TodoList implements EntryPoint {
         RootPanel.get("todoList").add(mainPanel);
 
         newEntry.setFocus(true);
+
+        // Setup timer to refresh list automatically.
+        Timer refreshTimer = new Timer() {
+          @Override
+          public void run() {
+            refreshTodoListEntries();
+          }
+        };
+
+        refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
     }
 
     private void refreshTodoListDisplay() {
@@ -200,23 +211,11 @@ public class TodoList implements EntryPoint {
                 String newTitle = titleText.getText();
                 String newNotes = notesText.getText();
 
-                boolean modified = false;
-
-                String urlString = ENTRY_URL + entry.getId();
-                if (!newTitle.equals(entry.getTitle())) {
-                    modified = true;
-                    urlString += ";title";
-                    if (!newTitle.equals("")) urlString += "=" + newTitle;
-                }
-
-                if (!newNotes.equals(entry.getNotes())) {
-                    modified = true;
-                    urlString += ";notes";
-                    if (!newNotes.equals("")) urlString += "=" + newNotes;
-                }
-
-                if (modified) {
-                    todoListDataProvider.refresh();
+                if (  ! newTitle.equals(entry.getTitle())
+                        || ! newNotes.equals(entry.getNotes()) ) {
+                    String urlString = ENTRY_URL + entry.getId()
+                                + "?title" + (newTitle.equals("") ? "" : ("=" + newTitle))
+                                + ";notes" + (newNotes.equals("") ? "" : ("=" + newNotes));
                     sendRequest(urlString, RequestBuilder.PUT, new EntryResponseHandler());
                 }
 
@@ -229,6 +228,8 @@ public class TodoList implements EntryPoint {
 
         dialogBox.center();
     }
+
+
 
     private <T> Column<TodoListEntry, T> addColumn(Column<TodoListEntry, T> column,
                                                    FieldUpdater<TodoListEntry, T> fieldUpdater) {
@@ -254,19 +255,22 @@ public class TodoList implements EntryPoint {
             if ((status_code >= 400) && (status_code < 500)) {
                 statusLabel.setText("Client Error: '" + response.getStatusCode() + "' "
                         + response.getStatusText());
-            } else if ((status_code >= 500) && (status_code < 600))
+            } else if ((status_code >= 500) && (status_code < 600)) {
                 if (response.getStatusCode() > 400) {
                     statusLabel.setText("Server Error: '" + response.getStatusCode() + "' "
                             + response.getStatusText());
                 }
+            }
         }
 
         native JsArray<TodoListEntry> parseTodoListEntryList(String json) /*-{
-            return eval(json);
+            eval('var res = ' + json);
+            return res;
         }-*/;
 
         native TodoListEntry parseTodoListEntry(String json) /*-{
-            return eval(json);
+            eval('var res = ' + json);
+            return res;
         }-*/;
     }
 
@@ -277,12 +281,10 @@ public class TodoList implements EntryPoint {
 
                 case 200:
                 case 201:
-                    String text = response.getText();
-                    TodoListEntry entry = parseTodoListEntry(text);
+                    TodoListEntry entry = parseTodoListEntry(response.getText());
                     int newid= entry.getId();
                     todolistEntryMap.put(newid, entry);
                     refreshTodoListDisplay();
-                    break;
 
                 default:
                     super.onResponseReceived(request, response);
@@ -303,7 +305,6 @@ public class TodoList implements EntryPoint {
                         todolistEntryMap.put(entry.getId(), entry);
                     }
                     refreshTodoListDisplay();
-                    break;
 
                 default:
                     super.onResponseReceived(request, response);
@@ -328,7 +329,6 @@ public class TodoList implements EntryPoint {
                         todolistEntryMap.remove(id);
                     }
                     refreshTodoListDisplay();
-                    break;
 
                 default:
                     super.onResponseReceived(request, response);

@@ -20,7 +20,8 @@
     <list default="true" id="f4777705-a6f5-416d-950a-874de0e6dd39" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" afterPath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntry.java" afterPath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntry.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/schema.sql" afterPath="$PROJECT_DIR$/todolist_server/schema.sql" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/todolist_server.iml" afterPath="$PROJECT_DIR$/todolist_server/todolist_server.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/todolist_server.py" afterPath="$PROJECT_DIR$/todolist_server/todolist_server.py" />
     </list>
     <ignored path="todolist.iws" />
@@ -40,60 +41,6 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
-    <line_breakpoints>
-      <breakpoint url="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" line="323" class="com.oci.example.todolist.client.TodoList.DeleteEntryResponseHandler" package="com.oci.example.todolist.client">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" line="279" class="com.oci.example.todolist.client.TodoList.EntryResponseHandler" package="com.oci.example.todolist.client">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" line="298" class="com.oci.example.todolist.client.TodoList.EntryListResponseHandler" package="com.oci.example.todolist.client">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-      <breakpoint url="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" line="164" class="com.oci.example.todolist.client.TodoList" package="com.oci.example.todolist.client">
-        <option name="ENABLED" value="true" />
-        <option name="LOG_ENABLED" value="false" />
-        <option name="LOG_EXPRESSION_ENABLED" value="false" />
-        <option name="SUSPEND_POLICY" value="SuspendAll" />
-        <option name="COUNT_FILTER_ENABLED" value="false" />
-        <option name="COUNT_FILTER" value="0" />
-        <option name="CONDITION_ENABLED" value="false" />
-        <option name="CLASS_FILTERS_ENABLED" value="false" />
-        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
-        <option name="CONDITION" value="" />
-        <option name="LOG_MESSAGE" value="" />
-      </breakpoint>
-    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -141,8 +88,8 @@
       <property name="field_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByClasses" value="true" />
       <property name="exception_breakpoints_viewId" value="TABLE" />
-      <property name="field_breakpoints_viewId" value="TABLE" />
       <property name="exception_breakpoints_groupByClasses" value="true" />
+      <property name="field_breakpoints_viewId" value="TABLE" />
       <property name="method_breakpoints_groupByMethods" value="false" />
     </ui_properties>
   </component>
@@ -151,43 +98,37 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TodoList.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="TodoList.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="164" column="0" selection-start="7049" selection-end="7049" vertical-scroll-proportion="0.3321918">
+            <state line="266" column="0" selection-start="10743" selection-end="10743" vertical-scroll-proportion="0.0">
               <folding>
-                <marker date="1315803230380" expanded="true" signature="10696:10738" placeholder="{...}" />
-                <marker date="1315803230380" expanded="true" signature="10696:10738" placeholder="{...}" />
-                <marker date="1315803230380" expanded="true" signature="10696:10738" placeholder="{...}" />
-                <marker date="1315803230380" expanded="true" signature="10696:10738" placeholder="{...}" />
-                <marker date="1315803230380" expanded="true" signature="10808:10850" placeholder="{...}" />
-                <marker date="1315803230380" expanded="true" signature="10808:10850" placeholder="{...}" />
-                <marker date="1315803230380" expanded="true" signature="10808:10850" placeholder="{...}" />
+                <element signature="imports" expanded="true" />
+                <marker date="1315854854000" expanded="true" signature="10741:10815" placeholder="{...}" />
+                <marker date="1315854854000" expanded="true" signature="10741:10815" placeholder="{...}" />
+                <marker date="1315854854000" expanded="true" signature="10741:10815" placeholder="{...}" />
+                <marker date="1315854854000" expanded="true" signature="10741:10815" placeholder="{...}" />
+                <marker date="1315854854000" expanded="true" signature="10885:10959" placeholder="{...}" />
+                <marker date="1315854854000" expanded="true" signature="10885:10959" placeholder="{...}" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="todolist_server.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/todolist_server/todolist_server.py">
+      <file leaf-file-name="schema.sql" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/todolist_server/schema.sql">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="314" column="91" selection-start="9922" selection-end="9922" vertical-scroll-proportion="0.0">
+            <state line="23" column="0" selection-start="573" selection-end="573" vertical-scroll-proportion="0.37616822">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TodoListEntry.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntry.java">
+      <file leaf-file-name="eventsys_schema.py" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/../scanengine/trunk/database/eventsys/eventsys_schema.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="27" column="9" selection-start="560" selection-end="560" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-                <marker date="1315780332055" expanded="true" signature="259:290" placeholder="{...}" />
-                <marker date="1315780332055" expanded="true" signature="341:375" placeholder="{...}" />
-                <marker date="1315780332055" expanded="true" signature="426:460" placeholder="{...}" />
-                <marker date="1315780332055" expanded="true" signature="514:556" placeholder="{...}" />
-              </folding>
+            <state line="368" column="12" selection-start="12171" selection-end="12374" vertical-scroll-proportion="-8.84">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -206,7 +147,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$USER_HOME$/AppData/Local/Temp/tmpRestClientResponse6099876358855437668.json" />
         <option value="/tmp/tmpRestClientResponse7267579427090453459.json" />
         <option value="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListDataClient.java" />
         <option value="/GWT JavaScript Fragment (TodoList.java:9191).js" />
@@ -218,10 +158,11 @@
         <option value="$PROJECT_DIR$/todolist_server/static/todolist.html" />
         <option value="$PROJECT_DIR$/todolist_client/war/todolist.html" />
         <option value="$PROJECT_DIR$/todolist_server/todolist.py" />
-        <option value="$PROJECT_DIR$/todolist_server/schema.sql" />
         <option value="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntry.java" />
+        <option value="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/ProgressPanel.java" />
         <option value="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" />
         <option value="$PROJECT_DIR$/todolist_server/todolist_server.py" />
+        <option value="$PROJECT_DIR$/todolist_server/schema.sql" />
       </list>
     </option>
   </component>
@@ -251,7 +192,7 @@
       </profile-state>
     </entry>
   </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
     <OptionsSetting value="true" id="Checkout" />
@@ -279,35 +220,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane">
-        <subPane>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist_client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist_client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="com.oci.example.todolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
-            </PATH_ELEMENT>
-          </PATH>
-        </subPane>
-      </pane>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -378,51 +290,65 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="PackagesPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="todolist" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="todolist_client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="todolist" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="todolist_client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageViewModuleNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="com.oci.example.todolist" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PackageElementNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
       <pane id="Favorites" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="GenerateAntBuildDialog.generateIdeaHomeProperty" value="false" />
-    <property name="project.structure.last.edited" value="Artifacts" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="124" />
-    <property name="OverrideImplement.combined" value="true" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="142" />
+    <property name="OverrideImplement.combined" value="true" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="recentsLimit" value="5" />
-    <property name="MemberChooser.sorted" value="false" />
     <property name="GenerateAntBuildDialog.generateSingleFile" value="false" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="139" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
+    <property name="MemberChooser.sorted" value="false" />
+    <property name="recentsLimit" value="5" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../scanengine/trunk/database/eventsys" />
     <property name="GenerateAntBuildDialog.inclineRuntiemClasspath" value="false" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="144" />
     <property name="GWT.GenerateCompileReport.Module" value="com.oci.example.todolist.todolist" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="813" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="818" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="139" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="137" />
     <property name="GenerateAntBuildDialog.outputFileNameProperty" value="todolist" />
     <property name="GenerateAntBuildDialog.enableUiFormCompile" value="true" />
     <property name="GoToClass.toSaveIncludeLibraries" value="false" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder2" value="2" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder3" value="3" />
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="GoToFile.includeJavaFiles" value="false" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder0" value="0" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
     <property name="options.lastSelected" value="Errors" />
-    <property name="GenerateAntBuildDialog.forceTargetJdk" value="true" />
     <property name="project.structure.side.proportion" value="0.2037037" />
+    <property name="GenerateAntBuildDialog.forceTargetJdk" value="true" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="GenerateAntBuildDialog.backupFiles" value="true" />
-    <property name="options.searchVisible" value="true" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RunManager" selected="GWT Configuration.todolist_client">
     <configuration default="true" type="PythonUnitTestConfigurationType" factoryName="Python's unittest">
@@ -448,19 +374,6 @@
         <option name="PhingTarget" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="Remote" factoryName="Remote">
-      <option name="USE_SOCKET_TRANSPORT" value="true" />
-      <option name="SERVER_MODE" value="false" />
-      <option name="SHMEM_ADDRESS" value="javadebug" />
-      <option name="HOST" value="localhost" />
-      <option name="PORT" value="5005" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="PhingTarget" enabled="false" />
-      </method>
-    </configuration>
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -481,9 +394,31 @@
         <option name="PhingTarget" enabled="false" />
       </method>
     </configuration>
+    <configuration default="true" type="Remote" factoryName="Remote">
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" value="javadebug" />
+      <option name="HOST" value="localhost" />
+      <option name="PORT" value="5005" />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+        <option name="PhingTarget" enabled="false" />
+      </method>
+    </configuration>
     <configuration default="true" type="GoogleAppEngineDevServer" factoryName="Local">
       <server-settings />
       <extension name="coverage" enabled="false" merge="false" />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+        <option name="PhingTarget" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="FlexUnitRunConfigurationType" factoryName="FlexUnit" adl_options="" air_descriptor_path="" air_program_params="" air_publisher_id="" air_root_dir_path="" air_run_mode="AppDescriptor" browser_family="FIREFOX" class_name="" debugger_sdk="Module SDK" html_or_swf_file_path="" launcher_type="OSDefault" main_class_name="" method_name="" module_name="" output_log_level="" package_name="" player_path="/usr/bin/flashplayer" port="0" run_mode="HtmlOrSwfFile" run_trusted="false" scope="Class" socket_policy_port="0" url_to_launch="http://">
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -554,29 +489,6 @@
         <option name="PhingTarget" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="JavascriptDebugSession" factoryName="Local">
-      <JSDebuggerConfigurationSettings>
-        <option name="engineId" value="embedded" />
-        <option name="fileUrl" />
-      </JSDebuggerConfigurationSettings>
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="PhingTarget" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="GWT.ConfigurationType" factoryName="GWT Configuration">
-      <module name="todolist_client" />
-      <option name="RUN_PAGE" value="todolist.html" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="PhingTarget" enabled="false" />
-      </method>
-    </configuration>
     <configuration default="true" type="JUnit" factoryName="JUnit">
       <extension name="coverage" enabled="false" merge="false" />
       <module name="" />
@@ -600,6 +512,29 @@
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
         <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+        <option name="PhingTarget" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="GWT.ConfigurationType" factoryName="GWT Configuration">
+      <module name="todolist_client" />
+      <option name="RUN_PAGE" value="todolist.html" />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+        <option name="PhingTarget" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="JavascriptDebugSession" factoryName="Local">
+      <JSDebuggerConfigurationSettings>
+        <option name="engineId" value="embedded" />
+        <option name="fileUrl" />
+      </JSDebuggerConfigurationSettings>
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
         <option name="Maven.BeforeRunTask" enabled="false" />
         <option name="PhingTarget" enabled="false" />
       </method>
@@ -693,32 +628,32 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1296" height="776" extended-state="6" />
+    <frame x="1275" y="0" width="1290" height="1029" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3258427" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24940239" sideWeight="0.67255217" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.44783306" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.27929375" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32579187" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="REST Client" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.40770465" sideWeight="0.4954751" order="9" side_tool="false" content_ui="tabs" x="190" y="170" width="875" height="529" />
-      <window_info id="TODO" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32828686" sideWeight="0.67255217" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Web" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="FLOATING" visible="false" weight="0.26294822" sideWeight="0.32579187" order="9" side_tool="true" content_ui="tabs" x="1755" y="72" width="330" height="884" />
-      <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24940239" sideWeight="0.7207063" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27091634" sideWeight="0.55216694" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32918552" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32466063" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Phing Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32744783" sideWeight="0.0" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32918552" sideWeight="0.0" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.26696834" sideWeight="0.0" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32579187" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="REST Client" active="false" anchor="bottom" auto_hide="true" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32918552" sideWeight="0.4954751" order="9" side_tool="false" content_ui="tabs" x="190" y="170" width="875" height="529" />
+      <window_info id="TODO" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32908365" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Web" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="FLOATING" visible="false" weight="0.26294822" sideWeight="0.32579187" order="9" side_tool="true" content_ui="tabs" x="1755" y="72" width="330" height="884" />
+      <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24940239" sideWeight="0.5950226" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32988048" sideWeight="0.5950226" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32918552" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24860558" sideWeight="0.6040724" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3959276" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32466063" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3959276" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="VcsManagerConfiguration">
@@ -802,150 +737,110 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://C:/Python27/Lib/site-packages/web.py-0.36-py2.7.egg/web/wsgiserver/__init__.py">
+    <entry file="file:///usr/local/lib/python2.6/dist-packages/web.py-0.36-py2.6.egg/web/wsgiserver/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="2017" column="0" selection-start="77254" selection-end="77254" vertical-scroll-proportion="0.33246753" />
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/web.py-0.36-py2.7.egg/web/httpserver.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="237" column="0" selection-start="8585" selection-end="8585" vertical-scroll-proportion="0.3316583" />
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/web.py-0.36-py2.7.egg/web/application.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="384" column="0" selection-start="13642" selection-end="13642" vertical-scroll-proportion="0.33246753" />
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/MySQLdb/connections.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="186" column="0" selection-start="5459" selection-end="5459" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/todolist_server/schema.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="32" selection-start="32" selection-end="32" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/.IntelliJIdea10/config/plugins/python/helpers/pydev/pydevd.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="953" column="0" selection-start="40923" selection-end="40923" vertical-scroll-proportion="25.54374">
+        <state line="1752" column="0" selection-start="66806" selection-end="66806" vertical-scroll-proportion="0.51521736">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/web.py-0.36-py2.7.egg/web/utils.py">
+    <entry file="jar://$USER_HOME$/gwt-2.4.0/gwt-user.jar!/com/google/gwt/user/cellview/client/AbstractCellTable.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1229" column="0" selection-start="33222" selection-end="33222" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/web.py-0.36-py2.7.egg/web/webapi.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="56" column="0" selection-start="1715" selection-end="1715" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/web.py-0.36-py2.7.egg/web/db.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="463" column="0" selection-start="13139" selection-end="13139" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/todolist_server/todolist_server.iml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/gwt-2.4.0/gwt-user.jar!/com/google/gwt/core/client/JsArray.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="36" column="13" selection-start="1111" selection-end="1111" vertical-scroll-proportion="-0.026845638">
+        <state line="1278" column="0" selection-start="40558" selection-end="40558" vertical-scroll-proportion="-0.17913043">
           <folding>
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
+            <marker date="1314639356000" expanded="true" signature="-1:-1" placeholder="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="jar://$USER_HOME$/gwt-2.4.0/gwt-user.jar!/com/google/gwt/http/client/Request.java">
+    <entry file="file://$PROJECT_DIR$/todolist_client/war/todolist/todolist.css">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="72" column="0" selection-start="2175" selection-end="2175" vertical-scroll-proportion="0.17617449">
-          <folding>
-            <marker date="1314639336000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639336000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639336000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639336000" expanded="true" signature="-1:-1" placeholder="{...}" />
-          </folding>
+        <state line="2" column="17" selection-start="66" selection-end="66" vertical-scroll-proportion="0.048695654">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python2.7/site-packages/web.py-0.36-py2.7.egg/web/application.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="384" column="0" selection-start="13642" selection-end="13642" vertical-scroll-proportion="0.3321739">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python2.7/site-packages/web.py-0.36-py2.7.egg/web/wsgiserver/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="1752" column="0" selection-start="66806" selection-end="66806" vertical-scroll-proportion="43.594307">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/local/lib/python2.7/site-packages/web.py-0.36-py2.7.egg/web/db.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="345" column="33" selection-start="9431" selection-end="9441" vertical-scroll-proportion="-7.827273">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/todolist_client/war/todolist.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="14" selection-start="325" selection-end="325" vertical-scroll-proportion="0.33766234">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/todolist.gwt.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="25" column="4" selection-start="1167" selection-end="1167" vertical-scroll-proportion="0.6086956">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntry.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="27" column="9" selection-start="560" selection-end="560" vertical-scroll-proportion="0.0">
+        <state line="26" column="20" selection-start="536" selection-end="536" vertical-scroll-proportion="0.42523363">
           <folding>
             <element signature="imports" expanded="true" />
-            <marker date="1315780332055" expanded="true" signature="259:290" placeholder="{...}" />
-            <marker date="1315780332055" expanded="true" signature="341:375" placeholder="{...}" />
-            <marker date="1315780332055" expanded="true" signature="426:460" placeholder="{...}" />
-            <marker date="1315780332055" expanded="true" signature="514:556" placeholder="{...}" />
+            <marker date="1315841125000" expanded="true" signature="-1:-1" placeholder="{...}" />
+            <marker date="1315841125000" expanded="true" signature="-1:-1" placeholder="{...}" />
+            <marker date="1315841125000" expanded="true" signature="-1:-1" placeholder="{...}" />
+            <marker date="1315841125000" expanded="true" signature="-1:-1" placeholder="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/todolist_server/todolist_server.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="314" column="91" selection-start="9922" selection-end="9922" vertical-scroll-proportion="0.0">
+        <state line="314" column="87" selection-start="9889" selection-end="9889" vertical-scroll-proportion="0.6892523">
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/gwt-2.4.0/gwt-user.jar!/com/google/gwt/core/client/impl/Impl.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="212" column="0" selection-start="7370" selection-end="7370" vertical-scroll-proportion="0.33223686">
-          <folding>
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="//..." />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-            <marker date="1314639338000" expanded="true" signature="-1:-1" placeholder="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="164" column="0" selection-start="7049" selection-end="7049" vertical-scroll-proportion="0.3321918">
+        <state line="266" column="0" selection-start="10743" selection-end="10743" vertical-scroll-proportion="0.0">
           <folding>
-            <marker date="1315803230380" expanded="true" signature="10696:10738" placeholder="{...}" />
-            <marker date="1315803230380" expanded="true" signature="10696:10738" placeholder="{...}" />
-            <marker date="1315803230380" expanded="true" signature="10696:10738" placeholder="{...}" />
-            <marker date="1315803230380" expanded="true" signature="10696:10738" placeholder="{...}" />
-            <marker date="1315803230380" expanded="true" signature="10808:10850" placeholder="{...}" />
-            <marker date="1315803230380" expanded="true" signature="10808:10850" placeholder="{...}" />
-            <marker date="1315803230380" expanded="true" signature="10808:10850" placeholder="{...}" />
+            <element signature="imports" expanded="true" />
+            <marker date="1315854854000" expanded="true" signature="10741:10815" placeholder="{...}" />
+            <marker date="1315854854000" expanded="true" signature="10741:10815" placeholder="{...}" />
+            <marker date="1315854854000" expanded="true" signature="10741:10815" placeholder="{...}" />
+            <marker date="1315854854000" expanded="true" signature="10741:10815" placeholder="{...}" />
+            <marker date="1315854854000" expanded="true" signature="10885:10959" placeholder="{...}" />
+            <marker date="1315854854000" expanded="true" signature="10885:10959" placeholder="{...}" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../scanengine/trunk/database/eventsys/eventsys_schema.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="368" column="12" selection-start="12171" selection-end="12374" vertical-scroll-proportion="-8.84">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/todolist_server/schema.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="23" column="0" selection-start="573" selection-end="573" vertical-scroll-proportion="0.37616822">
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1004,7 +899,7 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>Web|todolist_client</last-edited>
+          <last-edited>todolist_server</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>

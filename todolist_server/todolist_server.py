@@ -270,7 +270,7 @@ class EntryListHandler(object):
 
     @encode_response('json')
     @parse_web_input(('id',))
-    def GET(self,**params):
+    def GET(self,id=None):
         """Retrieves the list of todolist entries,
 
         URI Params:
@@ -286,8 +286,8 @@ class EntryListHandler(object):
             400(bad request) - invalid query string  specified
         """
 
-        if params.has_key('id'):
-            where=sqlwhere_or('id',params['id'])
+        if id:
+            where=sqlwhere_or('id',id)
         else:
             where=None
 
@@ -317,7 +317,7 @@ class EntryListHandler(object):
         raise web.created(new_entry)
 
     @parse_web_input(('id',),False)
-    def DELETE(self,**params):
+    def DELETE(self,id=None):
         """Deletes the specified list of entries
 
         URI Params:
@@ -331,8 +331,8 @@ class EntryListHandler(object):
         Status Codes:
             200(ok) - ok, body is empty
         """
-        if params.has_key('id'):
-            where=sqlwhere_or('id',params['id'])
+        if id:
+            where=sqlwhere_or('id',id)
         else:
             where=None
 
