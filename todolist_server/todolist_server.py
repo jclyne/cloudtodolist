@@ -107,41 +107,19 @@ urls = (
     '/todolist/api/entrylist', 'EntryListHandler'
 )
 
-class TodoListDatabase(object):
+def sqlwhere_or(key,values):
+    """ Returns a SQL where clause,consisting of the id specified
+    in the URL query string of the request
+    """
+    return " or ".join("%s=%s"%(key,value) for value in values )
 
-    def __init__(self):
-        self.entries_table='entries'
-        self.db = web.database(
+entries_table="entries"
+db = web.database(
             dbn='mysql',
             db='todolist',
             user='root',
             passwd="Vel0city"
         )
-
-    @staticmethod
-    def sqlwhere_or(key,values):
-        """ Returns a SQL where clause,consisting of the id specified
-        in the URL query string of the request
-        """
-        return " or ".join("%s=%s"%(key,value) for value in values )
-
-
-    def get_entries_table(self):
-        return self.entries_table
-
-    def call_func(self,f,*args):
-        """ Calls a database function and returns the result
-        """
-        f+='('+",".join(args)+')'
-        return self.query("SELECT %s"%f)[0][f]
-
-    def __getattribute__(self, item):
-        try:
-            return object.__getattribute__(self,item)
-        except AttributeError:
-            return getattr(self.db,item)
-
-db=TodoListDatabase()
 
 class encode_response(object):
     """ Method decorator that will encode returned responses, as well as
@@ -182,12 +160,6 @@ class parse_web_input(object):
     and empty parameter list is valid
     """
 
-    def __init__(self,valid_params=(),valid_empty=True):
-        assert(type(valid_empty) is bool)
-
-        self.valid_params=set(valid_params)
-        self.valid_empty=valid_empty
-
     @staticmethod
     def decode_id(value):
         return tuple([int(id) for id in value.split()])
@@ -203,9 +175,14 @@ class parse_web_input(object):
     @staticmethod
     def decode_complete(value):
         flag = int(value)
-        if flag:
-            return 1
+        if flag: return 1
         return 0
+
+    def __init__(self,valid_params=(),valid_empty=True):
+        assert(type(valid_empty) is bool)
+
+        self.valid_params=set(valid_params)
+        self.valid_empty=valid_empty
 
     def __call__(self,method):
         def validate_wrapper(*args,**kwargs):
@@ -244,10 +221,11 @@ class EntryHandler(object):
             410(gone) - entry with specified id does not exist
         """
         try:
-            return db.where(db.get_entries_table(),  id=int(id) )[0]
+            return db.where(entries_table,  id=int(id) )[0]
         except IndexError:
             raise web.gone()
 
+    @encode_response('json')
     @parse_web_input(('title', 'notes', 'complete'),False)
     def PUT(self,id,**params):
         """Updates the specified entry, with the values specified
@@ -267,8 +245,12 @@ class EntryHandler(object):
             410(gone) - entry with specified id does not exist
         """
 
-        db.update(db.get_entries_table(), where='id=$id',vars={'id':int(id)},**params)
-        return self.GET(id)
+        with db.transaction():
+            db.update(entries_table, where='id=$id',vars={'id':int(id)},**params)
+            try:
+                return db.where(entries_table,  id=int(id) )[0]
+            except IndexError:
+                raise web.gone()
 
     def DELETE(self,id):
         """Deletes the specified entry
@@ -279,7 +261,7 @@ class EntryHandler(object):
         Status Codes:
             200(ok) - ok, body is empty
         """
-        db.delete(db.get_entries_table(), where='id=$id',vars={'id':int(id)})
+        db.delete(entries_table, where='id=$id',vars={'id':int(id)})
 
 
 class EntryListHandler(object):
@@ -304,12 +286,12 @@ class EntryListHandler(object):
             400(bad request) - invalid query string  specified
         """
 
-        try:
-            where=db.sqlwhere_or('id',params['id'])
-        except KeyError:
+        if params.has_key('id'):
+            where=sqlwhere_or('id',params['id'])
+        else:
             where=None
 
-        return db.select(db.get_entries_table(),order='id', where=where)
+        return db.select(entries_table,order='id', where=where)
 
     @encode_response('json')
     @parse_web_input(('title', 'notes', 'complete'))
@@ -329,13 +311,10 @@ class EntryListHandler(object):
             400(bad request) - invalid query string  specified
         """
 
-        db.insert(db.get_entries_table(),**params)
-        inserted_id= db.call_func("last_insert_id")
-        try:
-            raise web.created(db.where(db.get_entries_table(),  id=inserted_id )[0])
-        except IndexError:
-            raise web.gone()
+        with db.transaction():
+            new_entry= db.where( entries_table, id=db.insert( entries_table, **params ) )[0]
 
+        raise web.created(new_entry)
 
     @parse_web_input(('id',),False)
     def DELETE(self,**params):
@@ -347,17 +326,17 @@ class EntryListHandler(object):
         Query String Params:
             id - entry id to delete
                 NOTE: this parameter can have multiple values
-                NOTE: If omitted, all todolist entries will be returned
+                NOTE: If omitted, all todolist entries will be deleted
 
         Status Codes:
             200(ok) - ok, body is empty
         """
-        try:
-            where=db.sqlwhere_or('id',params['id'])
-        except KeyError:
+        if params.has_key('id'):
+            where=sqlwhere_or('id',params['id'])
+        else:
             where=None
 
-        db.delete(db.get_entries_table(), where=where)
+        db.delete(entries_table, where=where)
 
 if __name__ == '__main__':
     web.application(urls, globals()).run()

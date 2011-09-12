@@ -1,10 +1,11 @@
 package com.oci.example.todolist.client;
 
-import com.google.gwt.cell.client.*;
+import com.google.gwt.cell.client.Cell;
+import com.google.gwt.cell.client.CheckboxCell;
+import com.google.gwt.cell.client.ClickableTextCell;
+import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.JavaScriptObject;
 import com.google.gwt.core.client.JsArray;
-import com.google.gwt.core.client.JsArrayNumber;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -20,9 +21,7 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.NoSelectionModel;
 import com.google.gwt.view.client.ProvidesKey;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -31,9 +30,8 @@ import java.util.List;
 public class TodoList implements EntryPoint {
 
     private static final String TODOLIST_BASE_URL = "http://" + Window.Location.getHost() + "/todolist/api/";
-    private static final String GET_ENTRY_URL = TODOLIST_BASE_URL + "getentry?";
-    private static final String SET_ENTRY_URL = TODOLIST_BASE_URL + "setentry?";
-    private static final String DEL_ENTRY_URL = TODOLIST_BASE_URL + "delentry?";
+    private static final String ENTRY_URL = TODOLIST_BASE_URL + "entry/";
+    private static final String ENTRY_LIST_URL = TODOLIST_BASE_URL + "entrylist?";
 
     private static final ProvidesKey<TodoListEntry> todoListEntryKeyProvider = new ProvidesKey<TodoListEntry>() {
         public Object getKey(TodoListEntry entry) {
@@ -41,6 +39,7 @@ public class TodoList implements EntryPoint {
         }
     };
 
+    Map<Integer, TodoListEntry> todolistEntryMap = new HashMap<Integer, TodoListEntry>();
     private final NoSelectionModel<TodoListEntry> noEntrySelectionModel = new NoSelectionModel<TodoListEntry>();
     private final ListDataProvider<TodoListEntry> todoListDataProvider = new ListDataProvider<TodoListEntry>();
 
@@ -66,22 +65,13 @@ public class TodoList implements EntryPoint {
                 },
                 new FieldUpdater<TodoListEntry, Boolean>() {
                     public void update(int index, TodoListEntry entry, Boolean value) {
-                        entry.setComplete(value);
                         todoList.redraw();
 
-                        String urlString = SET_ENTRY_URL + "id=" + entry.getId() + ";complete=" + (value ? '1' : '0');
-                        sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
-                            @Override
-                            public void onSuccess(Request request, Response response) {
-                            }
-                        });
+                        String urlString = ENTRY_URL + "id=" + entry.getId() + ";complete=" + (value ? '1' : '0');
+                        sendRequest(urlString, RequestBuilder.PUT, new EntryResponseHandler());
                     }
                 }
         );
-
-        List<String> actions = new ArrayList<String>();
-        actions.add("notes");
-        actions.add("toggle complete");
 
         Column<TodoListEntry, String> titleColumn = addColumn(
                 new Column<TodoListEntry, String>(new ClickableTextCell()) {
@@ -94,7 +84,7 @@ public class TodoList implements EntryPoint {
                     public String getCellStyleNames(Cell.Context context, TodoListEntry entry) {
                         String styles = "todo-list-text";
                         if (entry.isComplete())
-                            styles+=" todo-list-complete-text";
+                            styles += " todo-list-complete-text";
 
                         return styles;
                     }
@@ -118,22 +108,8 @@ public class TodoList implements EntryPoint {
             public void onValueChange(ValueChangeEvent<String> stringValueChangeEvent) {
                 String newTitle = stringValueChangeEvent.getValue();
                 newEntry.setText("");
-                String urlString = SET_ENTRY_URL + "title=" + newTitle;
-                sendRequest(urlString, RequestBuilder.POST, new RequestHandler() {
-                    @Override
-                    public void onSuccess(Request request, Response response) {
-                        @SuppressWarnings({"MismatchedQueryAndUpdateOfCollection"})
-                        List<TodoListEntry> todoListEntries = todoListDataProvider.getList();
-                        JsArray<TodoListEntryResponse> entries = parseSetEntryResponse(response.getText());
-                        for (int i = 0; i < entries.length(); i++) {
-                            TodoListEntryResponse entry = entries.get(i);
-                            todoListEntries.add(new TodoListEntry(entry.getId(),
-                                    entry.getTitle(),
-                                    entry.getNotes(),
-                                    entry.isComplete()));
-                        }
-                    }
-                });
+                String urlString = ENTRY_LIST_URL + "title=" + newTitle;
+                sendRequest(urlString, RequestBuilder.POST, new EntryResponseHandler());
             }
         });
 
@@ -147,35 +123,21 @@ public class TodoList implements EntryPoint {
         // Listen for mouse events on the clear completed
         clearCompletedButton.addClickHandler(new ClickHandler() {
             public void onClick(ClickEvent event) {
-                String urlString = DEL_ENTRY_URL;
-                int count = 0;
+                String urlString = ENTRY_LIST_URL;
+                List<Integer> entryIdList = new ArrayList<Integer>();
                 for (TodoListEntry entry : todoListDataProvider.getList()) {
                     if (entry.isComplete()) {
-                        if (count++ == 0) {
+                        if (entryIdList.size() == 0) {
                             urlString += "id=" + Integer.toString(entry.getId());
                         } else {
                             urlString += "+" + Integer.toString(entry.getId());
                         }
+                        entryIdList.add(entry.getId());
                     }
                 }
 
-                if (count > 0) {
-                    sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
-                        @Override
-                        public void onSuccess(Request request, Response response) {
-                            List<TodoListEntry> todoListEntries = todoListDataProvider.getList();
-                            JsArrayNumber deletedEntries = parseDeleteEntryResponse(response.getText());
-                            for (int i = 0; i < deletedEntries.length(); i++) {
-                                for (int j = 0; j < todoListEntries.size(); j++) {
-                                    if (todoListEntries.get(j).getId() == (int) deletedEntries.get(i)) {
-                                        todoListEntries.remove(j);
-                                        break;
-                                    }
-                                }
-                            }
-                            todoListDataProvider.refresh();
-                        }
-                    });
+                if (entryIdList.size() > 0) {
+                    sendRequest(urlString, RequestBuilder.PUT, new DeleteEntryResponseHandler(entryIdList));
                 }
             }
         });
@@ -195,54 +157,16 @@ public class TodoList implements EntryPoint {
         RootPanel.get("todoList").add(mainPanel);
 
         newEntry.setFocus(true);
-
-
     }
 
-    @SuppressWarnings({"UnusedDeclaration"})
-    final static class TodoListEntryResponse extends JavaScriptObject {
-        protected TodoListEntryResponse() {
-        }
-
-        public final native int getId() /*-{
-            return this.id;
-        }-*/;
-
-        public final native String getTitle() /*-{
-            return this.title;
-        }-*/;
-
-        public final native String getNotes() /*-{
-            return this.notes;
-        }-*/;
-
-        public final native boolean isComplete() /*-{
-            return this.complete == 1;
-        }-*/;
+    private void refreshTodoListDisplay() {
+        List<TodoListEntry> data = new ArrayList<TodoListEntry>(todolistEntryMap.values());
+        Collections.sort(data, new TodoListEntry.CompareId());
+        todoListDataProvider.setList(data);
+        todoListDataProvider.refresh();
     }
 
-
-    private void refreshTodoListEntries() {
-        sendRequest(GET_ENTRY_URL, RequestBuilder.GET, new RequestHandler() {
-            @Override
-            public void onSuccess(Request request, Response response) {
-                JsArray<TodoListEntryResponse> entries = parseSetEntryResponse(response.getText());
-                List<TodoListEntry> newDisplayList = new ArrayList<TodoListEntry>();
-                for (int i = 0; i < entries.length(); i++) {
-                    TodoListEntryResponse entry = entries.get(i);
-                    newDisplayList.add(new TodoListEntry(entry.getId(),
-                            entry.getTitle(),
-                            entry.getNotes(),
-                            entry.isComplete()));
-                }
-                Collections.sort(newDisplayList, new TodoListEntry.CompareId());
-                todoListDataProvider.setList(newDisplayList);
-                todoListDataProvider.refresh();
-            }
-        });
-    }
-
-    private void showEntryInfoDialogBox(final TodoListEntry entry){
+    private void showEntryInfoDialogBox(final TodoListEntry entry) {
         final DialogBox dialogBox = new DialogBox();
         dialogBox.setText("Entry");
 
@@ -276,30 +200,24 @@ public class TodoList implements EntryPoint {
                 String newTitle = titleText.getText();
                 String newNotes = notesText.getText();
 
-                boolean modified= false;
+                boolean modified = false;
 
-                String urlString = SET_ENTRY_URL + "id=" + entry.getId();
+                String urlString = ENTRY_URL + entry.getId();
                 if (!newTitle.equals(entry.getTitle())) {
-                    modified=true;
-                    entry.setTitle(newTitle);
-                    urlString+=";title";
-                    if (!newTitle.equals("")) urlString+="="+newTitle;
+                    modified = true;
+                    urlString += ";title";
+                    if (!newTitle.equals("")) urlString += "=" + newTitle;
                 }
 
                 if (!newNotes.equals(entry.getNotes())) {
-                    modified=true;
-                    entry.setNotes(newNotes);
-                    urlString+=";notes";
-                    if (!newNotes.equals("")) urlString+="="+newNotes;
+                    modified = true;
+                    urlString += ";notes";
+                    if (!newNotes.equals("")) urlString += "=" + newNotes;
                 }
 
                 if (modified) {
                     todoListDataProvider.refresh();
-                    sendRequest(urlString, RequestBuilder.PUT, new RequestHandler() {
-                        @Override
-                        public void onSuccess(Request request, Response response) {
-                        }
-                    });
+                    sendRequest(urlString, RequestBuilder.PUT, new EntryResponseHandler());
                 }
 
                 dialogBox.hide();
@@ -315,21 +233,15 @@ public class TodoList implements EntryPoint {
     private <T> Column<TodoListEntry, T> addColumn(Column<TodoListEntry, T> column,
                                                    FieldUpdater<TodoListEntry, T> fieldUpdater) {
         column.setFieldUpdater(fieldUpdater);
-        todoList.addColumn(column, "");
+        todoList.addColumn(column);
         return column;
     }
 
-    private <T> Column<TodoListEntry, T> addColumn(Column<TodoListEntry, T> column,
-                                                   FieldUpdater<TodoListEntry, T> fieldUpdater,
-                                                   String label) {
-        column.setFieldUpdater(fieldUpdater);
-        todoList.addColumn(column, label);
-        return column;
+    private void refreshTodoListEntries() {
+        sendRequest(ENTRY_LIST_URL, RequestBuilder.GET, new EntryListResponseHandler());
     }
 
-    abstract class RequestHandler implements RequestCallback {
-
-        abstract public void onSuccess(Request request, Response response);
+    class ResponseHandler implements RequestCallback {
 
         @Override
         public void onError(Request request, Throwable e) {
@@ -338,25 +250,93 @@ public class TodoList implements EntryPoint {
 
         @Override
         public void onResponseReceived(Request request, Response response) {
-            statusLabel.setText("");
-            if (response.getStatusCode() == 200) {
-                onSuccess(request, response);
-            } else {
-                statusLabel.setText("Server Error: '" + response.getStatusCode() + "' "
+            int status_code = response.getStatusCode();
+            if ((status_code >= 400) && (status_code < 500)) {
+                statusLabel.setText("Client Error: '" + response.getStatusCode() + "' "
                         + response.getStatusText());
-            }
+            } else if ((status_code >= 500) && (status_code < 600))
+                if (response.getStatusCode() > 400) {
+                    statusLabel.setText("Server Error: '" + response.getStatusCode() + "' "
+                            + response.getStatusText());
+                }
         }
 
-        native JsArray<TodoListEntryResponse> parseSetEntryResponse(String json) /*-{
+        native JsArray<TodoListEntry> parseTodoListEntryList(String json) /*-{
             return eval(json);
         }-*/;
 
-        native JsArrayNumber parseDeleteEntryResponse(String json) /*-{
+        native TodoListEntry parseTodoListEntry(String json) /*-{
             return eval(json);
         }-*/;
     }
 
-    private void sendRequest(String url, RequestBuilder.Method httpMethod, RequestHandler handler) {
+    class EntryResponseHandler extends ResponseHandler {
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            switch (response.getStatusCode()) {
+
+                case 200:
+                case 201:
+                    String text = response.getText();
+                    TodoListEntry entry = parseTodoListEntry(text);
+                    int newid= entry.getId();
+                    todolistEntryMap.put(newid, entry);
+                    refreshTodoListDisplay();
+                    break;
+
+                default:
+                    super.onResponseReceived(request, response);
+            }
+        }
+    }
+
+    class EntryListResponseHandler extends ResponseHandler {
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            switch (response.getStatusCode()) {
+
+                case 200:
+                    JsArray<TodoListEntry> entries = parseTodoListEntryList(response.getText());
+                    todolistEntryMap.clear();
+                    for (int i = 0; i < entries.length(); i++) {
+                        TodoListEntry entry = entries.get(i);
+                        todolistEntryMap.put(entry.getId(), entry);
+                    }
+                    refreshTodoListDisplay();
+                    break;
+
+                default:
+                    super.onResponseReceived(request, response);
+            }
+        }
+    }
+
+    class DeleteEntryResponseHandler extends ResponseHandler {
+
+        List<Integer> entryIdList = null;
+
+        public DeleteEntryResponseHandler(List<Integer> entryIdList){
+            this.entryIdList = entryIdList;
+        }
+
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            switch (response.getStatusCode()) {
+
+                case 200:
+                    for (int id: entryIdList){
+                        todolistEntryMap.remove(id);
+                    }
+                    refreshTodoListDisplay();
+                    break;
+
+                default:
+                    super.onResponseReceived(request, response);
+            }
+        }
+    }
+
+    private void sendRequest(String url, RequestBuilder.Method httpMethod, ResponseHandler handler) {
         RequestBuilder builder = new RequestBuilder(httpMethod, URL.encode(url));
         try {
             builder.sendRequest(null, handler);
