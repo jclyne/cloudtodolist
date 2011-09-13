@@ -8,6 +8,15 @@
   </component>
   <component name="FacetAutodetectingManager">
     <autodetection-disabled>
+      <facet-type id="android">
+        <modules>
+          <module name="android_todolist">
+            <files>
+              <file url="file://$PROJECT_DIR$/android_todolist/AndroidManifest.xml" />
+            </files>
+          </module>
+        </modules>
+      </facet-type>
       <facet-type id="gwt">
         <modules>
           <module name="todolist_client">

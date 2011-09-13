@@ -1,9 +1,57 @@
 /** Add css rules here for your application. */
 
-.todo-list-text {
+body {
+    background-color: #d3d3d3;
 }
 
-.todo-list-complete-text {
+.mainPanel {
+    width: 100%;
+}
+
+.todoListPanel {
+    width: 40em;
+}
+
+.todoListHeader {
+    font-size: xx-large;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 10px;
+
+}
+
+.todoList{
+    margin-top: 10px;
+    margin-bottom: 5px;
+    width: 100%;
+    border-spacing: 2px;
+    border-width: 3px;
+    border-color: #2f4f4f;
+    border-style: ridge
+}
+
+.todoListColumn {
+
+}
+
+.todoListText {
+    color: #2f4f4f;
+
+}
+
+.todoListTextComplete {
     text-decoration: line-through;
+}
+
+.newEntry {
+    width: 100%;
+    color: #000000;
+    font-family: sans-serif
+}
+
+.newEntryHelpText {
+    text-align: right;
+    font-style: italic;
+    color: graytext;
 }
 

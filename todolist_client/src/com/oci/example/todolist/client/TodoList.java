@@ -7,8 +7,7 @@ import com.google.gwt.cell.client.FieldUpdater;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.JsArray;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.*;
@@ -28,9 +27,10 @@ import java.util.*;
 /**
  * Entry point classes define <code>onModuleLoad()</code>
  */
+@SuppressWarnings({"GWTStyleCheck"})
 public class TodoList implements EntryPoint {
 
-    private static final String TODOLIST_BASE_URL = "http://" + Window.Location.getHost() + "/todolist/api/";
+    private static final String TODOLIST_BASE_URL = "http://" + Window.Location.getHost() + "/oci.oci.example.todolist.todolist/";
     private static final String ENTRY_URL = TODOLIST_BASE_URL + "entry/";
     private static final String ENTRY_LIST_URL = TODOLIST_BASE_URL + "entrylist?";
 
@@ -44,7 +44,12 @@ public class TodoList implements EntryPoint {
     private final NoSelectionModel<TodoListEntry> noEntrySelectionModel = new NoSelectionModel<TodoListEntry>();
     private final ListDataProvider<TodoListEntry> todoListDataProvider = new ListDataProvider<TodoListEntry>();
 
+    private final String HeaderText= "Simple Todo List";
+    private final String newEntryHelpText = "Add a new entry";
+
     private final VerticalPanel mainPanel = new VerticalPanel();
+    private final Label header = new Label(HeaderText);
+    private final VerticalPanel todoListPanel = new VerticalPanel();
     private final CellTable<TodoListEntry> todoList = new CellTable<TodoListEntry>(todoListEntryKeyProvider);
     private final HorizontalPanel toolPanel = new HorizontalPanel();
     private final Button refreshListButton = new Button("Refresh");
@@ -52,7 +57,7 @@ public class TodoList implements EntryPoint {
     private final TextBox newEntry = new TextBox();
     private final InlineLabel statusLabel = new InlineLabel("");
 
-    private static int REFRESH_INTERVAL=5000;
+    private static int REFRESH_INTERVAL = 5000;
 
     public void onModuleLoad() {
 
@@ -83,9 +88,9 @@ public class TodoList implements EntryPoint {
 
                     @Override
                     public String getCellStyleNames(Cell.Context context, TodoListEntry entry) {
-                        String styles = "todo-list-text";
+                        String styles = "todoListText";
                         if (entry.isComplete())
-                            styles += " todo-list-complete-text";
+                            styles += " todoListTextComplete";
 
                         return styles;
                     }
@@ -98,10 +103,6 @@ public class TodoList implements EntryPoint {
                 }
         );
 
-        todoList.setWidth("75%", true);
-        todoList.setColumnWidth(completeColumn, 45.0, Style.Unit.PX);
-        todoList.setColumnWidth(titleColumn, 100.0, Style.Unit.PCT);
-
         todoListDataProvider.addDataDisplay(todoList);
 
         newEntry.addValueChangeHandler(new ValueChangeHandler<String>() {
@@ -113,6 +114,23 @@ public class TodoList implements EntryPoint {
                 sendRequest(urlString, RequestBuilder.POST, new EntryResponseHandler());
             }
         });
+
+        newEntry.addFocusHandler(new FocusHandler() {
+            @Override
+            public void onFocus(FocusEvent event) {
+                newEntry.removeStyleName("newEntryHelpText");
+                newEntry.setText("");
+            }
+        });
+
+        newEntry.addBlurHandler(new BlurHandler() {
+            @Override
+            public void onBlur(BlurEvent event) {
+                newEntry.addStyleName("newEntryHelpText");
+                newEntry.setText(newEntryHelpText);
+            }
+        });
+
 
         // Listen for mouse events on the Add button.
         refreshListButton.addClickHandler(new ClickHandler() {
@@ -143,13 +161,33 @@ public class TodoList implements EntryPoint {
             }
         });
 
-        toolPanel.add(refreshListButton);
+        header.setStyleName("todoListHeader");
+
+        toolPanel.setSpacing(4);
+        //toolPanel.add(refreshListButton);
         toolPanel.add(clearCompletedButton);
 
-        mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-        mainPanel.add(todoList);
-        mainPanel.add(newEntry);
-        mainPanel.add(toolPanel);
+        todoList.setColumnWidth(completeColumn, 45.0, Style.Unit.PX);
+        todoList.setColumnWidth(titleColumn, 100.0, Style.Unit.PCT);
+        todoList.setStyleName("todoList");
+        todoList.addColumnStyleName(0,"todoListColumn");
+        todoList.addColumnStyleName(1,"todoListColumn");
+
+        newEntry.setStyleName("newEntry");
+        newEntry.addStyleName("newEntryHelpText");
+        newEntry.setText(newEntryHelpText);
+
+        todoListPanel.setStyleName("todoListPanel");
+        todoListPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        todoListPanel.add(todoList);
+        todoListPanel.add(newEntry);
+        todoListPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+        todoListPanel.add(toolPanel);
+
+        mainPanel.setStyleName("mainPanel");
+        mainPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        mainPanel.add(header);
+        mainPanel.add(todoListPanel);
         mainPanel.add(statusLabel);
 
         refreshTodoListEntries();
@@ -157,14 +195,12 @@ public class TodoList implements EntryPoint {
         // Add it to the root panel.
         RootPanel.get("todoList").add(mainPanel);
 
-        newEntry.setFocus(true);
-
         // Setup timer to refresh list automatically.
         Timer refreshTimer = new Timer() {
-          @Override
-          public void run() {
-            refreshTodoListEntries();
-          }
+            @Override
+            public void run() {
+                refreshTodoListEntries();
+            }
         };
 
         refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
@@ -211,11 +247,11 @@ public class TodoList implements EntryPoint {
                 String newTitle = titleText.getText();
                 String newNotes = notesText.getText();
 
-                if (  ! newTitle.equals(entry.getTitle())
-                        || ! newNotes.equals(entry.getNotes()) ) {
+                if (!newTitle.equals(entry.getTitle())
+                        || !newNotes.equals(entry.getNotes())) {
                     String urlString = ENTRY_URL + entry.getId()
-                                + "?title" + (newTitle.equals("") ? "" : ("=" + newTitle))
-                                + ";notes" + (newNotes.equals("") ? "" : ("=" + newNotes));
+                            + "?title" + (newTitle.equals("") ? "" : ("=" + newTitle))
+                            + ";notes" + (newNotes.equals("") ? "" : ("=" + newNotes));
                     sendRequest(urlString, RequestBuilder.PUT, new EntryResponseHandler());
                 }
 
@@ -228,7 +264,6 @@ public class TodoList implements EntryPoint {
 
         dialogBox.center();
     }
-
 
 
     private <T> Column<TodoListEntry, T> addColumn(Column<TodoListEntry, T> column,
@@ -282,7 +317,7 @@ public class TodoList implements EntryPoint {
                 case 200:
                 case 201:
                     TodoListEntry entry = parseTodoListEntry(response.getText());
-                    int newid= entry.getId();
+                    int newid = entry.getId();
                     todolistEntryMap.put(newid, entry);
                     refreshTodoListDisplay();
 
@@ -316,7 +351,7 @@ public class TodoList implements EntryPoint {
 
         List<Integer> entryIdList = null;
 
-        public DeleteEntryResponseHandler(List<Integer> entryIdList){
+        public DeleteEntryResponseHandler(List<Integer> entryIdList) {
             this.entryIdList = entryIdList;
         }
 
@@ -325,7 +360,7 @@ public class TodoList implements EntryPoint {
             switch (response.getStatusCode()) {
 
                 case 200:
-                    for (int id: entryIdList){
+                    for (int id : entryIdList) {
                         todolistEntryMap.remove(id);
                     }
                     refreshTodoListDisplay();
