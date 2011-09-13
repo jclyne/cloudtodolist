@@ -103,9 +103,8 @@ __status__= "released"
 
 urls = (
     '/todolist', 'Index',
-    '/todolist/api/user/(\w+)', 'UserHandler',
-    '/todolist/api/entry/(\d+)/(\d+)', 'EntryHandler',
-    '/todolist/api/entrylist/(\d+)', 'EntryListHandler'
+    '/todolist/api/entry/(\d+)', 'EntryHandler',
+    '/todolist/api/entrylist', 'EntryListHandler'
 )
 
 app=web.application(urls, globals())
@@ -204,48 +203,6 @@ class Index(object):
     def GET(self):
         raise web.seeother("static/todolist.html")
 
-class UserHandler(object):
-    """Servlet to handle user administration"""
-
-    @encode_response('json')
-    @parse_web_input(('passwd',),False)
-    def GET(self,user,passwd):
-        try:
-            return db.where(users_table,what='id,username',
-                            username=user,password=web.db.SQLLiteral("SHA1('%s')"%passwd))[0]
-        except IndexError:
-            raise web.unauthorized()
-
-    @parse_web_input(('passwd','newpasswd'),False)
-    def PUT(self,user,passwd,newpasswd):
-        with db.transaction():
-            try:
-                id = db.where(users_table,what='id',
-                              username=user,password=web.db.SQLLiteral("SHA1('%s')"%passwd))[0]['id']
-                db.update(users_table,
-                      where=web.db.sqlwhere({'id':id}),
-                      password=web.db.SQLLiteral("SHA1('%s')"%newpasswd))
-
-            except IndexError:
-                raise web.unauthorized()
-
-    @encode_response('json')
-    @parse_web_input(('passwd',),False)
-    def POST(self,user,passwd):
-
-        with db.transaction():
-            id=db.insert( users_table, username=user,password=web.db.SQLLiteral("SHA1('%s')"%passwd) )
-            new_user= db.where( users_table, what='id,username', id=id)[0]
-
-        raise web.created(new_user)
-
-    @parse_web_input(('passwd',),False)
-    def DELETE(self,user,passwd):
-
-        where= {'username':user,'password':web.db.SQLLiteral("SHA1('%s')"%passwd)}
-        db.delete(users_table, where=web.db.sqlwhere(where))
-
-
 
 class EntryHandler(object):
     """ Servlet to handle the /todolist/api/entry/(\d+) URL"""
@@ -262,7 +219,7 @@ class EntryHandler(object):
             410(gone) - entry with specified id does not exist
         """
         try:
-            return db.where(entries_table,what='id,title,notes,complete',id=user_id,entry_id=entry_id)[0]
+            return db.where(entries_table,what='id,title,notes,complete',id=id)[0]
         except IndexError:
             raise web.gone()
 
@@ -288,10 +245,11 @@ class EntryHandler(object):
 
         with db.transaction():
             db.update(entries_table,
-                      where=web.db.sqlwhere({'user_id':user_id,'id':entry_id}),
+                      where='id=$id',
+                      vars=locals(),
                       **params)
             try:
-                return db.where(entries_table,  id=entry_id )[0]
+                return db.where(entries_table,  id=id )[0]
             except IndexError:
                 raise web.gone()
 
@@ -304,7 +262,7 @@ class EntryHandler(object):
         Status Codes:
             200(ok) - ok, body is empty
         """
-        db.delete(entries_table, where='$user_id = user_id and $entry_id = id',vars=locals())
+        db.delete(entries_table, where='$id = id',vars=locals())
 
 
 class EntryListHandler(object):
