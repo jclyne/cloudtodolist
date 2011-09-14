@@ -58,20 +58,7 @@
 
 
     URIs:
-        todolist/entry/<id> - single todolist entry, referenced by entry id
-            GET
-                Format - todolist_entry
-                Status Codes - 200,410
-
-            PUT
-                Format - todolist_entry
-                Status Codes - 200,400,410
-
-            DELETE
-                Format - empty
-                Status Codes - 200
-
-        todolist/entrylist? - list of todolist entries
+        todolist/entries - list of todolist entries
             GET
                 Format - todolist_entry array
                 Query Parameters = id (e.g. '?id=1' or '?id=1+2+5')
@@ -87,6 +74,20 @@
                 Format - empty
                 Query Parameters = id (e.g. '?id=1' or '?id=1+2+5')
                 Status Codes - 200
+                
+        todolist/entries/<id> - single todolist entry, referenced by entry id
+            GET
+                Format - todolist_entry
+                Status Codes - 200,410
+
+            PUT
+                Format - todolist_entry
+                Status Codes - 200,400,410
+
+            DELETE
+                Format - empty
+                Status Codes - 200
+                
 """
 
 import web
@@ -103,8 +104,8 @@ __status__= "released"
 
 urls = (
     '/todolist', 'Index',
-    '/todolist/entry/(\d+)', 'EntryHandler',
-    '/todolist/entrylist', 'EntryListHandler'
+    '/todolist/entries', 'EntryListHandler',
+    '/todolist/entries/(\d+)', 'EntryHandler'
 )
 
 app=web.application(urls, globals())
@@ -150,7 +151,7 @@ class encode_response(object):
 
         return encode_wrapper
 
-class parse_web_input(object):
+class web_input(object):
     """ Method decorator to parse the incoming web input, validate it,
     and pass the values as keyword arguments to the wrapped method. The
     valid params are passed in a list as well as a flag indicating whether
@@ -204,8 +205,82 @@ class Index(object):
         raise web.seeother("static/todolist.html")
 
 
+class EntryListHandler(object):
+    """ Servlet to handle the /todolist? URL"""
+
+
+    @encode_response('json')
+    @web_input(('id',))
+    def GET(self,id=None):
+        """Retrieves the list of todolist entries,
+
+        URI Params:
+            None
+
+        Query String Params:
+            id - entry id to include in result
+                NOTE: this parameter can have multiple values
+                NOTE: If omitted, all todolist entries will be returned
+
+        Status Codes:
+            200(ok) - ok, body includes the todolist_entry list
+            400(bad request) - invalid query string  specified
+        """
+
+        if id:
+            where=web.db.sqlors('id = ',id)
+        else:
+            where=None
+
+        return db.select(entries_table,order='id', where=where)
+
+    @encode_response('json')
+    @web_input(('title', 'notes', 'complete'))
+    def POST(self,**params):
+        """Creates a new todolist entry
+
+        URI Params:
+            None
+
+        Query String Params:
+            title - string contaning entry title
+            notes - string contaning entry notes
+            complete - boolean flag indicating the entry is completed
+
+        Status Codes:
+            201(created) -  body includes the new todolist_entry
+            400(bad request) - invalid query string  specified
+        """
+
+        with db.transaction():
+            new_entry= db.where( entries_table, id=db.insert( entries_table, **params ) )[0]
+
+        raise web.created(new_entry)
+
+    @web_input(('id',),False)
+    def DELETE(self,id=None):
+        """Deletes the specified list of entries
+
+        URI Params:
+            none
+
+        Query String Params:
+            id - entry id to delete
+                NOTE: this parameter can have multiple values
+                NOTE: If omitted, all todolist entries will be deleted
+
+        Status Codes:
+            200(ok) - ok, body is empty
+        """
+        if id:
+            where=web.db.sqlors('id = ',id)
+        else:
+            where=None
+
+        db.delete(entries_table, where=where)
+        
 class EntryHandler(object):
-    """ Servlet to handle the /todolist/api/entry/(\d+) URL"""
+    """ Servlet to handle the /todolist/entries/(\d+) URL"""
 
     @encode_response('json')
     def GET(self,id):
@@ -224,7 +299,7 @@ class EntryHandler(object):
             raise web.gone()
 
     @encode_response('json')
-    @parse_web_input(('title', 'notes', 'complete'),False)
+    @web_input(('title', 'notes', 'complete'),False)
     def PUT(self,id,**params):
         """Updates the specified entry, with the values specified
         in the query string, and returns the updated todolist_entry
@@ -263,81 +338,6 @@ class EntryHandler(object):
             200(ok) - ok, body is empty
         """
         db.delete(entries_table, where='$id = id',vars=locals())
-
-
-class EntryListHandler(object):
-    """ Servlet to handle the /todolist/api/entrylist? URL"""
-
-
-    @encode_response('json')
-    @parse_web_input(('id',))
-    def GET(self,id=None):
-        """Retrieves the list of todolist entries,
-
-        URI Params:
-            None
-
-        Query String Params:
-            id - entry id to include in result
-                NOTE: this parameter can have multiple values
-                NOTE: If omitted, all todolist entries will be returned
-
-        Status Codes:
-            200(ok) - ok, body includes the todolist_entry list
-            400(bad request) - invalid query string  specified
-        """
-
-        if id:
-            where=web.db.sqlors('id = ',id)
-        else:
-            where=None
-
-        return db.select(entries_table,order='id', where=where)
-
-    @encode_response('json')
-    @parse_web_input(('title', 'notes', 'complete'))
-    def POST(self,**params):
-        """Creates a new todolist entry
-
-        URI Params:
-            None
-
-        Query String Params:
-            title - string contaning entry title
-            notes - string contaning entry notes
-            complete - boolean flag indicating the entry is completed
-
-        Status Codes:
-            201(created) -  body includes the new todolist_entry
-            400(bad request) - invalid query string  specified
-        """
-
-        with db.transaction():
-            new_entry= db.where( entries_table, id=db.insert( entries_table, **params ) )[0]
-
-        raise web.created(new_entry)
-
-    @parse_web_input(('id',),False)
-    def DELETE(self,id=None):
-        """Deletes the specified list of entries
-
-        URI Params:
-            none
-
-        Query String Params:
-            id - entry id to delete
-                NOTE: this parameter can have multiple values
-                NOTE: If omitted, all todolist entries will be deleted
-
-        Status Codes:
-            200(ok) - ok, body is empty
-        """
-        if id:
-            where=web.db.sqlors('id = ',id)
-        else:
-            where=None
-
-        db.delete(entries_table, where=where)
 
 if __name__ == '__main__':
     app.run()
