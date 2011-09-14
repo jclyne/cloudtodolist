@@ -58,7 +58,7 @@
 
 
     URIs:
-        oci.oci.example.todolist.todolist/api/entry/<id> - single oci.oci.example.todolist.todolist entry, referenced by entry id
+        todolist/entry/<id> - single todolist entry, referenced by entry id
             GET
                 Format - todolist_entry
                 Status Codes - 200,410
@@ -71,7 +71,7 @@
                 Format - empty
                 Status Codes - 200
 
-        oci.oci.example.todolist.todolist/api/entrylist? - list of oci.oci.example.todolist.todolist entries
+        todolist/entrylist? - list of todolist entries
             GET
                 Format - todolist_entry array
                 Query Parameters = id (e.g. '?id=1' or '?id=1+2+5')
@@ -102,9 +102,9 @@ __email__ = "jeffclyne@mindless.com"
 __status__= "released"
 
 urls = (
-    '/oci.oci.example.todolist.todolist', 'Index',
-    '/oci.oci.example.todolist.todolist/entry/(\d+)', 'EntryHandler',
-    '/oci.oci.example.todolist.todolist/entrylist', 'EntryListHandler'
+    '/todolist', 'Index',
+    '/todolist/entry/(\d+)', 'EntryHandler',
+    '/todolist/entrylist', 'EntryListHandler'
 )
 
 app=web.application(urls, globals())
@@ -201,11 +201,11 @@ class parse_web_input(object):
 class Index(object):
     """ Servlet to handle a redirect on the base module URL"""
     def GET(self):
-        raise web.seeother("static/oci.oci.example.todolist.todolist.html")
+        raise web.seeother("static/todolist.html")
 
 
 class EntryHandler(object):
-    """ Servlet to handle the /oci.oci.example.todolist.todolist/api/entry/(\d+) URL"""
+    """ Servlet to handle the /todolist/api/entry/(\d+) URL"""
 
     @encode_response('json')
     def GET(self,id):
@@ -266,13 +266,13 @@ class EntryHandler(object):
 
 
 class EntryListHandler(object):
-    """ Servlet to handle the /oci.oci.example.todolist.todolist/api/entrylist? URL"""
+    """ Servlet to handle the /todolist/api/entrylist? URL"""
 
 
     @encode_response('json')
     @parse_web_input(('id',))
     def GET(self,id=None):
-        """Retrieves the list of oci.oci.example.todolist.todolist entries,
+        """Retrieves the list of todolist entries,
 
         URI Params:
             None
@@ -280,7 +280,7 @@ class EntryListHandler(object):
         Query String Params:
             id - entry id to include in result
                 NOTE: this parameter can have multiple values
-                NOTE: If omitted, all oci.oci.example.todolist.todolist entries will be returned
+                NOTE: If omitted, all todolist entries will be returned
 
         Status Codes:
             200(ok) - ok, body includes the todolist_entry list
@@ -297,7 +297,7 @@ class EntryListHandler(object):
     @encode_response('json')
     @parse_web_input(('title', 'notes', 'complete'))
     def POST(self,**params):
-        """Creates a new oci.oci.example.todolist.todolist entry
+        """Creates a new todolist entry
 
         URI Params:
             None
@@ -327,7 +327,7 @@ class EntryListHandler(object):
         Query String Params:
             id - entry id to delete
                 NOTE: this parameter can have multiple values
-                NOTE: If omitted, all oci.oci.example.todolist.todolist entries will be deleted
+                NOTE: If omitted, all todolist entries will be deleted
 
         Status Codes:
             200(ok) - ok, body is empty
