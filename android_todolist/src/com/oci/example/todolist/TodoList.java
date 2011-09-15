@@ -10,7 +10,7 @@ import android.provider.BaseColumns;
  * URIs. A well-written client depends only on the constants in the contract.
  */
 public final class TodoList {
-    public static final String AUTHORITY = "com.oci.provider.TodoList";
+    public static final String AUTHORITY = "com.oci.provider.todolist";
 
     /**
      * Path part for the TodoList BASE URI
@@ -137,6 +137,11 @@ public final class TodoList {
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
         public static final String COLUMN_NAME_MODIFY_TIME = "modified";
+
+        public static final String COLUMN_NAME_PENDING_TX = "pending_tx";
+        public static final String COLUMN_NAME_PENDING_INSERT= "pending_insert";
+        public static final String COLUMN_NAME_PENDING_UPDATE = "pending_update";
+        public static final String COLUMN_NAME_PENDING_DELETE = "pending_delete";
 
     }
 }

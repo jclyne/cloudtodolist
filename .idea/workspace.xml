@@ -18,21 +18,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f4777705-a6f5-416d-950a-874de0e6dd39" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoList.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListProvider.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListProviderTest.java" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/android_todolist/tests/tests.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/AndroidManifest.xml" afterPath="$PROJECT_DIR$/android_todolist/AndroidManifest.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/android_todolist.iml" afterPath="$PROJECT_DIR$/android_todolist/android_todolist.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/build.properties" afterPath="$PROJECT_DIR$/android_todolist/build.properties" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/gen/com/oci/example/todolist/R.java" afterPath="$PROJECT_DIR$/android_todolist/gen/com/oci/example/todolist/R.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/res/values/strings.xml" afterPath="$PROJECT_DIR$/android_todolist/res/values/strings.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListActivity.java" afterPath="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" afterPath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/todolist_server.iml" afterPath="$PROJECT_DIR$/todolist_server/todolist_server.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/todolist_server.py" afterPath="$PROJECT_DIR$/todolist_server/todolist_server.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoList.java" afterPath="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoList.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListProvider.java" afterPath="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListProvider.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListProviderTest.java" afterPath="$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListProviderTest.java" />
     </list>
     <ignored path="todolist.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -51,6 +41,21 @@
     <disable_hints />
   </component>
   <component name="DebuggerManager">
+    <line_breakpoints>
+      <breakpoint url="file://$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListProviderTest.java" line="336" class="com.oci.example.todolist.TodoListProviderTest" package="com.oci.example.todolist">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -122,7 +127,7 @@
       <file leaf-file-name="TodoList.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="62" column="67" selection-start="1775" selection-end="1775" vertical-scroll-proportion="0.0">
+            <state line="141" column="50" selection-start="4366" selection-end="4392" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -133,7 +138,7 @@
       <file leaf-file-name="TodoListProvider.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListProvider.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="263" column="0" selection-start="9145" selection-end="9145" vertical-scroll-proportion="4.3064327">
+            <state line="268" column="82" selection-start="9512" selection-end="9512" vertical-scroll-proportion="0.6325524">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -144,10 +149,28 @@
       <file leaf-file-name="TodoListProviderTest.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListProviderTest.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="282" column="26" selection-start="11113" selection-end="11113" vertical-scroll-proportion="0.0">
+            <state line="336" column="0" selection-start="13321" selection-end="13321" vertical-scroll-proportion="-6.52">
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ContentResolver.class" pinned="false" current="false" current-in-tab="false">
+        <entry file="jar://$USER_HOME$/android-sdk-linux_86/platforms/android-10/android.jar!/android/content/ContentResolver.class">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="48" column="21" selection-start="3439" selection-end="3439" vertical-scroll-proportion="0.0">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="AndroidManifest.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/android_todolist/AndroidManifest.xml">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="13" column="60" selection-start="463" selection-end="463" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -166,7 +189,6 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntry.java" />
         <option value="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/ProgressPanel.java" />
         <option value="$PROJECT_DIR$/todolist_server/schema.sql" />
         <option value="$PROJECT_DIR$/android_todolist/res/layout/list_item.xml" />
@@ -175,12 +197,13 @@
         <option value="$PROJECT_DIR$/todolist_server/todolist_server.py" />
         <option value="$PROJECT_DIR$/android_todolist/tests/TodoListProviderTest.java" />
         <option value="$PROJECT_DIR$/android_todolist/tests/com/oci/example/totolist/TodoListProviderTest.java" />
-        <option value="$PROJECT_DIR$/android_todolist/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/android_todolist/tests/com/oci/example/todolist/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListProviderTest/TodoListProviderTest.java" />
-        <option value="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoList.java" />
         <option value="$PROJECT_DIR$/android_todolist/res/values/strings.xml" />
+        <option value="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListContent.java" />
+        <option value="$PROJECT_DIR$/android_todolist/AndroidManifest.xml" />
         <option value="$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListProviderTest.java" />
+        <option value="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoList.java" />
         <option value="$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListProvider.java" />
       </list>
     </option>
@@ -829,20 +852,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListActivityTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="14" column="13" selection-start="518" selection-end="518" vertical-scroll-proportion="0.23444976">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/android_todolist/AndroidManifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="9" column="42" selection-start="357" selection-end="357" vertical-scroll-proportion="0.14736842">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/android_todolist/tests/tests.iml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
@@ -858,13 +867,6 @@
       </provider>
     </entry>
     <entry file="jar://$USER_HOME$/android-sdk-linux_86/platforms/android-10/android.jar!/android/net/Uri.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/android-sdk-linux_86/platforms/android-10/android.jar!/android/content/ContentResolver.class">
       <provider selected="true" editor-type-id="text-editor">
         <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
           <folding />
@@ -913,6 +915,13 @@
         </state>
       </provider>
     </entry>
+    <entry file="jar://$USER_HOME$/android-sdk-linux_86/platforms/android-10/android.jar!/android/content/ContentProvider.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="51" column="164" selection-start="2768" selection-end="2813" vertical-scroll-proportion="0.8675577">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListActivity.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="21" column="10" selection-start="489" selection-end="489" vertical-scroll-proportion="0.0">
@@ -924,16 +933,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="67" selection-start="1775" selection-end="1775" vertical-scroll-proportion="0.0">
+        <state line="141" column="50" selection-start="4366" selection-end="4392" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="jar://$USER_HOME$/android-sdk-linux_86/platforms/android-10/android.jar!/android/content/ContentResolver.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="21" selection-start="3439" selection-end="3439" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/android_todolist/AndroidManifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="60" selection-start="463" selection-end="463" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/android_todolist/tests/src/com/oci/example/todolist/TodoListProviderTest.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="282" column="26" selection-start="11113" selection-end="11113" vertical-scroll-proportion="0.0">
+        <state line="336" column="0" selection-start="13321" selection-end="13321" vertical-scroll-proportion="-6.52">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -942,7 +965,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/android_todolist/src/com/oci/example/todolist/TodoListProvider.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="263" column="0" selection-start="9145" selection-end="9145" vertical-scroll-proportion="4.3064327">
+        <state line="268" column="82" selection-start="9512" selection-end="9512" vertical-scroll-proportion="0.6325524">
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

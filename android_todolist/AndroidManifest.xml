@@ -6,13 +6,16 @@
 
     <uses-sdk android:minSdkVersion="10"/>
 
-    <provider android:name="TodoListProvider"
-              android:authorities="com.oci.provider.TodoList"
-              android:exported="false">
-        <grant-uri-permission android:pathPattern=".*"/>
-    </provider>
+
 
     <application android:label="@string/app_name" android:icon="@drawable/icon">
+
+        <provider android:name="TodoListProvider"
+              android:authorities="com.oci.provider.todolist"
+              android:exported="false">
+            <grant-uri-permission android:pathPattern=".*"/>
+        </provider>
+
         <activity android:name=".TodoListActivity"
                   android:label="@string/app_name">
             <intent-filter>

@@ -1,13 +1,15 @@
 package com.oci.example.todolist;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
+import android.content.*;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.RemoteException;
 import android.test.ProviderTestCase2;
 import android.test.mock.MockContentResolver;
 
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -230,7 +232,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         final String SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
         final String[] SELECTION_ARGS = {"Entry1"};
         final String SORT_ORDER = TodoList.Entries.COLUMN_NAME_TITLE + " ASC";
-        final String[] ENTRY_ID_PROJECTION = {TodoList.Entries._ID,};
+        final String[] ENTRY_ID_PROJECTION = {TodoList.Entries._ID};
 
         insertData();
 
@@ -246,8 +248,8 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertEquals(1, cursor.getCount());
         assertTrue(cursor.moveToFirst());
 
-        int insertedEntryId = cursor.getInt(0);
-        Uri entryIdUri = ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, insertedEntryId);
+        int entryId = cursor.getInt(0);
+        Uri entryIdUri = ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, entryId);
 
 
         cursor = mockResolver.query(entryIdUri, // the URI for a single note
@@ -259,7 +261,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         assertEquals(1, cursor.getCount());
         assertTrue(cursor.moveToFirst());
-        assertEquals(insertedEntryId, cursor.getInt(0));
+        assertEquals(entryId, cursor.getInt(0));
     }
 
     public void testInsert() {
@@ -403,4 +405,89 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertEquals(newNote, cursor.getString(notesIndex));
 
     }
+
+    public void testBatchDeleteAndInsert() {
+
+        // Delete Entry0
+        final String SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String[] SELECTION_ARGS = { "Entry0" };
+        final String[] ENTRY_ID_PROJECTION = {TodoList.Entries._ID};
+
+        // Insert Entry30
+        EntryData newEntry = new EntryData("Entry30", "This is Entry30", false);
+        newEntry.setCreateTime(START_DATE + (10 * ONE_DAY_MILLIS));
+        newEntry.setModifyTime(START_DATE + (2 * ONE_WEEK_MILLIS));
+
+
+        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+
+        operations.add(
+                ContentProviderOperation.newDelete(
+                        TodoList.Entries.CONTENT_URI)
+                        .withSelection(SELECTION_COLUMNS, SELECTION_ARGS)
+                        .build()
+        );
+
+        operations.add(
+                ContentProviderOperation.newInsert(
+                        TodoList.Entries.CONTENT_URI)
+                        .withValues(newEntry.toContentValues())
+                        .build()
+        );
+
+        insertData();
+
+        try {
+            ContentProviderResult[] results =  mockResolver.applyBatch(TodoList.AUTHORITY, operations);
+            assertEquals(1, (int)results[0].count);
+            assertEquals(1, mockResolver.query(results[1].uri,ENTRY_ID_PROJECTION, null,null,null).getCount());
+
+        } catch (RemoteException e) {
+            fail(e.toString());
+        } catch (OperationApplicationException e) {
+            fail(e.toString());
+        }
+    }
+
+    public void testBatchDeleteAndInsertInvalidUri() {
+
+        // Delete Entry0
+        final String SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String[] SELECTION_ARGS = { "Entry0" };
+
+         // Insert Entry30
+        EntryData newEntry = new EntryData("Entry30", "This is Entry30", false);
+        newEntry.setCreateTime(START_DATE + (10 * ONE_DAY_MILLIS));
+        newEntry.setModifyTime(START_DATE + (2 * ONE_WEEK_MILLIS));
+
+
+        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+
+        operations.add(
+                ContentProviderOperation.newDelete(TodoList.Entries.CONTENT_URI)
+                        .withSelection(SELECTION_COLUMNS, SELECTION_ARGS)
+                        .build()
+        );
+
+        operations.add(
+                ContentProviderOperation.newInsert(Uri.withAppendedPath(TodoList.Entries.CONTENT_URI, "dummy"))
+                        .withValues(newEntry.toContentValues())
+                        .build()
+        );
+
+        insertData();
+
+        try {
+            ContentProviderResult[] results =  mockResolver.applyBatch(TodoList.AUTHORITY, operations);
+            assertEquals(0, results.length);
+            assertEquals(1, mockResolver.query(TodoList.Entries.CONTENT_URI,
+                                null,SELECTION_COLUMNS,SELECTION_ARGS,null).getCount());
+
+        } catch (RemoteException e) {
+            fail(e.toString());
+        } catch (OperationApplicationException e) {
+            fail(e.toString());
+        }
+    }
+
 }
