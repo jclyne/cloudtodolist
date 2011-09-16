@@ -8,7 +8,6 @@ import android.os.RemoteException;
 import android.test.ProviderTestCase2;
 import android.test.mock.MockContentResolver;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -23,7 +22,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     private static class EntryData {
         final String title;
         final String notes;
-        final boolean complete;
+        final int complete;
         private long createTime;
         private long modifyTime;
 
@@ -36,10 +35,10 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
             this.createTime = createTime;
         }
 
-        public EntryData(String title, String notes, Boolean complete) {
+        public EntryData(String title, String notes, boolean complete) {
             this.title = title;
             this.notes = notes;
-            this.complete = complete;
+            this.complete = complete ? 1 : 0;
         }
 
         public ContentValues toContentValues() {
@@ -292,7 +291,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         assertEquals(entry.title, cursor.getString(titleIndex));
         assertEquals(entry.notes, cursor.getString(notesIndex));
-        assertEquals(entry.complete, (cursor.getInt(completeIndex) == 1) );
+        assertEquals(entry.complete, cursor.getInt(completeIndex) );
         assertEquals(entry.createTime, cursor.getLong(createTimeIndex));
         assertEquals(entry.modifyTime, cursor.getLong(modifyTimeIndex));
     }
@@ -333,16 +332,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         final String SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
         final String[] SELECTION_ARGS = { "Entry0" };
 
-
         insertData();
-
-        int rowsDeleted = mockResolver.delete(
-            TodoList.Entries.CONTENT_URI, // the base URI of the table
-            SELECTION_COLUMNS,         // same selection column, "title"
-            SELECTION_ARGS             // same selection arguments, title = "Entry0"
-        );
-
-        assertEquals(1, rowsDeleted);
 
         Cursor cursor = mockResolver.query(
             TodoList.Entries.CONTENT_URI, // the base URI of the table
@@ -352,7 +342,40 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
             null                       // use the default sort order
         );
 
+        assertEquals(1, cursor.getCount());
+        assertTrue(cursor.moveToFirst());
+        int entryId = cursor.getInt(0);
+
+        int rowsDeleted = mockResolver.delete(
+            TodoList.Entries.CONTENT_URI, // the base URI of the table
+            SELECTION_COLUMNS,         // same selection column, "title"
+            SELECTION_ARGS             // same selection arguments, title = "Entry0"
+        );
+
+        assertEquals(1, rowsDeleted);
+
+        cursor = mockResolver.query(
+            TodoList.Entries.CONTENT_URI, // the base URI of the table
+            null,                      // no projection, return all columns
+            SELECTION_COLUMNS,         // select based on the title column
+            SELECTION_ARGS,            // select title = "Entry0"
+            null                       // use the default sort order
+        );
+
         assertEquals(0, cursor.getCount());
+
+        Uri deletePendingEntryIdUri =
+                ContentUris.withAppendedId(TodoList.DeletePendingEntries.CONTENT_ID_URI_BASE, entryId);
+
+        cursor = mockResolver.query(
+            deletePendingEntryIdUri,
+            null,                      // no projection, return all columns
+            null,         // select based on the title column
+            null,            // select title = "Entry0"
+            null                       // use the default sort order
+        );
+
+        assertEquals(1, cursor.getCount());
     }
 
     public void testUpdatesEmpty() {

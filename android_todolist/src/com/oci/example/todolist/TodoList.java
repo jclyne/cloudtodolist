@@ -11,20 +11,13 @@ import android.provider.BaseColumns;
  */
 public final class TodoList {
     public static final String AUTHORITY = "com.oci.provider.todolist";
-
-    /**
-     * Path part for the TodoList BASE URI
-     */
+    private static final String SCHEME = "content://";
     private static final String PATH_TODOLIST = "todolist/";
 
 
-    // This class cannot be instantiated
     private TodoList() {
     }
 
-    /**
-     * Entries table contract
-     */
     public static final class Entries implements BaseColumns {
 
         // This class cannot be instantiated
@@ -34,18 +27,11 @@ public final class TodoList {
         /**
          * The table name offered by this provider
          */
-        public static final String TABLE_NAME = "todolist";
+        public static final String TABLE_NAME = "entries";
 
         /*
          * URI definitions
          */
-
-        /**
-         * The scheme part for this provider's URI
-         */
-        private static final String SCHEME = "content://";
-
-
 
         /**
          * Path part for the TodoList URI
@@ -141,7 +127,86 @@ public final class TodoList {
         public static final String COLUMN_NAME_PENDING_TX = "pending_tx";
         public static final String COLUMN_NAME_PENDING_INSERT= "pending_insert";
         public static final String COLUMN_NAME_PENDING_UPDATE = "pending_update";
-        public static final String COLUMN_NAME_PENDING_DELETE = "pending_delete";
+
+    }
+    public static final class DeletePendingEntries implements BaseColumns {
+
+        // This class cannot be instantiated
+        private DeletePendingEntries() {
+        }
+
+        /**
+         * The table name offered by this provider
+         */
+        public static final String TABLE_NAME = "delete_pending_entries";
+
+        /*
+         * URI definitions
+         */
+
+        /**
+         * Path part for the TodoList URI
+         */
+        public static final String PATH_TODOLIST_DELETE_PENDING_ENTRIES = PATH_TODOLIST + "delete_pending";
+
+        /**
+         * Path part for the Note ID URI
+         */
+        public static final String PATH_TODOLIST_DELETE_PENDING_ENTRY_ID = PATH_TODOLIST + "delete_pending/";
+
+        /**
+         * 0-relative position of a note ID segment in the path part of a note ID URI
+         */
+        public static final int TODOLIST_DELETE_PENDING_ENTRY_ID_PATH_POSITION = 2;
+
+
+        /**
+         * The content:// style URL for the TodoList entry list
+         */
+        public static final Uri CONTENT_URI
+                = Uri.parse(SCHEME + AUTHORITY + "/" + PATH_TODOLIST_DELETE_PENDING_ENTRIES);
+
+        /**
+         * The content URI base for a single todolist entry. Callers must
+         * append a numeric entry id to this Uri to retrieve an entry
+         */
+        public static final Uri CONTENT_ID_URI_BASE
+                = Uri.parse(SCHEME + AUTHORITY + "/" +PATH_TODOLIST_DELETE_PENDING_ENTRY_ID);
+
+        /**
+         * The content URI match pattern for a single note, specified by its ID. Use this to match
+         * incoming URIs or to construct an Intent.
+         */
+        public static final Uri CONTENT_ID_URI_PATTERN
+                = Uri.parse(SCHEME + AUTHORITY + "/" +TODOLIST_DELETE_PENDING_ENTRY_ID_PATH_POSITION + "#");
+
+
+        /*
+         * MIME type definitions
+         */
+
+        /**
+         * The MIME type of {@link #CONTENT_URI} providing a directory of todolist entries.
+         */
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.oci.todolist.delete_pending_entries";
+
+        /**
+         * The MIME type of a {@link #CONTENT_URI} sub-directory of a single
+         * todolist entry.
+         */
+        public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.oci.todolist.delete_pending_entry";
+
+        /**
+         * The default sort order for this table
+         */
+        public static final String DEFAULT_SORT_ORDER = "_id ASC";
+
+        /*
+         * Column definitions
+         */
+
+        public static final String COLUMN_NAME_PENDING_TX = "pending_tx";
+
 
     }
 }
