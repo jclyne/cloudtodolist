@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">android_todolist</string>
+    <string name="app_name">Cloud Todo List</string>
     <string name="untitled">UNTITLED</string>
+    <string name="menu_edit_entry">Edit Entry</string>
+    <string name="menu_clear_selected">Clear Selected</string>
+    <string name="new_entry_help">Add a new entry</string>
+
 </resources>

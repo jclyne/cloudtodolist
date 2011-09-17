@@ -44,7 +44,7 @@ public class TodoList implements EntryPoint {
     private final NoSelectionModel<TodoListEntry> noEntrySelectionModel = new NoSelectionModel<TodoListEntry>();
     private final ListDataProvider<TodoListEntry> todoListDataProvider = new ListDataProvider<TodoListEntry>();
 
-    private final String HeaderText= "Simple Todo List";
+    private final String HeaderText= "Cloud Todo List";
     private final String newEntryHelpText = "Add a new entry";
 
     private final VerticalPanel mainPanel = new VerticalPanel();

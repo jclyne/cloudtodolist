@@ -255,7 +255,7 @@ public class TodoListProvider extends ContentProvider {
         }
 
 
-        throw new SQLException("Failed to insert row into " + uri);
+        throw new IllegalArgumentException("Failed to insert row into " + uri);
     }
 
     @Override
