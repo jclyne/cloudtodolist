@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+            android:key="server_address"
+            android:title="@string/setting_server_address"
+            android:summary="@string/setting_server_address_summary"
+            android:dialogTitle="@string/setting_server_address_title"/>
+
+    <ListPreference
+            android:key="sync_frequency"
+            android:title="@string/setting_sync_frequency"
+            android:summary="@string/setting_sync_frequency_summary"
+            android:entries="@array/setting_sync_frequency_entries"
+            android:entryValues="@array/setting_sync_frequency_entry_values"
+            android:defaultValue="@string/setting_sync_frequency_default_value"
+            android:dialogTitle="@string/setting_sync_frequency_dialog_title"/>
+
+
+</PreferenceScreen>

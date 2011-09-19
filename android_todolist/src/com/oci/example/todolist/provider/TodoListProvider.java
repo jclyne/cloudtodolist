@@ -1,4 +1,4 @@
-package com.oci.example.todolist;
+package com.oci.example.todolist.provider;
 
 import android.content.*;
 import android.content.res.Resources;

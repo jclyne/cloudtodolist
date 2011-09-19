@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              style="@style/todolist_entry_layout"
+              android:orientation="horizontal"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent">
+
+    <CheckBox
+            android:id="@+id/entry_complete"
+            style="@style/todolist_entry_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+    <TextView
+            android:id="@+id/entry_title"
+            style="@style/todolist_entry_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:longClickable="true"
+            android:focusable="false"
+            android:layout_weight="100"/>
+
+
+    <Button
+            android:id="@+id/notes_button"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:gravity="right|center_vertical"
+            android:background="@drawable/notes_button"
+            android:onClick="showNotes"/>
+
+
+</LinearLayout>

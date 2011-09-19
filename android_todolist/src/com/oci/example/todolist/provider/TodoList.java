@@ -1,4 +1,4 @@
-package com.oci.example.todolist;
+package com.oci.example.todolist.provider;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

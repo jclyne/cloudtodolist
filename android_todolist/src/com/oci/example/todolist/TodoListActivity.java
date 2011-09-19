@@ -1,34 +1,31 @@
 package com.oci.example.todolist;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
+import com.oci.example.todolist.provider.TodoList;
 
 public class TodoListActivity extends Activity {
 
-    private static final String TAG ="TodoListActivity";
+    private static final String TAG = "TodoListActivity";
+    private static final int NOTES_DIALOG = 1;
 
-    /**
-     * Menus Items
-     */
-    private static final int MENU_EDIT_ENTRY = 0;
-    private static final int MENU_CLEAR_SELECTED = 1;
-
-    /**
-     * Layout Items
-     */
-    private ListView listView;
     private EditText newEntryBox;
+    private ListView todoListView;
+    private TodoListCursorAdapter todoListAdapter;
 
     /**
      * Called when the activity is first created.
@@ -39,15 +36,11 @@ public class TodoListActivity extends Activity {
 
         setContentView(R.layout.todolist_layout);
 
-        listView = (ListView) findViewById(R.id.todo_list);
+        todoListView = (ListView) findViewById(R.id.todo_list);
         Cursor cur = getContentResolver().query(TodoList.Entries.CONTENT_URI, null, null, null, null);
-        listView.setAdapter(new TodoListCursorAdapter(this, cur));
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int pos, long id) {
-                onEditEntry(id);
-                return false;
-            }
-        });
+        todoListAdapter=new TodoListCursorAdapter(this, cur);
+        todoListView.setAdapter(todoListAdapter);
+        registerForContextMenu(todoListView);
 
         newEntryBox = (EditText) findViewById(R.id.new_entry);
         newEntryBox.setOnKeyListener(new View.OnKeyListener() {
@@ -64,65 +57,44 @@ public class TodoListActivity extends Activity {
 
         newEntryBox.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View view, boolean hasFocus) {
-                if (hasFocus){
+                if (hasFocus) {
                     newEntryBox.setText("");
-                } else {
-                    onNewEntry(newEntryBox.getText().toString());
-                    newEntryBox.setText(R.string.new_entry_help);
                 }
             }
         });
     }
 
-    public void onNewEntry(String title){
-        if (title.length() == 0)
-            return;
-
-        ContentValues values = new ContentValues();
-        values.put(TodoList.Entries.COLUMN_NAME_TITLE, title);
-        try{
-            getContentResolver().insert(TodoList.Entries.CONTENT_URI, values);
-            Toast.makeText(this, "Entry Added", Toast.LENGTH_SHORT).show();
-
-        } catch (IllegalArgumentException e) {
-            Toast.makeText(this, "Invalid Entry", Toast.LENGTH_SHORT).show();
-            Log.e(TAG,"Failed to add new entry: "+e.toString());
-        }
-
-    }
-
-    public void onEditEntry(long entryId) {
-         Toast.makeText(this, "onEditEntry: "+entryId, Toast.LENGTH_SHORT).show();
-    }
-
-
-    public void onClearCompleted(){
-        final String  where = TodoList.Entries.COLUMN_NAME_COMPLETE + " = 1";
-        int rowsDeleted = getContentResolver().delete(
-                    TodoList.Entries.CONTENT_URI,where, null);
-
-        Toast.makeText(this, "Deleted "+rowsDeleted+(rowsDeleted==1?" Entry":" Entries"), Toast.LENGTH_SHORT).show();
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_EDIT_ENTRY, 0, R.string.menu_edit_entry);
-        menu.add(0, MENU_CLEAR_SELECTED, 0, R.string.menu_clear_selected);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.todolist_menu, menu);
 
         return true;
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.entry_menu, menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case MENU_EDIT_ENTRY:
-                Toast.makeText(this, "Edit Entry", Toast.LENGTH_SHORT).show();
+            case R.id.menu_refresh:
+                Toast.makeText(this,R.string.refreshing_list,Toast.LENGTH_SHORT).show();
                 return true;
 
-            case MENU_CLEAR_SELECTED:
+            case R.id.menu_clear_selected:
                 onClearCompleted();
+                return true;
+
+            case R.id.menu_settings:
+                Intent intent = new Intent();
+                intent.setClass(this, Settings.class);
+                startActivity(intent);
                 return true;
         }
 
@@ -130,7 +102,123 @@ public class TodoListActivity extends Activity {
     }
 
     @Override
-    public void onBackPressed() {
-        finish();
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        switch (item.getItemId()) {
+            case R.id.menu_edit_item:
+                onEditEntry(info.id);
+                return true;
+            case R.id.menu_delete_item:
+                onDeleteEntry(info.id);
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id, Bundle args) {
+        switch (id) {
+            case NOTES_DIALOG:
+                return buildNotesDialog(args.getLong("entryId"));
+
+            default:
+                return super.onCreateDialog(id);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        todoListAdapter.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        todoListAdapter.onResume();
+        super.onResume();
+    }
+
+    public void showNotes(View view) {
+        Bundle args = new Bundle();
+        args.putLong("entryId", (Integer)view.getTag());
+        showDialog(NOTES_DIALOG, args);
+    }
+
+    public void onNewEntry(String title) {
+        if (title.length() == 0)
+            return;
+
+        ContentValues values = new ContentValues();
+        values.put(TodoList.Entries.COLUMN_NAME_TITLE, title);
+        try {
+            getContentResolver().insert(TodoList.Entries.CONTENT_URI, values);
+            Toast.makeText(this, getString(R.string.entry_added), Toast.LENGTH_SHORT).show();
+
+        } catch (IllegalArgumentException e) {
+            Toast.makeText(this, getString(R.string.entry_invalid), Toast.LENGTH_SHORT).show();
+            Log.e(TAG, "Failed to add new entry: " + e.toString());
+        }
+
+    }
+
+    public void onEditEntry(long entryId) {
+
+        startActivity(new Intent(
+                Intent.ACTION_EDIT,
+                ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, entryId)));
+    }
+
+    public void onDeleteEntry(long entryId) {
+        final String where = TodoList.Entries._ID + " = ?";
+        final String[] whereArgs = {Long.toString(entryId)};
+        int rowsDeleted = getContentResolver().delete(
+                TodoList.Entries.CONTENT_URI, where, whereArgs);
+
+        if (rowsDeleted > 0)
+            Toast.makeText(this, getString(R.string.entry_deleted), Toast.LENGTH_SHORT).show();
+    }
+
+
+    public void onClearCompleted() {
+        final String where = TodoList.Entries.COLUMN_NAME_COMPLETE + " = ?";
+        final String[] whereArgs = {Integer.toString(1)};
+        int rowsDeleted = getContentResolver().delete(
+                TodoList.Entries.CONTENT_URI, where, whereArgs);
+
+        String msg = getResources().getQuantityString( R.plurals.clearedEntriesDeleted,rowsDeleted,rowsDeleted);
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    public Dialog buildNotesDialog(long entryId) {
+        Uri entryUri = ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, entryId);
+        final String[] what = {TodoList.Entries.COLUMN_NAME_NOTES,
+                                TodoList.Entries.COLUMN_NAME_TITLE};
+
+        Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
+        cursor.moveToFirst();
+        String title = cursor.getString(cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_TITLE));
+        String notes = cursor.getString(cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_NOTES));
+        if (notes.equals("")){
+            notes=getString(R.string.empty_notes);
+        }
+
+        AlertDialog notesDialog = new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setMessage(notes)
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                })
+                .create();
+
+        notesDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            public void onDismiss(DialogInterface dialogInterface) {
+                removeDialog(NOTES_DIALOG);
+            }
+        });
+
+        return notesDialog;
     }
 }

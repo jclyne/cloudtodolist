@@ -1,4 +1,4 @@
-package com.oci.example.todolist;
+package com.oci.example.todolist.provider;
 
 import android.content.*;
 import android.database.Cursor;
@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.test.ProviderTestCase2;
 import android.test.mock.MockContentResolver;
+import com.oci.example.todolist.provider.TodoList;
+import com.oci.example.todolist.provider.TodoListProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -152,7 +154,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
     public void testQueryEntriesWithProjection() {
 
-        final String[] TEST_PROJECTION = {
+        final String[] what = {
                 TodoList.Entries.COLUMN_NAME_TITLE,
                 TodoList.Entries.COLUMN_NAME_NOTES,
                 TodoList.Entries.COLUMN_NAME_COMPLETE
@@ -162,21 +164,21 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         Cursor cursor = mockResolver.query(
                 TodoList.Entries.CONTENT_URI,  // the URI for the main data table
-                TEST_PROJECTION,            // get the title, note, and mod date columns
+                what,            // get the title, note, and mod date columns
                 null,                       // no selection columns, get all the records
                 null,                       // no selection criteria
                 null                        // use default the sort order
         );
 
-        assertEquals(TEST_PROJECTION.length, cursor.getColumnCount());
-        assertEquals(TEST_PROJECTION[0], cursor.getColumnName(0));
-        assertEquals(TEST_PROJECTION[1], cursor.getColumnName(1));
-        assertEquals(TEST_PROJECTION[2], cursor.getColumnName(2));
+        assertEquals(what.length, cursor.getColumnCount());
+        assertEquals(what[0], cursor.getColumnName(0));
+        assertEquals(what[1], cursor.getColumnName(1));
+        assertEquals(what[2], cursor.getColumnName(2));
     }
 
     public void testQueryEntriesWithProjectionAndSelectionColumns() {
 
-        final String[] TEST_PROJECTION = {
+        final String[] what = {
                 TodoList.Entries.COLUMN_NAME_TITLE,
                 TodoList.Entries.COLUMN_NAME_NOTES,
                 TodoList.Entries.COLUMN_NAME_COMPLETE
@@ -184,32 +186,32 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         final String TITLE_SELECTION = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
 
-        String SELECTION_COLUMNS = TITLE_SELECTION;
-        final String[] SELECTION_ARGS = {"Entry0", "Entry1", "Entry5"};
-        for (int i = 1; i < SELECTION_ARGS.length; i++)
-            SELECTION_COLUMNS += " OR " + TITLE_SELECTION;
+        String where = TITLE_SELECTION;
+        final String[] whereArgs = {"Entry0", "Entry1", "Entry5"};
+        for (int i = 1; i < whereArgs.length; i++)
+            where += " OR " + TITLE_SELECTION;
 
-        final String SORT_ORDER = TodoList.Entries.COLUMN_NAME_TITLE + " ASC";
+        final String sort = TodoList.Entries.COLUMN_NAME_TITLE + " ASC";
 
         insertData();
 
         Cursor cursor = mockResolver.query(
                 TodoList.Entries.CONTENT_URI, // the URI for the main data table
-                TEST_PROJECTION,           // get the title, note, and mod date columns
-                SELECTION_COLUMNS,         // select on the title column
-                SELECTION_ARGS,            // select titles "Entry0", "Entry1", or "Entry5"
-                SORT_ORDER                 // sort ascending on the title column
+                what,           // get the title, note, and mod date columns
+                where,         // select on the title column
+                whereArgs,            // select titles "Entry0", "Entry1", or "Entry5"
+                sort                 // sort ascending on the title column
         );
 
-        assertEquals(SELECTION_ARGS.length, cursor.getCount());
+        assertEquals(whereArgs.length, cursor.getCount());
 
         int index = 0;
 
         while (cursor.moveToNext())
-            assertEquals(SELECTION_ARGS[index++], cursor.getString(0));
+            assertEquals(whereArgs[index++], cursor.getString(0));
 
 
-        assertEquals(SELECTION_ARGS.length, index);
+        assertEquals(whereArgs.length, index);
     }
 
     public void testQueryEntryEmpty() {
@@ -228,20 +230,20 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
 
     public void testQueryEntry() {
-        final String SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
-        final String[] SELECTION_ARGS = {"Entry1"};
-        final String SORT_ORDER = TodoList.Entries.COLUMN_NAME_TITLE + " ASC";
-        final String[] ENTRY_ID_PROJECTION = {TodoList.Entries._ID};
+        final String where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String[] whereArgs = {"Entry1"};
+        final String sort = TodoList.Entries.COLUMN_NAME_TITLE + " ASC";
+        final String[] what = {TodoList.Entries._ID};
 
         insertData();
 
         // Queries the table using the URI for the full table.
         Cursor cursor = mockResolver.query(
                 TodoList.Entries.CONTENT_URI, // the base URI for the table
-                ENTRY_ID_PROJECTION,        // returns the ID and title columns of rows
-                SELECTION_COLUMNS,         // select based on the title column
-                SELECTION_ARGS,            // select title of "Entry1"
-                SORT_ORDER                 // sort order returned is by title, ascending
+                what,        // returns the ID and title columns of rows
+                where,         // select based on the title column
+                whereArgs,            // select title of "Entry1"
+                sort                 // sort order returned is by title, ascending
         );
 
         assertEquals(1, cursor.getCount());
@@ -252,10 +254,10 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
 
         cursor = mockResolver.query(entryIdUri, // the URI for a single note
-                ENTRY_ID_PROJECTION,                 // same projection, get ID and title columns
-                SELECTION_COLUMNS,                  // same selection, based on title column
-                SELECTION_ARGS,                     // same selection arguments, title = "Entry1"
-                SORT_ORDER                          // same sort order returned, by title, ascending
+                what,                 // same projection, get ID and title columns
+                where,                  // same selection, based on title column
+                whereArgs,                     // same selection arguments, title = "Entry1"
+                sort                          // same sort order returned, by title, ascending
         );
 
         assertEquals(1, cursor.getCount());
@@ -329,16 +331,16 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
     public void testDelete(){
 
-        final String SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
-        final String[] SELECTION_ARGS = { "Entry0" };
+        final String where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String[] whereArgs = { "Entry0" };
 
         insertData();
 
         Cursor cursor = mockResolver.query(
             TodoList.Entries.CONTENT_URI, // the base URI of the table
             null,                      // no projection, return all columns
-            SELECTION_COLUMNS,         // select based on the title column
-            SELECTION_ARGS,            // select title = "Entry0"
+            where,         // select based on the title column
+            whereArgs,            // select title = "Entry0"
             null                       // use the default sort order
         );
 
@@ -348,8 +350,8 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         int rowsDeleted = mockResolver.delete(
             TodoList.Entries.CONTENT_URI, // the base URI of the table
-            SELECTION_COLUMNS,         // same selection column, "title"
-            SELECTION_ARGS             // same selection arguments, title = "Entry0"
+            where,         // same selection column, "title"
+            whereArgs             // same selection arguments, title = "Entry0"
         );
 
         assertEquals(1, rowsDeleted);
@@ -357,8 +359,8 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         cursor = mockResolver.query(
             TodoList.Entries.CONTENT_URI, // the base URI of the table
             null,                      // no projection, return all columns
-            SELECTION_COLUMNS,         // select based on the title column
-            SELECTION_ARGS,            // select title = "Entry0"
+            where,         // select based on the title column
+            whereArgs,            // select title = "Entry0"
             null                       // use the default sort order
         );
 
@@ -395,9 +397,9 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
     public void testUpdates() {
 
-        final String[] NOTES_PROJECTION = { TodoList.Entries.COLUMN_NAME_NOTES };
-        final String  SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
-        final String[] SELECTION_ARGS = { "Entry1" };
+        final String[] what = { TodoList.Entries.COLUMN_NAME_NOTES };
+        final String  where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String[] whereArgs = { "Entry1" };
 
         ContentValues values = new ContentValues();
         String newNote = "Testing an update with this string";
@@ -408,17 +410,17 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         int rowsUpdated = mockResolver.update(
             TodoList.Entries.CONTENT_URI,   // The URI of the data table
             values,                      // the same map of updates
-            SELECTION_COLUMNS,            // same selection, based on the title column
-            SELECTION_ARGS                // same selection argument, to select "title = Entry1"
+            where,            // same selection, based on the title column
+            whereArgs                // same selection argument, to select "title = Entry1"
         );
 
         assertEquals(1, rowsUpdated);
 
         Cursor cursor = mockResolver.query(
                 TodoList.Entries.CONTENT_URI, // the base URI for the table
-                NOTES_PROJECTION,        // returns the entry notes
-                SELECTION_COLUMNS,         // select based on the title column
-                SELECTION_ARGS,            // select title of "Entry1"
+                what,        // returns the entry notes
+                where,         // select based on the title column
+                whereArgs,            // select title of "Entry1"
                 null
         );
 
@@ -432,9 +434,9 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testBatchDeleteAndInsert() {
 
         // Delete Entry0
-        final String SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
-        final String[] SELECTION_ARGS = { "Entry0" };
-        final String[] ENTRY_ID_PROJECTION = {TodoList.Entries._ID};
+        final String where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String[] whereArgs = { "Entry0" };
+        final String[] what = {TodoList.Entries._ID};
 
         // Insert Entry30
         EntryData newEntry = new EntryData("Entry30", "This is Entry30", false);
@@ -447,7 +449,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         operations.add(
                 ContentProviderOperation.newDelete(
                         TodoList.Entries.CONTENT_URI)
-                        .withSelection(SELECTION_COLUMNS, SELECTION_ARGS)
+                        .withSelection(where, whereArgs)
                         .build()
         );
 
@@ -463,7 +465,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         try {
             ContentProviderResult[] results =  mockResolver.applyBatch(TodoList.AUTHORITY, operations);
             assertEquals(1, (int)results[0].count);
-            assertEquals(1, mockResolver.query(results[1].uri,ENTRY_ID_PROJECTION, null,null,null).getCount());
+            assertEquals(1, mockResolver.query(results[1].uri,what, null,null,null).getCount());
 
         } catch (RemoteException e) {
             fail(e.toString());
@@ -475,8 +477,8 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testBatchDeleteAndInsertInvalidUri() {
 
         // Delete Entry0
-        final String SELECTION_COLUMNS = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
-        final String[] SELECTION_ARGS = { "Entry0" };
+        final String where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String[] whereArgs = { "Entry0" };
 
          // Insert Entry30
         EntryData newEntry = new EntryData("Entry30", "This is Entry30", false);
@@ -488,7 +490,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         operations.add(
                 ContentProviderOperation.newDelete(TodoList.Entries.CONTENT_URI)
-                        .withSelection(SELECTION_COLUMNS, SELECTION_ARGS)
+                        .withSelection(where, whereArgs)
                         .build()
         );
 
@@ -504,7 +506,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
             ContentProviderResult[] results =  mockResolver.applyBatch(TodoList.AUTHORITY, operations);
             assertEquals(0, results.length);
             assertEquals(1, mockResolver.query(TodoList.Entries.CONTENT_URI,
-                                null,SELECTION_COLUMNS,SELECTION_ARGS,null).getCount());
+                                null,where,whereArgs,null).getCount());
 
         } catch (RemoteException e) {
             fail(e.toString());
