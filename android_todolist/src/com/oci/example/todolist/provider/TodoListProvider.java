@@ -3,7 +3,6 @@ package com.oci.example.todolist.provider;
 import android.content.*;
 import android.content.res.Resources;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
@@ -40,8 +39,6 @@ public class TodoListProvider extends ContentProvider {
      */
     private static final int ENTRIES = 1;
     private static final int ENTRY_ID = 2;
-    private static final int DELETE_PENDING_ENTRIES = 3;
-    private static final int DELETE_PENDING_ENTRY_ID = 4;
 
     /**
      * A UriMatcher instance
@@ -55,12 +52,6 @@ public class TodoListProvider extends ContentProvider {
         // Add the URIs to the matcher
         uriMatcher.addURI(TodoList.AUTHORITY, TodoList.Entries.PATH_TODOLIST_ENTRIES, ENTRIES);
         uriMatcher.addURI(TodoList.AUTHORITY, TodoList.Entries.PATH_TODOLIST_ENTRY_ID + "#", ENTRY_ID);
-        uriMatcher.addURI(TodoList.AUTHORITY,
-                TodoList.DeletePendingEntries.PATH_TODOLIST_DELETE_PENDING_ENTRIES,
-                DELETE_PENDING_ENTRIES);
-        uriMatcher.addURI(TodoList.AUTHORITY,
-                TodoList.DeletePendingEntries.PATH_TODOLIST_DELETE_PENDING_ENTRY_ID + "#",
-                DELETE_PENDING_ENTRY_ID);
     }
 
     static class DatabaseHelper extends SQLiteOpenHelper {
@@ -76,19 +67,15 @@ public class TodoListProvider extends ContentProvider {
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + TodoList.Entries.TABLE_NAME + " ("
                     + TodoList.Entries._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + TodoList.Entries.COLUMN_NAME_ID + " INTEGER KEY,"
                     + TodoList.Entries.COLUMN_NAME_TITLE + " TEXT,"
                     + TodoList.Entries.COLUMN_NAME_NOTES + " TEXT,"
                     + TodoList.Entries.COLUMN_NAME_COMPLETE + " INTEGER,"
                     + TodoList.Entries.COLUMN_NAME_CREATE_TIME + " LONG,"
                     + TodoList.Entries.COLUMN_NAME_MODIFY_TIME + " LONG,"
-                    + TodoList.Entries.COLUMN_NAME_PENDING_TX + " INTEGER,"
-                    + TodoList.Entries.COLUMN_NAME_PENDING_INSERT + " INTEGER,"
-                    + TodoList.Entries.COLUMN_NAME_PENDING_UPDATE + " INTEGER"
-                    + ");");
-
-            db.execSQL("CREATE TABLE " + TodoList.DeletePendingEntries.TABLE_NAME + " ("
-                    + TodoList.Entries._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + TodoList.Entries.COLUMN_NAME_PENDING_TX + " INTEGER"
+                    + TodoList.Entries.COLUMN_NAME_PENDING_TX + " INTEGER DEFAULT 0,"
+                    + TodoList.Entries.COLUMN_NAME_DIRTY + " INTEGER DEFAULT 0,"
+                    + TodoList.Entries.COLUMN_NAME_DELETED + " INTEGER DEFAULT 0"
                     + ");");
         }
 
@@ -102,7 +89,6 @@ public class TodoListProvider extends ContentProvider {
 
             // Kills the table and existing data
             db.execSQL("DROP TABLE IF EXISTS " + TodoList.Entries.TABLE_NAME);
-            db.execSQL("DROP TABLE IF EXISTS " + TodoList.DeletePendingEntries.TABLE_NAME);
 
             // Recreates the database with a new version
             onCreate(db);
@@ -141,20 +127,13 @@ public class TodoListProvider extends ContentProvider {
             case ENTRY_ID:
                 return TodoList.Entries.CONTENT_ITEM_TYPE;
 
-            case DELETE_PENDING_ENTRIES:
-                return TodoList.DeletePendingEntries.CONTENT_TYPE;
-
-            case DELETE_PENDING_ENTRY_ID:
-                return TodoList.DeletePendingEntries.CONTENT_ITEM_TYPE;
-
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection,
-                        String[] selectionArgs, String sortOrder) {
+    public Cursor query(Uri uri, String[] what, String where, String[] whereArgs, String sortOrder) {
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         String orderBy;
@@ -162,24 +141,12 @@ public class TodoListProvider extends ContentProvider {
 
             case ENTRY_ID:
                 qb.appendWhere(TodoList.Entries._ID + "=" +
-                        uri.getPathSegments().get(TodoList.Entries.TODOLIST_ENTRY_ID_PATH_POSITION));
+                        uri.getPathSegments().get(TodoList.Entries.TODOLIST_ENTRY_ID_PATH_POSITION)+" AND ");
             case ENTRIES:
+                qb.appendWhere(TodoList.Entries.COLUMN_NAME_DELETED + "=" + 0);
                 qb.setTables(TodoList.Entries.TABLE_NAME);
                 if (TextUtils.isEmpty(sortOrder)) {
                     orderBy = TodoList.Entries.DEFAULT_SORT_ORDER;
-                } else {
-                    orderBy = sortOrder;
-                }
-                break;
-
-            case DELETE_PENDING_ENTRY_ID:
-                qb.appendWhere(TodoList.DeletePendingEntries._ID + "=" +
-                        uri.getPathSegments().get(
-                                TodoList.DeletePendingEntries.TODOLIST_DELETE_PENDING_ENTRY_ID_PATH_POSITION));
-            case DELETE_PENDING_ENTRIES:
-                qb.setTables(TodoList.DeletePendingEntries.TABLE_NAME);
-                if (TextUtils.isEmpty(sortOrder)) {
-                    orderBy = TodoList.DeletePendingEntries.DEFAULT_SORT_ORDER;
                 } else {
                     orderBy = sortOrder;
                 }
@@ -192,7 +159,7 @@ public class TodoListProvider extends ContentProvider {
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
 
-        Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, orderBy);
+        Cursor c = qb.query(db, what, where, whereArgs, null, null, orderBy);
         c.setNotificationUri(getContext().getContentResolver(), uri);
 
         return c;
@@ -209,6 +176,10 @@ public class TodoListProvider extends ContentProvider {
 
         switch (uriMatcher.match(uri)) {
             case ENTRIES:
+
+                // All inserted entries have an ID of 0 until synced
+                values.put(TodoList.Entries.COLUMN_NAME_ID, 0);
+
                 // Set the Created and Modified times to NOW if not set
                 Long now = System.currentTimeMillis();
                 if (!values.containsKey(TodoList.Entries.COLUMN_NAME_CREATE_TIME))
@@ -234,11 +205,11 @@ public class TodoListProvider extends ContentProvider {
                 if (!values.containsKey(TodoList.Entries.COLUMN_NAME_PENDING_TX))
                     values.put(TodoList.Entries.COLUMN_NAME_PENDING_TX, 0);
 
-                if (!values.containsKey(TodoList.Entries.COLUMN_NAME_PENDING_INSERT))
-                    values.put(TodoList.Entries.COLUMN_NAME_PENDING_INSERT, 1);
+                if (!values.containsKey(TodoList.Entries.COLUMN_NAME_DIRTY))
+                    values.put(TodoList.Entries.COLUMN_NAME_DIRTY, 1);
 
-                if (!values.containsKey(TodoList.Entries.COLUMN_NAME_PENDING_UPDATE))
-                    values.put(TodoList.Entries.COLUMN_NAME_PENDING_UPDATE, 0);
+                if (!values.containsKey(TodoList.Entries.COLUMN_NAME_DELETED))
+                    values.put(TodoList.Entries.COLUMN_NAME_DELETED, 0);
 
                 break;
 
@@ -262,7 +233,7 @@ public class TodoListProvider extends ContentProvider {
     public int delete(Uri uri, String where, String[] whereArgs) {
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        int count;
+        int count=0;
         switch (uriMatcher.match(uri)) {
 
             case ENTRY_ID:
@@ -270,34 +241,37 @@ public class TodoListProvider extends ContentProvider {
             case ENTRIES:
                 SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
                 qb.setTables(TodoList.Entries.TABLE_NAME);
-                final String[] idProjection = {TodoList.Entries._ID};
+                final String[] what = {TodoList.Entries._ID,
+                                       TodoList.Entries.COLUMN_NAME_DELETED};
 
                 db.beginTransaction();
                 try {
-                    Cursor cur = qb.query(db, idProjection, where, whereArgs, null, null, null);
+                    Cursor cur = qb.query(db, what, where, whereArgs, null, null, null);
                     cur.moveToFirst();
-                    while (cur.isAfterLast() == false) {
-                        ContentValues values = new ContentValues();
-                        values.put(TodoList.Entries._ID, cur.getInt(0));
-                        values.put(TodoList.Entries.COLUMN_NAME_PENDING_TX, 0);
-                        long id = db.insert(TodoList.DeletePendingEntries.TABLE_NAME, null, values);
-                        if (id <= 0)
-                            throw new SQLException("Failed to delete row from " + uri);
+                    while (!cur.isAfterLast()) {
+
+                        final int entryId = cur.getInt(cur.getColumnIndex(TodoList.Entries._ID));
+                        final boolean deletedFlag =  cur.getInt(
+                                    cur.getColumnIndex(TodoList.Entries.COLUMN_NAME_DELETED)) == 1;
+
+                        final String _where = TodoList.Entries._ID + " = " + "?";
+                        final String[] _whereArgs = { Integer.toString(entryId) };
+
+                        if (deletedFlag){
+                            count += db.delete(TodoList.Entries.TABLE_NAME,_where,_whereArgs);
+                        } else {
+                            ContentValues values = new ContentValues();
+                            values.put(TodoList.Entries.COLUMN_NAME_DELETED, 1);
+                            count += db.update(TodoList.Entries.TABLE_NAME,values,_where,_whereArgs);
+                        }
 
                         cur.moveToNext();
                     }
                     cur.close();
-                    count = db.delete(TodoList.Entries.TABLE_NAME, where, whereArgs);
                     db.setTransactionSuccessful();
                 } finally {
                     db.endTransaction();
                 }
-                break;
-
-            case DELETE_PENDING_ENTRY_ID:
-                where = appendEntryIdWhereClause(uri, where);
-            case DELETE_PENDING_ENTRIES:
-                count = db.delete(TodoList.DeletePendingEntries.TABLE_NAME, where, whereArgs);
                 break;
 
             // If the incoming pattern is invalid, throws an exception.
@@ -324,21 +298,16 @@ public class TodoListProvider extends ContentProvider {
             case ENTRY_ID:
                 where = appendEntryIdWhereClause(uri, where);
             case ENTRIES:
+                where = appendEntryDeletedWhereClause(where);
                 // Set the Modified times to NOW if not set
                 if (!values.containsKey(TodoList.Entries.COLUMN_NAME_MODIFY_TIME))
                     values.put(TodoList.Entries.COLUMN_NAME_MODIFY_TIME, System.currentTimeMillis());
 
                 // Mark the entry as pending a POST
-                if (!values.containsKey(TodoList.Entries.COLUMN_NAME_PENDING_UPDATE))
-                    values.put(TodoList.Entries.COLUMN_NAME_PENDING_UPDATE, 1);
+                if (!values.containsKey(TodoList.Entries.COLUMN_NAME_DIRTY))
+                    values.put(TodoList.Entries.COLUMN_NAME_DIRTY, 1);
 
                 tableName = TodoList.Entries.TABLE_NAME;
-                break;
-
-            case DELETE_PENDING_ENTRY_ID:
-                where = appendEntryIdWhereClause(uri, where);
-            case DELETE_PENDING_ENTRIES:
-                tableName = TodoList.DeletePendingEntries.TABLE_NAME;
                 break;
 
             default:
@@ -379,9 +348,18 @@ public class TodoListProvider extends ContentProvider {
 
     }
 
-    private String appendEntryIdWhereClause(Uri uri, String where) {
+    private static String appendEntryIdWhereClause(Uri uri, String where) {
         String entryId = uri.getPathSegments().get(TodoList.Entries.TODOLIST_ENTRY_ID_PATH_POSITION);
         String newWhere = TodoList.Entries._ID + " = " + entryId;
+        if (where != null)
+            newWhere += " AND " + where;
+
+        return newWhere;
+
+    }
+
+     private static String appendEntryDeletedWhereClause(String where) {
+        String newWhere = TodoList.Entries.COLUMN_NAME_DELETED + " = " + 0;
         if (where != null)
             newWhere += " AND " + where;
 

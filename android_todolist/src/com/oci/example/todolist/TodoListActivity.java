@@ -27,6 +27,8 @@ public class TodoListActivity extends Activity {
     private ListView todoListView;
     private TodoListCursorAdapter todoListAdapter;
 
+
+
     /**
      * Called when the activity is first created.
      */
@@ -85,6 +87,7 @@ public class TodoListActivity extends Activity {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 Toast.makeText(this,R.string.refreshing_list,Toast.LENGTH_SHORT).show();
+                startService(new Intent(TodoListSync.ACTION_TODOLIST_SYNC));
                 return true;
 
             case R.id.menu_clear_selected:

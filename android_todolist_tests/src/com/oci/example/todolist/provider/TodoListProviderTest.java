@@ -22,6 +22,7 @@ import java.util.GregorianCalendar;
 public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
     private static class EntryData {
+        final int id;
         final String title;
         final String notes;
         final int complete;
@@ -37,7 +38,8 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
             this.createTime = createTime;
         }
 
-        public EntryData(String title, String notes, boolean complete) {
+        public EntryData(int id, String title, String notes, boolean complete) {
+            this.id=id;
             this.title = title;
             this.notes = notes;
             this.complete = complete ? 1 : 0;
@@ -46,6 +48,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         public ContentValues toContentValues() {
 
             ContentValues values = new ContentValues();
+            values.put(TodoList.Entries.COLUMN_NAME_ID, id);
             values.put(TodoList.Entries.COLUMN_NAME_TITLE, title);
             values.put(TodoList.Entries.COLUMN_NAME_NOTES, notes);
             values.put(TodoList.Entries.COLUMN_NAME_COMPLETE, complete);
@@ -56,18 +59,13 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         }
     }
 
-    private final EntryData[] TEST_ENTRIES = {
-            new EntryData("Entry0", "This is entry 0", false),
-            new EntryData("Entry1", "This is entry 1", false),
-            new EntryData("Entry2", "This is entry 2", false),
-            new EntryData("Entry3", "This is entry 3", false),
-            new EntryData("Entry4", "This is entry 4", false),
-            new EntryData("Entry5", "This is entry 5", false),
-            new EntryData("Entry6", "This is entry 6", false),
-            new EntryData("Entry7", "This is entry 7", false),
-            new EntryData("Entry8", "This is entry 8", false),
-            new EntryData("Entry9", "This is entry 9", false)
-    };
+    private static final EntryData[] TEST_ENTRIES = new EntryData[10];
+
+    static {
+        for (int i = 0; i< TEST_ENTRIES.length; i++){
+            TEST_ENTRIES[i] = new EntryData(i,"Entry"+i, "This is entry "+i, false);
+        }
+    }
 
 
     private MockContentResolver mockResolver;
@@ -266,7 +264,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
 
     public void testInsert() {
-        EntryData entry = new EntryData("Entry30", "This is Entry30", false);
+        EntryData entry = new EntryData(30,"Entry30", "This is Entry30", false);
         entry.setCreateTime(START_DATE + (10 * ONE_DAY_MILLIS));
         entry.setModifyTime(START_DATE + (2 * ONE_WEEK_MILLIS));
 
@@ -299,7 +297,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
 
     public void testInsertExisting() {
-        EntryData entry = new EntryData("Entry30", "This is Entry30", false);
+        EntryData entry = new EntryData(30,"Entry30", "This is Entry30", false);
         entry.setCreateTime(START_DATE + (10 * ONE_DAY_MILLIS));
         entry.setModifyTime(START_DATE + (2 * ONE_WEEK_MILLIS));
 
@@ -366,18 +364,22 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         assertEquals(0, cursor.getCount());
 
-        Uri deletePendingEntryIdUri =
-                ContentUris.withAppendedId(TodoList.DeletePendingEntries.CONTENT_ID_URI_BASE, entryId);
-
-        cursor = mockResolver.query(
-            deletePendingEntryIdUri,
-            null,                      // no projection, return all columns
-            null,         // select based on the title column
-            null,            // select title = "Entry0"
-            null                       // use the default sort order
+        rowsDeleted = mockResolver.delete(
+            TodoList.Entries.CONTENT_URI, // the base URI of the table
+            where,         // same selection column, "title"
+            whereArgs             // same selection arguments, title = "Entry0"
         );
 
-        assertEquals(1, cursor.getCount());
+        assertEquals(1, rowsDeleted);
+
+        rowsDeleted = mockResolver.delete(
+            TodoList.Entries.CONTENT_URI, // the base URI of the table
+            where,         // same selection column, "title"
+            whereArgs             // same selection arguments, title = "Entry0"
+        );
+
+        assertEquals(0, rowsDeleted);
+
     }
 
     public void testUpdatesEmpty() {
@@ -439,7 +441,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         final String[] what = {TodoList.Entries._ID};
 
         // Insert Entry30
-        EntryData newEntry = new EntryData("Entry30", "This is Entry30", false);
+        EntryData newEntry = new EntryData(30,"Entry30", "This is Entry30", false);
         newEntry.setCreateTime(START_DATE + (10 * ONE_DAY_MILLIS));
         newEntry.setModifyTime(START_DATE + (2 * ONE_WEEK_MILLIS));
 
@@ -481,7 +483,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         final String[] whereArgs = { "Entry0" };
 
          // Insert Entry30
-        EntryData newEntry = new EntryData("Entry30", "This is Entry30", false);
+        EntryData newEntry = new EntryData(30,"Entry30", "This is Entry30", false);
         newEntry.setCreateTime(START_DATE + (10 * ONE_DAY_MILLIS));
         newEntry.setModifyTime(START_DATE + (2 * ONE_WEEK_MILLIS));
 

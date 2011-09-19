@@ -6,6 +6,8 @@
 
     <uses-sdk android:minSdkVersion="8"/>
 
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+
     <application android:label="@string/app_name" android:icon="@drawable/icon">
 
         <provider android:name=".provider.TodoListProvider"
@@ -32,7 +34,16 @@
         </activity>
 
         <activity android:name=".Settings" android:label="Settings"/>
-        <service android:name=".TodoListSync" android:label="TodoListSync"/>
+
+        <service android:name=".TodoListSync"
+                 android:label="TodoListSync">
+            <intent-filter>
+                <action android:name="com.oci.example.todolist.SYNC"/>
+                <action android:name="com.oci.example.todolist.REFRESH"/>
+            </intent-filter>
+
+        </service>
+
     </application>
 
 </manifest>
