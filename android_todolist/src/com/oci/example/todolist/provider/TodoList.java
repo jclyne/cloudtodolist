@@ -98,41 +98,41 @@ public final class TodoList {
          * Column name for the TodoList ID of the entry
          * <P>Type: TEXT</P>
          */
-        public static final String COLUMN_NAME_ID= "ID";
+        public static final String ID = "ID";
 
         /**
          * Column name for the title of the entry
          * <P>Type: TEXT</P>
          */
-        public static final String COLUMN_NAME_TITLE = "title";
+        public static final String TITLE = "title";
 
         /**
          * Column name of the entry notes
          * <P>Type: TEXT</P>
          */
-        public static final String COLUMN_NAME_NOTES = "notes";
+        public static final String NOTES = "notes";
 
         /**
          * Column name for the completed flag
          * <P>Type: BOOLEAN)</P>
          */
-        public static final String COLUMN_NAME_COMPLETE = "complete";
+        public static final String COMPLETE = "complete";
 
         /**
          * Column name for the creation timestamp
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
-        public static final String COLUMN_NAME_CREATE_TIME = "created";
+        public static final String CREATE_TIME = "created";
 
         /**
          * Column name for the modification timestamp
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
-        public static final String COLUMN_NAME_MODIFY_TIME = "modified";
+        public static final String MODIFY_TIME = "modified";
 
-        public static final String COLUMN_NAME_PENDING_TX = "pending_tx";
-        public static final String COLUMN_NAME_DIRTY= "dirty";
-        public static final String COLUMN_NAME_DELETED = "deleted";
+        public static final String PENDING_TX = "pending_tx";
+        public static final String DIRTY = "dirty";
+        public static final String DELETED = "deleted";
 
     }
 }

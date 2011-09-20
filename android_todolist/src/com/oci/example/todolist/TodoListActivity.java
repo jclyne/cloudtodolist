@@ -153,7 +153,7 @@ public class TodoListActivity extends Activity {
             return;
 
         ContentValues values = new ContentValues();
-        values.put(TodoList.Entries.COLUMN_NAME_TITLE, title);
+        values.put(TodoList.Entries.TITLE, title);
         try {
             getContentResolver().insert(TodoList.Entries.CONTENT_URI, values);
             Toast.makeText(this, getString(R.string.entry_added), Toast.LENGTH_SHORT).show();
@@ -184,7 +184,7 @@ public class TodoListActivity extends Activity {
 
 
     public void onClearCompleted() {
-        final String where = TodoList.Entries.COLUMN_NAME_COMPLETE + " = ?";
+        final String where = TodoList.Entries.COMPLETE + " = ?";
         final String[] whereArgs = {Integer.toString(1)};
         int rowsDeleted = getContentResolver().delete(
                 TodoList.Entries.CONTENT_URI, where, whereArgs);
@@ -195,13 +195,13 @@ public class TodoListActivity extends Activity {
 
     public Dialog buildNotesDialog(long entryId) {
         Uri entryUri = ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, entryId);
-        final String[] what = {TodoList.Entries.COLUMN_NAME_NOTES,
-                                TodoList.Entries.COLUMN_NAME_TITLE};
+        final String[] what = {TodoList.Entries.NOTES,
+                                TodoList.Entries.TITLE};
 
         Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
         cursor.moveToFirst();
-        String title = cursor.getString(cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_TITLE));
-        String notes = cursor.getString(cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_NOTES));
+        String title = cursor.getString(cursor.getColumnIndex(TodoList.Entries.TITLE));
+        String notes = cursor.getString(cursor.getColumnIndex(TodoList.Entries.NOTES));
         if (notes.equals("")){
             notes=getString(R.string.empty_notes);
         }

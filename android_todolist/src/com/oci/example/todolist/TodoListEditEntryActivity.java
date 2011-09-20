@@ -30,12 +30,12 @@ public class TodoListEditEntryActivity extends Activity {
         entryUri = getIntent().getData();
 
         // Get the current title and notes strings to pre-populate
-        final String[] what = {TodoList.Entries.COLUMN_NAME_TITLE,
-                                TodoList.Entries.COLUMN_NAME_NOTES};
+        final String[] what = {TodoList.Entries.TITLE,
+                                TodoList.Entries.NOTES};
 
         Cursor cursor = getContentResolver().query(entryUri,what,null,null,null);
-        final int titleIndex = cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_TITLE);
-        final int notesIndex = cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_NOTES);
+        final int titleIndex = cursor.getColumnIndex(TodoList.Entries.TITLE);
+        final int notesIndex = cursor.getColumnIndex(TodoList.Entries.NOTES);
         cursor.moveToFirst();
 
         currentTitle=cursor.getString(titleIndex);
@@ -51,11 +51,11 @@ public class TodoListEditEntryActivity extends Activity {
 
         String newTitle=titleEditText.getText().toString();
         if (!newTitle.equals(currentTitle))
-            values.put(TodoList.Entries.COLUMN_NAME_TITLE,newTitle);
+            values.put(TodoList.Entries.TITLE,newTitle);
 
         String newNotes=notesEditText.getText().toString();
         if (!newNotes.equals(currentNotes))
-            values.put(TodoList.Entries.COLUMN_NAME_NOTES,newNotes);
+            values.put(TodoList.Entries.NOTES,newNotes);
 
         if (values.size() > 0) {
             getContentResolver().update(entryUri,values,null,null);

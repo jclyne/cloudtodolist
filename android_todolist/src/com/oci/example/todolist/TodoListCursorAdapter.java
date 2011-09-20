@@ -30,9 +30,9 @@ public class TodoListCursorAdapter extends CursorAdapter {
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         final int id = cursor.getInt(cursor.getColumnIndex(TodoList.Entries._ID));
-        final boolean complete = (cursor.getInt(cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_COMPLETE)) == 1);
-        final String title = cursor.getString(cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_TITLE));
-        final String notes = cursor.getString(cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_NOTES));
+        final boolean complete = (cursor.getInt(cursor.getColumnIndex(TodoList.Entries.COMPLETE)) == 1);
+        final String title = cursor.getString(cursor.getColumnIndex(TodoList.Entries.TITLE));
+        final String notes = cursor.getString(cursor.getColumnIndex(TodoList.Entries.NOTES));
 
         final CheckBox completeCheckBox = (CheckBox) view.findViewById(R.id.entry_complete);
         final TextView titleTextView = (TextView) view.findViewById(R.id.entry_title);
@@ -60,7 +60,7 @@ public class TodoListCursorAdapter extends CursorAdapter {
                 final String[] whereArgs = {tag.toString()};
 
                 ContentValues values = new ContentValues();
-                values.put(TodoList.Entries.COLUMN_NAME_COMPLETE, (completeCheckBox.isChecked() ? 1 : 0));
+                values.put(TodoList.Entries.COMPLETE, (completeCheckBox.isChecked() ? 1 : 0));
                 TodoListCursorAdapter.this.context.getContentResolver().update(
                         TodoList.Entries.CONTENT_URI, values, where, whereArgs);
             }

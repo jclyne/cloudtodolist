@@ -7,8 +7,6 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.test.ProviderTestCase2;
 import android.test.mock.MockContentResolver;
-import com.oci.example.todolist.provider.TodoList;
-import com.oci.example.todolist.provider.TodoListProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -48,12 +46,12 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         public ContentValues toContentValues() {
 
             ContentValues values = new ContentValues();
-            values.put(TodoList.Entries.COLUMN_NAME_ID, id);
-            values.put(TodoList.Entries.COLUMN_NAME_TITLE, title);
-            values.put(TodoList.Entries.COLUMN_NAME_NOTES, notes);
-            values.put(TodoList.Entries.COLUMN_NAME_COMPLETE, complete);
-            values.put(TodoList.Entries.COLUMN_NAME_CREATE_TIME, createTime);
-            values.put(TodoList.Entries.COLUMN_NAME_MODIFY_TIME, modifyTime);
+            values.put(TodoList.Entries.ID, id);
+            values.put(TodoList.Entries.TITLE, title);
+            values.put(TodoList.Entries.NOTES, notes);
+            values.put(TodoList.Entries.COMPLETE, complete);
+            values.put(TodoList.Entries.CREATE_TIME, createTime);
+            values.put(TodoList.Entries.MODIFY_TIME, modifyTime);
 
             return values;
         }
@@ -153,9 +151,9 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testQueryEntriesWithProjection() {
 
         final String[] what = {
-                TodoList.Entries.COLUMN_NAME_TITLE,
-                TodoList.Entries.COLUMN_NAME_NOTES,
-                TodoList.Entries.COLUMN_NAME_COMPLETE
+                TodoList.Entries.TITLE,
+                TodoList.Entries.NOTES,
+                TodoList.Entries.COMPLETE
         };
 
         insertData();
@@ -177,19 +175,19 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testQueryEntriesWithProjectionAndSelectionColumns() {
 
         final String[] what = {
-                TodoList.Entries.COLUMN_NAME_TITLE,
-                TodoList.Entries.COLUMN_NAME_NOTES,
-                TodoList.Entries.COLUMN_NAME_COMPLETE
+                TodoList.Entries.TITLE,
+                TodoList.Entries.NOTES,
+                TodoList.Entries.COMPLETE
         };
 
-        final String TITLE_SELECTION = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String TITLE_SELECTION = TodoList.Entries.TITLE + " = " + "?";
 
         String where = TITLE_SELECTION;
         final String[] whereArgs = {"Entry0", "Entry1", "Entry5"};
         for (int i = 1; i < whereArgs.length; i++)
             where += " OR " + TITLE_SELECTION;
 
-        final String sort = TodoList.Entries.COLUMN_NAME_TITLE + " ASC";
+        final String sort = TodoList.Entries.TITLE + " ASC";
 
         insertData();
 
@@ -228,9 +226,9 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
 
     public void testQueryEntry() {
-        final String where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String where = TodoList.Entries.TITLE + " = " + "?";
         final String[] whereArgs = {"Entry1"};
-        final String sort = TodoList.Entries.COLUMN_NAME_TITLE + " ASC";
+        final String sort = TodoList.Entries.TITLE + " ASC";
         final String[] what = {TodoList.Entries._ID};
 
         insertData();
@@ -283,11 +281,11 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertEquals(1, cursor.getCount());
         assertTrue(cursor.moveToFirst());
 
-        int titleIndex = cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_TITLE);
-        int notesIndex = cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_NOTES);
-        int completeIndex = cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_COMPLETE);
-        int createTimeIndex = cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_CREATE_TIME);
-        int modifyTimeIndex = cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_MODIFY_TIME);
+        int titleIndex = cursor.getColumnIndex(TodoList.Entries.TITLE);
+        int notesIndex = cursor.getColumnIndex(TodoList.Entries.NOTES);
+        int completeIndex = cursor.getColumnIndex(TodoList.Entries.COMPLETE);
+        int createTimeIndex = cursor.getColumnIndex(TodoList.Entries.CREATE_TIME);
+        int modifyTimeIndex = cursor.getColumnIndex(TodoList.Entries.MODIFY_TIME);
 
         assertEquals(entry.title, cursor.getString(titleIndex));
         assertEquals(entry.notes, cursor.getString(notesIndex));
@@ -329,7 +327,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
     public void testDelete(){
 
-        final String where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String where = TodoList.Entries.TITLE + " = " + "?";
         final String[] whereArgs = { "Entry0" };
 
         insertData();
@@ -386,7 +384,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         ContentValues values = new ContentValues();
         String newNote = "Testing an update with this string";
-        values.put(TodoList.Entries.COLUMN_NAME_NOTES, newNote);
+        values.put(TodoList.Entries.NOTES, newNote);
 
         int rowsUpdated = mockResolver.update(
             TodoList.Entries.CONTENT_URI,  // the URI of the data table
@@ -399,13 +397,13 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
     public void testUpdates() {
 
-        final String[] what = { TodoList.Entries.COLUMN_NAME_NOTES };
-        final String  where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String[] what = { TodoList.Entries.NOTES};
+        final String  where = TodoList.Entries.TITLE + " = " + "?";
         final String[] whereArgs = { "Entry1" };
 
         ContentValues values = new ContentValues();
         String newNote = "Testing an update with this string";
-        values.put(TodoList.Entries.COLUMN_NAME_NOTES, newNote);
+        values.put(TodoList.Entries.NOTES, newNote);
 
         insertData();
 
@@ -428,7 +426,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         assertEquals(1, cursor.getCount());
         assertTrue(cursor.moveToFirst());
-        int notesIndex = cursor.getColumnIndex(TodoList.Entries.COLUMN_NAME_NOTES);
+        int notesIndex = cursor.getColumnIndex(TodoList.Entries.NOTES);
         assertEquals(newNote, cursor.getString(notesIndex));
 
     }
@@ -436,7 +434,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testBatchDeleteAndInsert() {
 
         // Delete Entry0
-        final String where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String where = TodoList.Entries.TITLE + " = " + "?";
         final String[] whereArgs = { "Entry0" };
         final String[] what = {TodoList.Entries._ID};
 
@@ -479,7 +477,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testBatchDeleteAndInsertInvalidUri() {
 
         // Delete Entry0
-        final String where = TodoList.Entries.COLUMN_NAME_TITLE + " = " + "?";
+        final String where = TodoList.Entries.TITLE + " = " + "?";
         final String[] whereArgs = { "Entry0" };
 
          // Insert Entry30

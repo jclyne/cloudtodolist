@@ -1,15 +1,23 @@
 package com.oci.example.todolist;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import com.oci.example.todolist.client.HttpRestClient;
 import com.oci.example.todolist.client.RestClient;
 import com.oci.example.todolist.client.TodoListClient;
+import com.oci.example.todolist.provider.TodoList;
+import com.oci.example.todolist.provider.TodoListProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.util.Map;
 
 public class TodoListSync extends IntentService {
     private static final String TAG = "TodoListSyncService";
@@ -30,7 +38,7 @@ public class TodoListSync extends IntentService {
 
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        client = new TodoListClient(new RestClient(settings.getString("server_address","")));
+        client = new TodoListClient(new HttpRestClient(settings.getString("server_address","")));
 
         Log.i(TAG, "Service Created"+" ("+ Thread.currentThread().getName()+")");
     }
@@ -99,10 +107,37 @@ public class TodoListSync extends IntentService {
     }
 
     private void performFullRefresh() {
+        Map<Integer,ContentValues> entryList = client.getEntries();
+        if (entryList == null){
+            Log.i(TAG,"Full Refresh retrieved 0 entries");
+            return;
+        }
+        Log.i(TAG,"Full Refresh retrieved "+Integer.toString(entryList.size())+" entries");
 
+        TodoListProvider todoListProvider
+                =  (TodoListProvider)getContentResolver()
+                    .acquireContentProviderClient(TodoList.AUTHORITY)
+                    .getLocalContentProvider();
+
+        boolean modified = todoListProvider.performSync(entryList);
+        if (modified)
+            showUpdateNotification();
     }
 
+    private static final int SYNC_UPDATE_ID = 1;
     private void showUpdateNotification() {
+        int icon = R.drawable.icon;
+        CharSequence tickerText = "Todo List Updated";
+        long when = System.currentTimeMillis();
+        Notification notification = new Notification(icon, tickerText, when);
 
+        CharSequence contentTitle = "Todo List Updated";
+        CharSequence contentText = "New Entries";
+        Intent notificationIntent = new Intent(this, TodoListActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        notification.setLatestEventInfo(getApplicationContext(), contentTitle, contentText, contentIntent);
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+        notificationManager.notify(SYNC_UPDATE_ID, notification);
     }
 }
