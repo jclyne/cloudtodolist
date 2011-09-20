@@ -20,7 +20,7 @@ import org.json.JSONObject;
 
 import java.util.Map;
 
-public class TodoListSync extends IntentService {
+public class TodoListSyncService extends IntentService {
     private static final String TAG = "TodoListSyncService";
 
     static final String INTENT_BASE="com.oci.example.todolist";
@@ -29,8 +29,8 @@ public class TodoListSync extends IntentService {
     private TodoListClient client;
     private NotificationManager notificationManager;
 
-    public TodoListSync() {
-        super("TodoListSync");
+    public TodoListSyncService() {
+        super("TodoListSyncService");
     }
 
     @Override
