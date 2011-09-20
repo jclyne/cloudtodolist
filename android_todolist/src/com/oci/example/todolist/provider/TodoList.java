@@ -122,13 +122,13 @@ public final class TodoList {
          * Column name for the creation timestamp
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
-        public static final String CREATE_TIME = "created";
+        public static final String CREATED = "created";
 
         /**
          * Column name for the modification timestamp
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
-        public static final String MODIFY_TIME = "modified";
+        public static final String MODIFIED = "modified";
 
         public static final String PENDING_TX = "pending_tx";
         public static final String DIRTY = "dirty";

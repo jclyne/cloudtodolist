@@ -43,6 +43,10 @@ body {
     text-decoration: line-through;
 }
 
+.entryDateText {
+    font-size: smaller;
+}
+
 .newEntry {
     width: 100%;
     color: #000000;

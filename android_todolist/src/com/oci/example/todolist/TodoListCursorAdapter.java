@@ -1,6 +1,5 @@
 package com.oci.example.todolist;
 
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,23 +7,25 @@ import android.graphics.Paint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.support.v4.widget.CursorAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.TextView;
 import com.oci.example.todolist.provider.TodoList;
 
 public class TodoListCursorAdapter extends CursorAdapter {
 
     private final Context context;
-    private boolean paused = false;
 
     public TodoListCursorAdapter(Context context, Cursor c) {
-        super(context, c, true);
+        super(context, c, FLAG_REGISTER_CONTENT_OBSERVER);
         this.context = context;
     }
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View entryView = LayoutInflater.from(context).inflate(R.layout.entry_layout, parent, false);
-        return entryView;
+        return LayoutInflater.from(context).inflate(R.layout.entry_layout, parent, false);
     }
 
     @Override
@@ -71,12 +72,6 @@ public class TodoListCursorAdapter extends CursorAdapter {
         notesButton.setVisibility( (notes.equals("") ? View.GONE : View.VISIBLE) );
     }
 
-    @Override
-    protected void onContentChanged() {
-        if (!paused)
-            super.onContentChanged();
-    }
-
     public void prepareEntryText(TextView textView, boolean complete) {
         if (complete) {
             textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -84,14 +79,4 @@ public class TodoListCursorAdapter extends CursorAdapter {
             textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
         }
     }
-
-    public void onPause() {
-        paused = true;
-    }
-
-    public void onResume() {
-        paused = false;
-        onContentChanged();
-    }
-
 }

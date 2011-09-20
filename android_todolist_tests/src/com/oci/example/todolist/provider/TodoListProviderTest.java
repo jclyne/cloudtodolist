@@ -50,8 +50,8 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
             values.put(TodoList.Entries.TITLE, title);
             values.put(TodoList.Entries.NOTES, notes);
             values.put(TodoList.Entries.COMPLETE, complete);
-            values.put(TodoList.Entries.CREATE_TIME, createTime);
-            values.put(TodoList.Entries.MODIFY_TIME, modifyTime);
+            values.put(TodoList.Entries.CREATED, createTime);
+            values.put(TodoList.Entries.MODIFIED, modifyTime);
 
             return values;
         }
@@ -284,8 +284,8 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         int titleIndex = cursor.getColumnIndex(TodoList.Entries.TITLE);
         int notesIndex = cursor.getColumnIndex(TodoList.Entries.NOTES);
         int completeIndex = cursor.getColumnIndex(TodoList.Entries.COMPLETE);
-        int createTimeIndex = cursor.getColumnIndex(TodoList.Entries.CREATE_TIME);
-        int modifyTimeIndex = cursor.getColumnIndex(TodoList.Entries.MODIFY_TIME);
+        int createTimeIndex = cursor.getColumnIndex(TodoList.Entries.CREATED);
+        int modifyTimeIndex = cursor.getColumnIndex(TodoList.Entries.MODIFIED);
 
         assertEquals(entry.title, cursor.getString(titleIndex));
         assertEquals(entry.notes, cursor.getString(notesIndex));

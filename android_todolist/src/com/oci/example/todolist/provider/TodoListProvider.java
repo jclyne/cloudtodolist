@@ -7,12 +7,12 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Provides access to a database of todolist entries. Each entry has an id, a title, notes,
@@ -72,8 +72,8 @@ public class TodoListProvider extends ContentProvider {
                     + TodoList.Entries.TITLE + " TEXT,"
                     + TodoList.Entries.NOTES + " TEXT,"
                     + TodoList.Entries.COMPLETE + " INTEGER,"
-                    + TodoList.Entries.CREATE_TIME + " LONG,"
-                    + TodoList.Entries.MODIFY_TIME + " LONG,"
+                    + TodoList.Entries.CREATED + " LONG,"
+                    + TodoList.Entries.MODIFIED + " LONG,"
                     + TodoList.Entries.PENDING_TX + " INTEGER DEFAULT 0,"
                     + TodoList.Entries.DIRTY + " INTEGER DEFAULT 0,"
                     + TodoList.Entries.DELETED + " INTEGER DEFAULT 0"
@@ -183,11 +183,11 @@ public class TodoListProvider extends ContentProvider {
 
                 // Set the Created and Modified times to NOW if not set
                 Long now = System.currentTimeMillis();
-                if (!values.containsKey(TodoList.Entries.CREATE_TIME))
-                    values.put(TodoList.Entries.CREATE_TIME, now);
+                if (!values.containsKey(TodoList.Entries.CREATED))
+                    values.put(TodoList.Entries.CREATED, now);
 
-                if (!values.containsKey(TodoList.Entries.MODIFY_TIME))
-                    values.put(TodoList.Entries.MODIFY_TIME, now);
+                if (!values.containsKey(TodoList.Entries.MODIFIED))
+                    values.put(TodoList.Entries.MODIFIED, now);
 
                 // If the values map doesn't contain a title, sets the value to the default title.
                 if (!values.containsKey(TodoList.Entries.TITLE))
@@ -298,8 +298,8 @@ public class TodoListProvider extends ContentProvider {
             case ENTRIES:
                 where = appendEntryDeletedWhereClause(where);
                 // Set the Modified times to NOW if not set
-                if (!values.containsKey(TodoList.Entries.MODIFY_TIME))
-                    values.put(TodoList.Entries.MODIFY_TIME, System.currentTimeMillis());
+                if (!values.containsKey(TodoList.Entries.MODIFIED))
+                    values.put(TodoList.Entries.MODIFIED, System.currentTimeMillis());
 
                 // Mark the entry as pending a POST
                 if (!values.containsKey(TodoList.Entries.DIRTY))
@@ -347,30 +347,13 @@ public class TodoListProvider extends ContentProvider {
 
     public boolean checkNeedsUpdate(Cursor cur, ContentValues entryValues) {
 
-        if ( (cur.getInt(cur.getColumnIndex(TodoList.Entries.DIRTY)) == 1)
-          || (cur.getInt(cur.getColumnIndex(TodoList.Entries.DELETED)) == 1) )
-            return false;
-
-        if (cur.getInt(cur.getColumnIndex(TodoList.Entries.ID))
-                != entryValues.getAsInteger(TodoList.Entries.ID) )
-            return true;
-
-        if (cur.getInt(cur.getColumnIndex(TodoList.Entries.COMPLETE))
-                != entryValues.getAsInteger(TodoList.Entries.COMPLETE) )
-            return true;
-
-        if (! cur.getString(cur.getColumnIndex(TodoList.Entries.NOTES)).trim().equals(
-                    entryValues.getAsString(TodoList.Entries.NOTES).trim()) )
-            return true;
-
-        if (! cur.getString(cur.getColumnIndex(TodoList.Entries.TITLE)).trim().equals(
-                    entryValues.getAsString(TodoList.Entries.TITLE).trim()) )
-            return true;
-
-        return false;
+        return ( (cur.getInt(cur.getColumnIndex(TodoList.Entries.DIRTY)) == 0)
+                && (cur.getInt(cur.getColumnIndex(TodoList.Entries.DELETED)) == 0)
+                && (cur.getLong(cur.getColumnIndex(TodoList.Entries.MODIFIED))
+                    != entryValues.getAsLong(TodoList.Entries.MODIFIED) ) );
     }
 
-    public boolean performSync(Map<Integer, ContentValues> syncData) {
+    public boolean performSync(Bundle syncData) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String where = TodoList.Entries.ID + " = ?";
         boolean modified = false;
@@ -381,10 +364,10 @@ public class TodoListProvider extends ContentProvider {
             query.setTables(TodoList.Entries.TABLE_NAME);
             Cursor cur = query.query(db, null, null, null, null, null, null);
             for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-                int id = cur.getInt(cur.getColumnIndex(TodoList.Entries.ID));
-                String[] whereArgs = {Integer.toString(id)};
+                String idString = Integer.toString(cur.getInt(cur.getColumnIndex(TodoList.Entries.ID)));
+                String[] whereArgs = {idString};
 
-                ContentValues entryValues = syncData.get(id);
+                ContentValues entryValues = syncData.getParcelable(idString);
                 if (entryValues != null) {
                     if (checkNeedsUpdate(cur, entryValues)) {
                         modified = true;
@@ -392,15 +375,17 @@ public class TodoListProvider extends ContentProvider {
                     }
                 } else {
                     modified = true;
-                    db.delete(TodoList.Entries.TABLE_NAME, TodoList.Entries.ID + " = " + id, null);
+                    db.delete(TodoList.Entries.TABLE_NAME, TodoList.Entries.ID + " = " + idString, null);
                 }
-                syncData.remove(id);
+                syncData.remove(idString);
             }
 
-            for (ContentValues entryValues : syncData.values()) {
+            for (String idString : syncData.keySet() ) {
+                ContentValues entryValues = syncData.getParcelable(idString);
                 modified = true;
                 db.insert(TodoList.Entries.TABLE_NAME, null, entryValues);
             }
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

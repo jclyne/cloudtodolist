@@ -1,6 +1,5 @@
 package com.oci.example.todolist;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentUris;
@@ -10,6 +9,10 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.*;
 import android.widget.AdapterView;
@@ -18,15 +21,15 @@ import android.widget.ListView;
 import android.widget.Toast;
 import com.oci.example.todolist.provider.TodoList;
 
-public class TodoListActivity extends Activity {
+public class TodoListActivity extends FragmentActivity
+                   implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = "TodoListActivity";
+    private static final int TODOLIST_LOADER = 1;
     private static final int NOTES_DIALOG = 1;
 
     private EditText newEntryBox;
-    private ListView todoListView;
     private TodoListCursorAdapter todoListAdapter;
-
 
 
     /**
@@ -37,10 +40,13 @@ public class TodoListActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.todolist_layout);
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        todoListView = (ListView) findViewById(R.id.todo_list);
-        Cursor cur = getContentResolver().query(TodoList.Entries.CONTENT_URI, null, null, null, null);
-        todoListAdapter=new TodoListCursorAdapter(this, cur);
+        final ListView todoListView = (ListView) findViewById(R.id.todo_list);
+
+        getSupportLoaderManager().initLoader(TODOLIST_LOADER,null,this);
+
+        todoListAdapter=new TodoListCursorAdapter(this, null);
         todoListView.setAdapter(todoListAdapter);
         registerForContextMenu(todoListView);
 
@@ -64,6 +70,23 @@ public class TodoListActivity extends Activity {
                 }
             }
         });
+
+        startService(new Intent(TodoListSync.ACTION_TODOLIST_SYNC));
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
+        return new CursorLoader(this,TodoList.Entries.CONTENT_URI, null, null, null, null);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        todoListAdapter.swapCursor(cursor);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+        todoListAdapter.swapCursor(null);
     }
 
     @Override
@@ -133,15 +156,14 @@ public class TodoListActivity extends Activity {
     @Override
     protected void onPause() {
         super.onPause();
-        todoListAdapter.onPause();
     }
 
     @Override
     protected void onResume() {
-        todoListAdapter.onResume();
         super.onResume();
     }
 
+    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
     public void showNotes(View view) {
         Bundle args = new Bundle();
         args.putLong("entryId", (Integer)view.getTag());

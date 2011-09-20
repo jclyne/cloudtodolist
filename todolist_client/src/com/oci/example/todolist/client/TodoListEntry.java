@@ -1,6 +1,7 @@
 package com.oci.example.todolist.client;
 
 import com.google.gwt.core.client.JavaScriptObject;
+import com.google.gwt.core.client.UnsafeNativeLong;
 
 import java.util.Comparator;
 
@@ -25,6 +26,14 @@ class TodoListEntry extends JavaScriptObject {
 
     public final native boolean isComplete() /*-{
         return this.complete == 1;
+    }-*/;
+
+    public final native double created() /*-{
+        return this.created;
+    }-*/;
+
+    public final native double modified() /*-{
+        return this.modified;
     }-*/;
 
     static class CompareId implements Comparator<TodoListEntry> {

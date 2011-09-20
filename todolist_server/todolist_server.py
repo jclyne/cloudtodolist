@@ -92,6 +92,7 @@
 
 import web
 import json
+import time
 
 __author__ = "Jeff Clyne"
 __copyright__ = "Copyright 2011, Object Computing Inc."
@@ -110,14 +111,22 @@ urls = (
 
 app=web.application(urls, globals())
 
-users_table="users"
+dbn= "mysql"
+user= "root"
+passwd="Vel0city"
+
+todolist_db= "todolist"
 entries_table="entries"
-db = web.database(
-    dbn='mysql',
-    db='todolist',
-    user='root',
-    passwd="Vel0city"
-)
+
+
+db = web.database(dbn=dbn,user=user,passwd=passwd)
+db.query("CREATE DATABASE IF NOT EXISTS "+todolist_db)
+db = web.database(dbn=dbn,db=todolist_db,user=user,passwd=passwd)
+
+# Execute the schema sql statements to setup the required tables
+with open("schema.sql") as file:
+    map(db.query,[stmt for stmt in file.read().translate(None,"\n\r").split(';') if stmt!="" ])
+
 
 class encode_response(object):
     """ Method decorator that will encode returned responses, as well as
@@ -176,17 +185,14 @@ class web_input(object):
         if flag: return 1
         return 0
 
-    def __init__(self,valid_params=(),valid_empty=True):
-        assert(type(valid_empty) is bool)
-
-        self.valid_params=set(valid_params)
-        self.valid_empty=valid_empty
+    def __init__(self,*valid_params):
+        self.valid_params=set(tuple(valid_params))
 
     def __call__(self,method):
         def validate_wrapper(*args,**kwargs):
             input=dict(web.input())
-            if not (input or self.valid_empty): raise web.badrequest()
-            if not (set(input.keys()) <= self.valid_params): raise web.badrequest()
+            if not (set(input.keys()) <= self.valid_params):
+                raise web.badrequest()
 
             for key,value in input.items():
                 try:
@@ -210,7 +216,7 @@ class EntryListHandler(object):
 
 
     @encode_response('json')
-    @web_input(('id',))
+    @web_input('id')
     def GET(self,id=None):
         """Retrieves the list of todolist entries,
 
@@ -235,7 +241,7 @@ class EntryListHandler(object):
         return db.select(entries_table,order='id', where=where)
 
     @encode_response('json')
-    @web_input(('title', 'notes', 'complete'))
+    @web_input('title', 'notes', 'complete')
     def POST(self,**params):
         """Creates a new todolist entry
 
@@ -252,12 +258,14 @@ class EntryListHandler(object):
             400(bad request) - invalid query string  specified
         """
 
+        now = time.time()
+        params.update( {"created":now, "modified":now} )
         with db.transaction():
             new_entry= db.where( entries_table, id=db.insert( entries_table, **params ) )[0]
 
         raise web.created(new_entry)
 
-    @web_input(('id',),False)
+    @web_input('id')
     def DELETE(self,id=None):
         """Deletes the specified list of entries
 
@@ -299,7 +307,7 @@ class EntryHandler(object):
             raise web.gone()
 
     @encode_response('json')
-    @web_input(('title', 'notes', 'complete'),False)
+    @web_input('title', 'notes', 'complete')
     def PUT(self,id,**params):
         """Updates the specified entry, with the values specified
         in the query string, and returns the updated todolist_entry
@@ -317,6 +325,10 @@ class EntryHandler(object):
             400(bad request) - invalid query string  specified
             410(gone) - entry with specified id does not exist
         """
+
+        now = time.time()
+        params.update( {"modified":now} )
+        data = web.data()
 
         with db.transaction():
             db.update(entries_table,

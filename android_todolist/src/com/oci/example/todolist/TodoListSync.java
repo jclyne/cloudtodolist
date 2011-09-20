@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import com.oci.example.todolist.client.HttpRestClient;
@@ -102,12 +103,8 @@ public class TodoListSync extends IntentService {
 
     }
 
-    private void performIncrementalUpdate() {
-
-    }
-
     private void performFullRefresh() {
-        Map<Integer,ContentValues> entryList = client.getEntries();
+        Bundle entryList = client.getEntries();
         if (entryList == null){
             Log.i(TAG,"Full Refresh retrieved 0 entries");
             return;

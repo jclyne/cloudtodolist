@@ -11,6 +11,7 @@ import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.http.client.*;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
@@ -239,7 +240,20 @@ public class TodoList implements EntryPoint {
         notesText.setText(entry.getNotes());
         dialogContents.add(notesText);
 
+        final Date created = new Date ((long)(entry.created()*1000));
+        final Date modified = new Date((long)(entry.modified()*1000));
+        final DateTimeFormat dateTimeFmt = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_SHORT);
+
+        final InlineLabel createdLabel = new InlineLabel("Created: "+ dateTimeFmt.format(created));
+        createdLabel.setStyleName("entryDateText");
+        dialogContents.add(createdLabel);
+
+        final InlineLabel modifiedLabel = new InlineLabel("Last Modified: " + dateTimeFmt.format(modified));
+        modifiedLabel.setStyleName("entryDateText");
+        dialogContents.add(modifiedLabel);
+
         dialogBox.setWidget(dialogContents);
+
         // Add OK Button
         Button okButton = new Button("OK", new ClickHandler() {
             @Override
