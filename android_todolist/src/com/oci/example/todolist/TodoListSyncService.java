@@ -4,12 +4,16 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 import com.oci.example.todolist.client.HttpRestClient;
 import com.oci.example.todolist.client.RestClient;
 import com.oci.example.todolist.client.TodoListClient;
@@ -18,6 +22,7 @@ import com.oci.example.todolist.provider.TodoListProvider;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class TodoListSyncService extends IntentService {
@@ -26,6 +31,7 @@ public class TodoListSyncService extends IntentService {
     static final String INTENT_BASE="com.oci.example.todolist";
     static final String ACTION_TODOLIST_SYNC = INTENT_BASE+".SYNC";
 
+    TodoListProvider provider;
     private TodoListClient client;
     private NotificationManager notificationManager;
 
@@ -40,6 +46,10 @@ public class TodoListSyncService extends IntentService {
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         client = new TodoListClient(new HttpRestClient(settings.getString("server_address","")));
+
+        provider  =  (TodoListProvider)getContentResolver()
+                    .acquireContentProviderClient(TodoList.AUTHORITY)
+                    .getLocalContentProvider();
 
         Log.i(TAG, "Service Created"+" ("+ Thread.currentThread().getName()+")");
     }
@@ -69,54 +79,29 @@ public class TodoListSyncService extends IntentService {
     }
 
     private void onHandleSync() {
-        // Get full list of entries, making sure to not update
-
-        // Find list of items needing POST and atomically mark as TX in progress
-        // Send POST for each item, handle result with a content update, clearing
-        //  all status flags
-        //  NOTE: this requires an ID update
-
-        // Find list of items needing POST and atomically mark as TX in progress
-        // Send POST for each item, handle result with a content update, clearing
-        //  all status flags
-
-        // Find list of items needing DELETE and atomically mark as TX in progress
-        // Send DELETE for each item, handle result with DELETE from pending table
-
-        performFullRefresh();
+        performUpSync();
+        performDownSync();
     }
 
-    private void performSyncStaging() {
 
-
+    private void performUpSync() {
+        Cursor cur = provider.stageDirtySync();
+        for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+            String title = Integer.toString(cur.getInt(cur.getColumnIndex(TodoList.Entries.TITLE)));
+            String id = Integer.toString(cur.getInt(cur.getColumnIndex(TodoList.Entries.ID)));
+        }
     }
 
-    private void performPostSync() {
-
-    }
-
-    private void performPutSync() {
-
-    }
-
-    private void performDeleteSync() {
-
-    }
-
-    private void performFullRefresh() {
+    private void performDownSync() {
         Bundle entryList = client.getEntries();
         if (entryList == null){
-            Log.i(TAG,"Full Refresh retrieved 0 entries");
+            Log.e(TAG, "Sync Failed");
+            //Toast.makeText(this,"Sync Failed, check your settings",Toast.LENGTH_SHORT).show();
             return;
         }
         Log.i(TAG,"Full Refresh retrieved "+Integer.toString(entryList.size())+" entries");
 
-        TodoListProvider todoListProvider
-                =  (TodoListProvider)getContentResolver()
-                    .acquireContentProviderClient(TodoList.AUTHORITY)
-                    .getLocalContentProvider();
-
-        boolean modified = todoListProvider.performSync(entryList);
+        boolean modified = provider.performSync(entryList);
         if (modified)
             showUpdateNotification();
     }

@@ -35,11 +35,10 @@
 
         <activity android:name=".Settings" android:label="Settings"/>
 
-        <service android:name=".TodoListSync"
-                 android:label="TodoListSync">
+        <service android:name=".TodoListSyncService"
+                 android:label="TodoListSyncService">
             <intent-filter>
                 <action android:name="com.oci.example.todolist.SYNC"/>
-                <action android:name="com.oci.example.todolist.REFRESH"/>
             </intent-filter>
 
         </service>

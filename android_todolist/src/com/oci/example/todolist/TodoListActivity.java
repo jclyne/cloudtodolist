@@ -71,7 +71,7 @@ public class TodoListActivity extends FragmentActivity
             }
         });
 
-        startService(new Intent(TodoListSync.ACTION_TODOLIST_SYNC));
+        startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
     }
 
     @Override
@@ -110,7 +110,7 @@ public class TodoListActivity extends FragmentActivity
         switch (item.getItemId()) {
             case R.id.menu_refresh:
                 Toast.makeText(this,R.string.refreshing_list,Toast.LENGTH_SHORT).show();
-                startService(new Intent(TodoListSync.ACTION_TODOLIST_SYNC));
+                startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
                 return true;
 
             case R.id.menu_clear_selected:

@@ -356,7 +356,7 @@ public class TodoListProvider extends ContentProvider {
     public boolean performSync(Bundle syncData) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String where = TodoList.Entries.ID + " = ?";
-        boolean modified = false;
+        boolean notify = false;
 
         db.beginTransaction();
         try {
@@ -370,11 +370,11 @@ public class TodoListProvider extends ContentProvider {
                 ContentValues entryValues = syncData.getParcelable(idString);
                 if (entryValues != null) {
                     if (checkNeedsUpdate(cur, entryValues)) {
-                        modified = true;
+                        notify = true;
                         db.update(TodoList.Entries.TABLE_NAME, entryValues, where, whereArgs);
                     }
                 } else {
-                    modified = true;
+                    notify = true;
                     db.delete(TodoList.Entries.TABLE_NAME, TodoList.Entries.ID + " = " + idString, null);
                 }
                 syncData.remove(idString);
@@ -382,7 +382,7 @@ public class TodoListProvider extends ContentProvider {
 
             for (String idString : syncData.keySet() ) {
                 ContentValues entryValues = syncData.getParcelable(idString);
-                modified = true;
+                notify = true;
                 db.insert(TodoList.Entries.TABLE_NAME, null, entryValues);
             }
 
@@ -390,11 +390,37 @@ public class TodoListProvider extends ContentProvider {
         } finally {
             db.endTransaction();
         }
-        if (modified) {
+        if (notify) {
             getContext().getContentResolver().notifyChange(TodoList.Entries.CONTENT_URI, null);
         }
 
-        return modified;
+        return notify;
+    }
+
+    public Cursor stageDirtySync(){
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        String where = TodoList.Entries.DIRTY + " = 1" + "OR"
+                      + TodoList.Entries.DELETED + " = 1";
+
+        SQLiteQueryBuilder query = new SQLiteQueryBuilder();
+        query.setTables(TodoList.Entries.TABLE_NAME);
+        query.appendWhere(TodoList.Entries.PENDING_TX + " = 0");
+
+        db.beginTransaction();
+        try {
+            Cursor cur = query.query(db, null, where, null, null, null, null);
+
+            ContentValues values = new ContentValues();
+            values.put(TodoList.Entries.PENDING_TX,1);
+            db.update(TodoList.Entries.TABLE_NAME,values,where,null);
+
+            db.setTransactionSuccessful();
+            return cur;
+        } catch (Exception e) {
+            return null;
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private static String appendEntryIdWhereClause(Uri uri, String where) {
