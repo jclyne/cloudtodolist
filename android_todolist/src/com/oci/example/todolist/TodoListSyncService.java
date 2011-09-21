@@ -4,32 +4,21 @@ import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.ContentProviderOperation;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 import com.oci.example.todolist.client.HttpRestClient;
-import com.oci.example.todolist.client.RestClient;
 import com.oci.example.todolist.client.TodoListClient;
 import com.oci.example.todolist.provider.TodoList;
 import com.oci.example.todolist.provider.TodoListProvider;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Map;
 
 public class TodoListSyncService extends IntentService {
     private static final String TAG = "TodoListSyncService";
 
     static final String INTENT_BASE="com.oci.example.todolist";
-    static final String ACTION_TODOLIST_SYNC = INTENT_BASE+".SYNC";
+    public static final String ACTION_TODOLIST_SYNC = INTENT_BASE+".SYNC";
 
     TodoListProvider provider;
     private TodoListClient client;
@@ -47,9 +36,9 @@ public class TodoListSyncService extends IntentService {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         client = new TodoListClient(new HttpRestClient(settings.getString("server_address","")));
 
-        provider  =  (TodoListProvider)getContentResolver()
-                    .acquireContentProviderClient(TodoList.AUTHORITY)
-                    .getLocalContentProvider();
+        provider = (TodoListProvider)getContentResolver()
+                        .acquireContentProviderClient(TodoList.AUTHORITY)
+                        .getLocalContentProvider();
 
         Log.i(TAG, "Service Created"+" ("+ Thread.currentThread().getName()+")");
     }
@@ -57,7 +46,7 @@ public class TodoListSyncService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "Service Started, startId:" + startId+" ("+ Thread.currentThread().getName()+")");
-        return super.onStartCommand(intent, flags, startId);    //To change body of overridden methods use File | Settings | File Templates.
+        return super.onStartCommand(intent, flags, startId);    //To change body of overridden methods use File | TodoListSettingsActivity | File Templates.
     }
 
     @Override
@@ -73,38 +62,24 @@ public class TodoListSyncService extends IntentService {
         String action = intent.getAction();
         Log.d(TAG, "onHandleIntent: Action = " + action + " (" + Thread.currentThread().getName() + ")");
         if (action.equals(ACTION_TODOLIST_SYNC)){
-            onHandleSync();
+            handleSyncIntent();
         }
 
     }
 
-    private void onHandleSync() {
-        performUpSync();
-        performDownSync();
-    }
+    private void handleSyncIntent() {
+       switch ( provider.onPerformSync(client) ) {
 
+            case failed:
+                Toast.makeText(getApplicationContext(), R.string.sync_failed, Toast.LENGTH_SHORT).show();
+                break;
 
-    private void performUpSync() {
-        Cursor cur = provider.stageDirtySync();
-        for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-            String title = Integer.toString(cur.getInt(cur.getColumnIndex(TodoList.Entries.TITLE)));
-            String id = Integer.toString(cur.getInt(cur.getColumnIndex(TodoList.Entries.ID)));
+            case success_updated:
+                showUpdateNotification();
+                break;
         }
     }
 
-    private void performDownSync() {
-        Bundle entryList = client.getEntries();
-        if (entryList == null){
-            Log.e(TAG, "Sync Failed");
-            //Toast.makeText(this,"Sync Failed, check your settings",Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Log.i(TAG,"Full Refresh retrieved "+Integer.toString(entryList.size())+" entries");
-
-        boolean modified = provider.performSync(entryList);
-        if (modified)
-            showUpdateNotification();
-    }
 
     private static final int SYNC_UPDATE_ID = 1;
     private void showUpdateNotification() {

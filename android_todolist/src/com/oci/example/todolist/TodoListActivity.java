@@ -2,13 +2,11 @@ package com.oci.example.todolist;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -22,7 +20,7 @@ import android.widget.Toast;
 import com.oci.example.todolist.provider.TodoList;
 
 public class TodoListActivity extends FragmentActivity
-                   implements LoaderManager.LoaderCallbacks<Cursor> {
+                            implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "TodoListActivity";
     private static final int TODOLIST_LOADER = 1;
@@ -44,10 +42,31 @@ public class TodoListActivity extends FragmentActivity
 
         final ListView todoListView = (ListView) findViewById(R.id.todo_list);
 
-        getSupportLoaderManager().initLoader(TODOLIST_LOADER,null,this);
+        getSupportLoaderManager().initLoader(TODOLIST_LOADER,null,
+            new LoaderManager.LoaderCallbacks<Cursor>() {
+
+                @Override
+                public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+                    assert(id == TODOLIST_LOADER);
+                    return new CursorLoader(getBaseContext(),
+                                    TodoList.Entries.CONTENT_URI,
+                                    null, null, null, null);
+                }
+
+                @Override
+                public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+                    todoListAdapter.swapCursor(cursor);
+                }
+
+                @Override
+                public void onLoaderReset(Loader<Cursor> cursorLoader) {
+                    todoListAdapter.swapCursor(null);
+                }
+        });
 
         todoListAdapter=new TodoListCursorAdapter(this, null);
         todoListView.setAdapter(todoListAdapter);
+
         registerForContextMenu(todoListView);
 
         newEntryBox = (EditText) findViewById(R.id.new_entry);
@@ -71,22 +90,9 @@ public class TodoListActivity extends FragmentActivity
             }
         });
 
-        startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
-    }
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,TodoList.Entries.CONTENT_URI, null, null, null, null);
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        todoListAdapter.swapCursor(cursor);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-        todoListAdapter.swapCursor(null);
+        requestSync(false);
     }
 
     @Override
@@ -109,8 +115,7 @@ public class TodoListActivity extends FragmentActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                Toast.makeText(this,R.string.refreshing_list,Toast.LENGTH_SHORT).show();
-                startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+                requestSync(true);
                 return true;
 
             case R.id.menu_clear_selected:
@@ -119,7 +124,7 @@ public class TodoListActivity extends FragmentActivity
 
             case R.id.menu_settings:
                 Intent intent = new Intent();
-                intent.setClass(this, Settings.class);
+                intent.setClass(this, TodoListSettingsActivity.class);
                 startActivity(intent);
                 return true;
         }
@@ -140,6 +145,13 @@ public class TodoListActivity extends FragmentActivity
             default:
                 return super.onContextItemSelected(item);
         }
+    }
+
+     @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+         if (key.equals("server_address")){
+            requestSync(true);
+         }
     }
 
     @Override
@@ -214,6 +226,13 @@ public class TodoListActivity extends FragmentActivity
         String msg = getResources().getQuantityString( R.plurals.clearedEntriesDeleted,rowsDeleted,rowsDeleted);
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
+
+    private void requestSync(boolean notify){
+        if (notify)
+            Toast.makeText(getBaseContext(), R.string.sync_initiated, Toast.LENGTH_SHORT).show();
+        startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+    }
+
 
     public Dialog buildNotesDialog(long entryId) {
         Uri entryUri = ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, entryId);

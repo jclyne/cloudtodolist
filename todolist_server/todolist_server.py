@@ -82,6 +82,7 @@
 
             PUT
                 Format - todolist_entry
+                Query Parameters = title,notes,completed (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
                 Status Codes - 200,400,410
 
             DELETE

@@ -5,7 +5,8 @@ import android.util.Log;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.HttpResponseException;
+import org.apache.http.client.methods.*;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import java.io.BufferedReader;
@@ -14,33 +15,100 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.Map;
 
-public class HttpRestClient implements RestClient {
+public class HttpRestClient extends  RestClient {
+
     private static final String TAG = "HttpRestClient";
 
-    Map<ContentType,String> mimeTypes = new HashMap<ContentType,String>() {
-            {
-                put(ContentType.BINARY,"appliation/octet-stream");
-                put(ContentType.JSON,"appliation/json");
-                put(ContentType.XML,"appliation/xml");
-            }
-    };
+    private static final String ACCEPT_TYPE_HEADER = "Accept";
+    private static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
+
 
     private final HttpClient client = new DefaultHttpClient();
-    private static final String scheme="http:";
+    private static final String scheme = "http";
     private final String authority;
 
     public HttpRestClient(String authority) {
         this.authority = authority;
     }
 
-    public String getAuthority() {
-        return authority;
+    @Override
+    public Response Get(String path, String query, String fragment,
+                        ContentType acceptType, ContentEncoding acceptEncoding)
+            throws URISyntaxException, IOException, IllegalArgumentException {
+
+        return executeRequest(new HttpGet(), path, query, fragment, acceptType, acceptEncoding);
     }
 
-    public String parseResponseContent(InputStream instream) {
+    @Override
+    public Response Post(String path, String query, String fragment,
+                        ContentType acceptType, ContentEncoding acceptEncoding)
+            throws IOException, URISyntaxException, IllegalArgumentException {
+
+        return executeRequest(new HttpPost(), path, query, fragment, acceptType, acceptEncoding);
+    }
+
+    @Override
+    public Response Put(String path, String query, String fragment,
+                        ContentType acceptType, ContentEncoding acceptEncoding)
+            throws IOException, URISyntaxException, IllegalArgumentException {
+
+        return executeRequest(new HttpPut(), path, query, fragment, acceptType, acceptEncoding);
+    }
+
+    @Override
+    public Response Delete(String path, String query, String fragment,
+                        ContentType acceptType, ContentEncoding acceptEncoding)
+            throws IOException, URISyntaxException, IllegalArgumentException {
+
+        return executeRequest(new HttpDelete(), path, query, fragment, acceptType, acceptEncoding);
+    }
+
+
+    private Response executeRequest(HttpRequestBase request,
+                                    String path, String query, String fragment,
+                                    ContentType acceptType, ContentEncoding acceptEncoding)
+            throws IOException, URISyntaxException {
+
+        String acceptContentMimeType = acceptType.toMime();
+        if (acceptContentMimeType != null)
+            request.setHeader(ACCEPT_TYPE_HEADER, acceptContentMimeType);
+
+        String acceptEncodingMimeType = acceptEncoding.toMime();
+        if ( acceptEncodingMimeType != null )
+            request.setHeader(ACCEPT_ENCODING_HEADER, acceptEncodingMimeType);
+
+        request.setURI(new URI(scheme,authority,path,query,fragment));
+
+        HttpResponse response = client.execute(request);
+
+        int statusCode = response.getStatusLine().getStatusCode();
+
+        HttpEntity entity = response.getEntity();
+
+        ContentType contentType = ContentType.UNSUPPORTED;
+        if ( entity.getContentType() != null ){
+            contentType = contentType.fromMime(entity.getContentType().getValue());
+        }
+
+        ContentEncoding contentEncoding = ContentEncoding.NONE;
+        if ( entity.getContentEncoding() != null ) {
+            contentEncoding = ContentEncoding.fromMime(entity.getContentEncoding().getValue());
+        }
+
+        if (statusCode >= 200 && statusCode < 300) {
+            return new Response(statusCode,
+                    contentToString(entity.getContent()),
+                    contentType, contentEncoding);
+        } else {
+            return new Response(statusCode,
+                    response.getStatusLine().getReasonPhrase(),
+                    contentType, contentEncoding);
+        }
+
+    }
+
+    private String contentToString(InputStream instream) throws IOException {
         BufferedReader reader = new BufferedReader(new InputStreamReader(instream));
         StringBuilder builder = new StringBuilder();
 
@@ -50,57 +118,12 @@ public class HttpRestClient implements RestClient {
                 builder.append(line).append("\n");
             }
             return builder.toString();
-        } catch (IOException e) {
-            Log.e(TAG, e.toString());
         } finally {
             try {
                 instream.close();
             } catch (IOException e) {
-                Log.e(TAG,e.toString());
+                Log.e(TAG, e.toString());
             }
-        }
-        return null;
-    }
-
-    @Override
-    public String Get(String path, String query, String fragment,ContentType acceptType) {
-        HttpGet request = new HttpGet();
-        if (mimeTypes.containsKey(acceptType))
-            request.setHeader("Accept", mimeTypes.get(acceptType));
-
-        HttpResponse response;
-        try {
-            String uriString=scheme+"//"+authority+path;
-            if (query != null) uriString+= "?"+query;
-            if (fragment != null) uriString+= "#"+fragment;
-            request.setURI(new URI(uriString));
-        } catch (URISyntaxException e) {
-            Log.e(TAG, e.toString());
-            return null;
-        }
-
-        try {
-            response = client.execute(request);
-        } catch (IOException e) {
-            Log.e(TAG, e.toString());
-            return null;
-        } catch (IllegalArgumentException e){
-            Log.e(TAG, e.toString());
-            return null;
-        }
-
-
-        HttpEntity entity = response.getEntity();
-        if (entity == null) {
-            Log.e(TAG, "Unexpected empty HTTP Entity in GET Request");
-            return null;
-        }
-
-        try {
-            return parseResponseContent(entity.getContent());
-        } catch (IOException e) {
-           Log.e(TAG, e.toString());
-           return null;
         }
     }
 }

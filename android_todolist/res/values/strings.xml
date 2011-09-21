@@ -5,7 +5,8 @@
     <string name="entry_added">Entry Added</string>
     <string name="entry_deleted">Entry Deleted</string>
     <string name="entry_updated">Entry Updated</string>
-    <string name="refreshing_list">Refreshing List Items</string>
+    <string name="sync_initiated">Syncing List Items</string>
+    <string name="sync_failed">Sync Failed, check your settings</string>
     <string name="entry_invalid">Invalid Entry</string>
     <string name="menu_refresh">Refresh</string>
     <string name="menu_clear_selected">Clear Selected</string>
