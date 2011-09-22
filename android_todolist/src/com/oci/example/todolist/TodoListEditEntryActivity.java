@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.oci.example.todolist.provider.TodoListSchema;
+import com.oci.example.todolist.provider.TodoListProvider;
 
 public class TodoListEditEntryActivity extends Activity {
 
@@ -30,12 +30,12 @@ public class TodoListEditEntryActivity extends Activity {
         entryUri = getIntent().getData();
 
         // Get the current title and notes strings to pre-populate
-        final String[] what = {TodoListSchema.Entries.TITLE,
-                                TodoListSchema.Entries.NOTES};
+        final String[] what = {TodoListProvider.Schema.Entries.TITLE,
+                                TodoListProvider.Schema.Entries.NOTES};
 
         Cursor cursor = getContentResolver().query(entryUri,what,null,null,null);
-        final int titleIndex = cursor.getColumnIndex(TodoListSchema.Entries.TITLE);
-        final int notesIndex = cursor.getColumnIndex(TodoListSchema.Entries.NOTES);
+        final int titleIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE);
+        final int notesIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES);
         cursor.moveToFirst();
 
         currentTitle=cursor.getString(titleIndex);
@@ -51,11 +51,11 @@ public class TodoListEditEntryActivity extends Activity {
 
         String newTitle=titleEditText.getText().toString();
         if (!newTitle.equals(currentTitle))
-            values.put(TodoListSchema.Entries.TITLE,newTitle);
+            values.put(TodoListProvider.Schema.Entries.TITLE,newTitle);
 
         String newNotes=notesEditText.getText().toString();
         if (!newNotes.equals(currentNotes))
-            values.put(TodoListSchema.Entries.NOTES,newNotes);
+            values.put(TodoListProvider.Schema.Entries.NOTES,newNotes);
 
         if (values.size() > 0) {
             getContentResolver().update(entryUri,values,null,null);

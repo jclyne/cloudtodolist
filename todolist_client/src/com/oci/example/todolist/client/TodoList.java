@@ -60,7 +60,7 @@ public class TodoList implements EntryPoint {
     private final InlineLabel statusLabel = new InlineLabel("");
 
     private double lastSyncTime=0;
-    private static int REFRESH_INTERVAL = 1000;
+    private static int REFRESH_INTERVAL = 3000;
 
     public void onModuleLoad() {
 
@@ -238,7 +238,8 @@ public class TodoList implements EntryPoint {
 
         dialogContents.add(new InlineLabel("Notes:"));
         final TextArea notesText = new TextArea();
-        notesText.setVisibleLines(5);
+        notesText.setVisibleLines(10);
+        notesText.setCharacterWidth(40);
         notesText.setText(entry.getNotes());
         dialogContents.add(notesText);
 
@@ -254,7 +255,9 @@ public class TodoList implements EntryPoint {
         modifiedLabel.setStyleName("entryDateText");
         dialogContents.add(modifiedLabel);
 
-        dialogBox.setWidget(dialogContents);
+
+
+        HorizontalPanel buttonPanel = new HorizontalPanel();
 
         // Add OK Button
         Button okButton = new Button("OK", new ClickHandler() {
@@ -275,8 +278,20 @@ public class TodoList implements EntryPoint {
             }
         });
 
-        dialogContents.add(okButton);
-        dialogContents.setCellHorizontalAlignment(okButton, HasHorizontalAlignment.ALIGN_RIGHT);
+        Button cancelButton = new Button("Cancel", new ClickHandler() {
+            @Override
+            public void onClick(ClickEvent event) {
+                dialogBox.hide();
+            }
+        });
+
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+        buttonPanel.setSpacing(5);
+        dialogContents.add(buttonPanel);
+
+        dialogBox.setWidget(dialogContents);
+        dialogContents.setCellHorizontalAlignment(buttonPanel, HasHorizontalAlignment.ALIGN_LEFT);
 
         dialogBox.center();
     }

@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import com.oci.example.todolist.provider.TodoListSchema;
+import com.oci.example.todolist.provider.TodoListProvider;
 
 public class TodoListCursorAdapter extends CursorAdapter {
 
@@ -30,10 +30,10 @@ public class TodoListCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        final int id = cursor.getInt(cursor.getColumnIndex(TodoListSchema.Entries._ID));
-        final boolean complete = (cursor.getInt(cursor.getColumnIndex(TodoListSchema.Entries.COMPLETE)) == 1);
-        final String title = cursor.getString(cursor.getColumnIndex(TodoListSchema.Entries.TITLE));
-        final String notes = cursor.getString(cursor.getColumnIndex(TodoListSchema.Entries.NOTES));
+        final int id = cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries._ID));
+        final boolean complete = (cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.COMPLETE)) == 1);
+        final String title = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE));
+        final String notes = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES));
 
         final CheckBox completeCheckBox = (CheckBox) view.findViewById(R.id.entry_complete);
         final TextView titleTextView = (TextView) view.findViewById(R.id.entry_title);
@@ -57,13 +57,13 @@ public class TodoListCursorAdapter extends CursorAdapter {
                 CheckBox completeCheckBox = (CheckBox) view;
                 final Integer tag = (Integer) completeCheckBox.getTag();
 
-                final String where = TodoListSchema.Entries._ID + " = " + "?";
+                final String where = TodoListProvider.Schema.Entries._ID + " = " + "?";
                 final String[] whereArgs = {tag.toString()};
 
                 ContentValues values = new ContentValues();
-                values.put(TodoListSchema.Entries.COMPLETE, (completeCheckBox.isChecked() ? 1 : 0));
+                values.put(TodoListProvider.Schema.Entries.COMPLETE, (completeCheckBox.isChecked() ? 1 : 0));
                 TodoListCursorAdapter.this.context.getContentResolver().update(
-                        TodoListSchema.Entries.CONTENT_URI, values, where, whereArgs);
+                        TodoListProvider.Schema.Entries.CONTENT_URI, values, where, whereArgs);
             }
         });
 

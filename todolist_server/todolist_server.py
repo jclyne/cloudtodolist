@@ -91,9 +91,12 @@
                 
 """
 
+
 import web
 import json
 import time
+from threading import Thread,Event
+from time import sleep
 
 __author__ = "Jeff Clyne"
 __copyright__ = "Copyright 2011, Object Computing Inc."
@@ -110,7 +113,6 @@ urls = (
     '/todolist/entries/(\d+)', 'EntryHandler'
 )
 
-app=web.application(urls, globals())
 
 dbn= "mysql"
 user= "root"
@@ -119,6 +121,10 @@ passwd="Vel0city"
 todolist_db= "todolist"
 entries_table="entries"
 current_entries="current_entries"
+
+archive_duration=86400.0 # 24 hours
+cleanup_interval=1800.0 # 30 minutes
+
 
 
 db = web.database(dbn=dbn,user=user,passwd=passwd)
@@ -243,6 +249,9 @@ class EntryListHandler(object):
 
         if modified:
             table=entries_table
+            if ( now - float(modified) ) > archive_duration:
+                raise web.badrequest
+
             where="(modified > %s AND modified <= %f)"%(modified,now)
         else:
             table=current_entries
@@ -368,5 +377,35 @@ class EntryHandler(object):
         now = time.time()
         db.update(current_entries, where='id = $id',vars=locals(),deleted=1,modified=now)
 
+class CleanDeletedEntriesTask (Thread):
+
+    def __init__(self,cutoff,interval):
+        Thread.__init__(self,name="CleanDeletedEntriesTask")
+        self.canceled=Event()
+        self.cutoff=cutoff
+        self.interval=interval
+
+    def performCleanup(self):
+        db.delete(entries_table,
+                  where="deleted = 1 AND modified < $cutoff",
+                  vars={"cutoff":time.time()-self.cutoff})
+
+    def run(self):
+        self.performCleanup()
+        while not self.canceled.wait(self.interval):
+            self.performCleanup()
+
+
+    def cancel(self):
+        self.canceled.set()
+        self.join()
+
+cleanup_task = CleanDeletedEntriesTask(archive_duration,cleanup_interval)
+app=web.application(urls, globals())
+
 if __name__ == '__main__':
-    app.run()
+    cleanup_task.start()
+    try:
+        app.run()
+    finally:
+        cleanup_task.cancel()

@@ -11,4 +11,4 @@ CREATE TABLE IF NOT EXISTS entries (
 
 DROP VIEW IF EXISTS current_entries;
 CREATE VIEW current_entries
-  AS SELECT * FROM ENTRIES WHERE deleted = 0;
+  AS SELECT * FROM entries WHERE deleted = 0;

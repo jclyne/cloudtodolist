@@ -4,7 +4,7 @@ package com.oci.example.todolist.client;
 import android.content.ContentValues;
 import android.os.Bundle;
 import android.util.Log;
-import com.oci.example.todolist.provider.TodoListSchema;
+import com.oci.example.todolist.provider.TodoListProvider;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,6 +22,7 @@ public final class TodoListClient implements SyncableClient {
     private static final String ENTRY_TITLE = "title";
     private static final String ENTRY_NOTES = "notes";
     private static final String ENTRY_COMPLETE = "complete";
+    private static final String ENTRY_DELETED = "deleted";
     private static final String ENTRY_CREATED = "created";
     private static final String ENTRY_MODIFIED = "modified";
 
@@ -35,9 +36,9 @@ public final class TodoListClient implements SyncableClient {
         String uri = ENTRIES_PATH;
 
         String[] validQueryValues = {
-                TodoListSchema.Entries.TITLE,
-                TodoListSchema.Entries.NOTES,
-                TodoListSchema.Entries.COMPLETE};
+                TodoListProvider.Schema.Entries.TITLE,
+                TodoListProvider.Schema.Entries.NOTES,
+                TodoListProvider.Schema.Entries.COMPLETE};
 
         String uriQueryString = buildQueryString(entry, validQueryValues);
 
@@ -47,7 +48,7 @@ public final class TodoListClient implements SyncableClient {
                 JSONObject jsonEntry = new JSONObject(response.getContent());
                 ContentValues result = parseJsonEntry(jsonEntry);
 
-                Log.i(TAG, "inserted entry: " + result.getAsInteger(TodoListSchema.Entries.ID));
+                Log.i(TAG, "inserted entry: " + result.getAsInteger(TodoListProvider.Schema.Entries.ID));
                 return result;
             } else {
                 Log.e(TAG, "insert failed: " + response.getStatusCode() + "- " + response.getContent());
@@ -72,12 +73,12 @@ public final class TodoListClient implements SyncableClient {
     @Override
     public ContentValues update(ContentValues entry) {
 
-        int id = entry.getAsInteger(TodoListSchema.Entries.ID);
-        String uri = ENTRIES_PATH + "/" + entry.getAsInteger(TodoListSchema.Entries.ID);
+        int id = entry.getAsInteger(TodoListProvider.Schema.Entries.ID);
+        String uri = ENTRIES_PATH + "/" + entry.getAsInteger(TodoListProvider.Schema.Entries.ID);
         String[] validQueryValues = {
-                TodoListSchema.Entries.TITLE,
-                TodoListSchema.Entries.NOTES,
-                TodoListSchema.Entries.COMPLETE};
+                TodoListProvider.Schema.Entries.TITLE,
+                TodoListProvider.Schema.Entries.NOTES,
+                TodoListProvider.Schema.Entries.COMPLETE};
 
         String uriQueryString = buildQueryString(entry, validQueryValues);
 
@@ -111,7 +112,7 @@ public final class TodoListClient implements SyncableClient {
 
     @Override
     public boolean delete(ContentValues entry) {
-        int id = entry.getAsInteger(TodoListSchema.Entries.ID);
+        int id = entry.getAsInteger(TodoListProvider.Schema.Entries.ID);
         String uri = ENTRIES_PATH + "/" + id;
 
         try {
@@ -144,11 +145,13 @@ public final class TodoListClient implements SyncableClient {
             RestClient.Response response = client.Get(ENTRIES_PATH, null, RestClient.ContentType.JSON);
             if (response.succeeded()) {
                 Bundle result = new Bundle();
-                JSONArray entryList = new JSONArray(response.getContent());
+                JSONObject entryList = new JSONObject(response.getContent());
+                double timestamp = entryList.getDouble("timestamp");
+                JSONArray entries = entryList.getJSONArray("entries");
                 for (int idx = 0; idx < entryList.length(); idx++) {
-                    ContentValues entryValues = parseJsonEntry(entryList.getJSONObject(idx));
+                    ContentValues entryValues = parseJsonEntry(entries.getJSONObject(idx));
                     result.putParcelable(
-                            entryValues.getAsString(TodoListSchema.Entries.ID),
+                            entryValues.getAsString(TodoListProvider.Schema.Entries.ID),
                             entryValues);
                 }
                 Log.i(TAG, "getAll retrieved " + Integer.toString(result.size()) + " entries");
@@ -190,17 +193,18 @@ public final class TodoListClient implements SyncableClient {
         ContentValues entryValues = new ContentValues();
 
         int id = entry.getInt(ENTRY_ID);
-        entryValues.put(TodoListSchema.Entries.ID, id);
-        entryValues.put(TodoListSchema.Entries.COMPLETE, entry.getInt(ENTRY_COMPLETE));
+        entryValues.put(TodoListProvider.Schema.Entries.ID, id);
+        entryValues.put(TodoListProvider.Schema.Entries.COMPLETE, entry.getInt(ENTRY_COMPLETE));
+        entryValues.put(ENTRY_DELETED, entry.getInt(ENTRY_COMPLETE));
         String title = entry.optString(ENTRY_TITLE);
         if (!title.equals(""))
-            entryValues.put(TodoListSchema.Entries.TITLE, title);
+            entryValues.put(TodoListProvider.Schema.Entries.TITLE, title);
         String notes = entry.optString(ENTRY_NOTES);
         if (!title.equals(""))
-            entryValues.put(TodoListSchema.Entries.NOTES, notes);
+            entryValues.put(TodoListProvider.Schema.Entries.NOTES, notes);
 
-        entryValues.put(TodoListSchema.Entries.CREATED, (long) (entry.getDouble(ENTRY_CREATED) * 1000));
-        entryValues.put(TodoListSchema.Entries.PENDING_UPDATE, (long) (entry.getDouble(ENTRY_MODIFIED) * 1000));
+        entryValues.put(TodoListProvider.Schema.Entries.CREATED, (long) (entry.getDouble(ENTRY_CREATED) * 1000));
+        entryValues.put(TodoListProvider.Schema.Entries.MODIFIED, (long) (entry.getDouble(ENTRY_MODIFIED) * 1000));
 
         return entryValues;
 

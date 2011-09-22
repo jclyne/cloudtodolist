@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 public interface SyncableClient {
 
+
     public ContentValues insert(final ContentValues entry);
 
     public ContentValues update(final ContentValues entry);
