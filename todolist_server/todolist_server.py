@@ -118,6 +118,7 @@ passwd="Vel0city"
 
 todolist_db= "todolist"
 entries_table="entries"
+current_entries="current_entries"
 
 
 db = web.database(dbn=dbn,user=user,passwd=passwd)
@@ -181,6 +182,10 @@ class web_input(object):
         return value
 
     @staticmethod
+    def decode_modified(value):
+        return value
+
+    @staticmethod
     def decode_complete(value):
         flag = int(value)
         if flag: return 1
@@ -217,8 +222,8 @@ class EntryListHandler(object):
 
 
     @encode_response('json')
-    @web_input('id')
-    def GET(self,id=None):
+    @web_input('id','modified')
+    def GET(self,id=None,modified=None):
         """Retrieves the list of todolist entries,
 
         URI Params:
@@ -227,19 +232,26 @@ class EntryListHandler(object):
         Query String Params:
             id - entry id to include in result
                 NOTE: this parameter can have multiple values
-                NOTE: If omitted, all todolist entries will be returned
 
         Status Codes:
             200(ok) - ok, body includes the todolist_entry list
             400(bad request) - invalid query string  specified
         """
 
-        if id:
-            where=web.db.sqlors('id = ',id)
-        else:
-            where=None
+        now = time.time()
+        where=None
 
-        return db.select(entries_table,order='id', where=where)
+        if modified:
+            table=entries_table
+            where="(modified > %s AND modified <= %f)"%(modified,now)
+        else:
+            table=current_entries
+
+        if id:
+            if where: where+= " AND "
+            where="("+web.db.sqlors('id = ',id)+")"
+
+        return {"timestamp":now, "entries":tuple(db.select(table,order='created', where=where))}
 
     @encode_response('json')
     @web_input('title', 'notes', 'complete')
@@ -262,7 +274,7 @@ class EntryListHandler(object):
         now = time.time()
         params.update( {"created":now, "modified":now} )
         with db.transaction():
-            new_entry= db.where( entries_table, id=db.insert( entries_table, **params ) )[0]
+            new_entry= db.where( current_entries, id=db.insert( entries_table, **params ) )[0]
 
         raise web.created(new_entry)
 
@@ -281,12 +293,14 @@ class EntryListHandler(object):
         Status Codes:
             200(ok) - ok, body is empty
         """
+
+        now = time.time()
         if id:
             where=web.db.sqlors('id = ',id)
         else:
             where=None
 
-        db.delete(entries_table, where=where)
+        db.update(current_entries, where=where, deleted=1,modified=now)
         
 class EntryHandler(object):
     """ Servlet to handle the /todolist/entries/(\d+) URL"""
@@ -303,7 +317,7 @@ class EntryHandler(object):
             410(gone) - entry with specified id does not exist
         """
         try:
-            return db.where(entries_table,what='id,title,notes,complete',id=id)[0]
+            return db.where(current_entries,id=id)[0]
         except IndexError:
             raise web.gone()
 
@@ -332,7 +346,7 @@ class EntryHandler(object):
         data = web.data()
 
         with db.transaction():
-            db.update(entries_table,
+            db.update(current_entries,
                       where='id=$id',
                       vars=locals(),
                       **params)
@@ -350,7 +364,9 @@ class EntryHandler(object):
         Status Codes:
             200(ok) - ok, body is empty
         """
-        db.delete(entries_table, where='$id = id',vars=locals())
+
+        now = time.time()
+        db.update(current_entries, where='id = $id',vars=locals(),deleted=1,modified=now)
 
 if __name__ == '__main__':
     app.run()

@@ -11,7 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 import com.oci.example.todolist.client.HttpRestClient;
 import com.oci.example.todolist.client.TodoListClient;
-import com.oci.example.todolist.provider.TodoList;
+import com.oci.example.todolist.provider.TodoListSchema;
 import com.oci.example.todolist.provider.TodoListProvider;
 
 public class TodoListSyncService extends IntentService {
@@ -37,7 +37,7 @@ public class TodoListSyncService extends IntentService {
         client = new TodoListClient(new HttpRestClient(settings.getString("server_address","")));
 
         provider = (TodoListProvider)getContentResolver()
-                        .acquireContentProviderClient(TodoList.AUTHORITY)
+                        .acquireContentProviderClient(TodoListSchema.AUTHORITY)
                         .getLocalContentProvider();
 
         Log.i(TAG, "Service Created"+" ("+ Thread.currentThread().getName()+")");

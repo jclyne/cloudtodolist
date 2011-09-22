@@ -4,18 +4,18 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 /**
- * Defines a contract between the TodoList content provider and its clients. A contract defines the
+ * Defines a contract between the TodoListSchema content provider and its clients. A contract defines the
  * information that a client needs to access the provider as one or more data tables. A contract
  * is a public, non-extendable (final) class that contains constants defining column names and
  * URIs. A well-written client depends only on the constants in the contract.
  */
-public final class TodoList {
+public final class TodoListSchema {
     public static final String AUTHORITY = "com.oci.provider.todolist";
     private static final String SCHEME = "content://";
     private static final String PATH_TODOLIST = "todolist/";
 
 
-    private TodoList() {
+    private TodoListSchema() {
     }
 
     public static final class Entries implements BaseColumns {
@@ -27,14 +27,14 @@ public final class TodoList {
         /**
          * The table name offered by this provider
          */
-        public static final String TABLE_NAME = "entries";
+
 
         /*
          * URI definitions
          */
 
         /**
-         * Path part for the TodoList URI
+         * Path part for the TodoListSchema URI
          */
         public static final String PATH_TODOLIST_ENTRIES = PATH_TODOLIST + "entries";
 
@@ -50,7 +50,7 @@ public final class TodoList {
 
 
         /**
-         * The content:// style URL for the TodoList entry list
+         * The content:// style URL for the TodoListSchema entry list
          */
         public static final Uri CONTENT_URI
                 = Uri.parse(SCHEME + AUTHORITY + "/" + PATH_TODOLIST_ENTRIES);
@@ -95,7 +95,7 @@ public final class TodoList {
          */
 
         /**
-         * Column name for the TodoList ID of the entry
+         * Column name for the TodoListSchema ID of the entry
          * <P>Type: TEXT</P>
          */
         public static final String ID = "ID";
@@ -129,10 +129,5 @@ public final class TodoList {
          * <P>Type: INTEGER (long from System.curentTimeMillis())</P>
          */
         public static final String MODIFIED = "modified";
-
-        public static final String PENDING_TX = "pending_tx";
-        public static final String DIRTY = "dirty";
-        public static final String DELETED = "deleted";
-
     }
 }

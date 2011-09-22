@@ -28,18 +28,23 @@ class TodoListEntry extends JavaScriptObject {
         return this.complete == 1;
     }-*/;
 
-    public final native double created() /*-{
+    public final native boolean getDeleted() /*-{
+        return this.deleted == 1;
+    }-*/;
+
+    public final native double getCreated() /*-{
         return this.created;
     }-*/;
 
-    public final native double modified() /*-{
+    public final native double getModified() /*-{
         return this.modified;
     }-*/;
 
-    static class CompareId implements Comparator<TodoListEntry> {
+
+    static class CompareCreated implements Comparator<TodoListEntry> {
 
         public int compare(TodoListEntry e1, TodoListEntry e2) {
-            return e1.getId() - e2.getId();
+            return (int)(e1.getCreated() - e2.getCreated());
         }
     }
 }

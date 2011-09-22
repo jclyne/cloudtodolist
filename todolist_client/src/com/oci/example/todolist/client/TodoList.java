@@ -35,6 +35,7 @@ public class TodoList implements EntryPoint {
     private static final String ENTRY_URL = TODOLIST_BASE_URL + "entries/";
     private static final String ENTRY_LIST_URL = TODOLIST_BASE_URL + "entries?";
 
+
     private static final ProvidesKey<TodoListEntry> todoListEntryKeyProvider = new ProvidesKey<TodoListEntry>() {
         public Object getKey(TodoListEntry entry) {
             return entry.getId();
@@ -58,7 +59,8 @@ public class TodoList implements EntryPoint {
     private final TextBox newEntry = new TextBox();
     private final InlineLabel statusLabel = new InlineLabel("");
 
-    private static int REFRESH_INTERVAL = 5000;
+    private double lastSyncTime=0;
+    private static int REFRESH_INTERVAL = 1000;
 
     public void onModuleLoad() {
 
@@ -209,7 +211,7 @@ public class TodoList implements EntryPoint {
 
     private void refreshTodoListDisplay() {
         List<TodoListEntry> data = new ArrayList<TodoListEntry>(todolistEntryMap.values());
-        Collections.sort(data, new TodoListEntry.CompareId());
+        Collections.sort(data, new TodoListEntry.CompareCreated());
         todoListDataProvider.setList(data);
         todoListDataProvider.refresh();
     }
@@ -240,8 +242,8 @@ public class TodoList implements EntryPoint {
         notesText.setText(entry.getNotes());
         dialogContents.add(notesText);
 
-        final Date created = new Date ((long)(entry.created()*1000));
-        final Date modified = new Date((long)(entry.modified()*1000));
+        final Date created = new Date ((long)(entry.getCreated()*1000));
+        final Date modified = new Date((long)(entry.getModified()*1000));
         final DateTimeFormat dateTimeFmt = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_SHORT);
 
         final InlineLabel createdLabel = new InlineLabel("Created: "+ dateTimeFmt.format(created));
@@ -288,7 +290,10 @@ public class TodoList implements EntryPoint {
     }
 
     private void refreshTodoListEntries() {
-        sendRequest(ENTRY_LIST_URL, RequestBuilder.GET, new EntryListResponseHandler());
+        String URL= ENTRY_LIST_URL;
+        if (lastSyncTime != 0)
+            URL+="modified="+lastSyncTime;
+        sendRequest(URL, RequestBuilder.GET, new EntryListResponseHandler());
     }
 
     class ResponseHandler implements RequestCallback {
@@ -312,7 +317,7 @@ public class TodoList implements EntryPoint {
             }
         }
 
-        native JsArray<TodoListEntry> parseTodoListEntryList(String json) /*-{
+        native TodoListEntryList parseTodoListEntryList(String json) /*-{
             eval('var res = ' + json);
             return res;
         }-*/;
@@ -331,8 +336,7 @@ public class TodoList implements EntryPoint {
                 case 200:
                 case 201:
                     TodoListEntry entry = parseTodoListEntry(response.getText());
-                    int newid = entry.getId();
-                    todolistEntryMap.put(newid, entry);
+                    todolistEntryMap.put(entry.getId(), entry);
                     refreshTodoListDisplay();
 
                 default:
@@ -347,11 +351,15 @@ public class TodoList implements EntryPoint {
             switch (response.getStatusCode()) {
 
                 case 200:
-                    JsArray<TodoListEntry> entries = parseTodoListEntryList(response.getText());
-                    todolistEntryMap.clear();
+                    TodoListEntryList entryList = parseTodoListEntryList(response.getText());
+                    lastSyncTime = entryList.getTimeStamp();
+                    JsArray<TodoListEntry> entries = entryList.getEntries();
                     for (int i = 0; i < entries.length(); i++) {
                         TodoListEntry entry = entries.get(i);
-                        todolistEntryMap.put(entry.getId(), entry);
+                        if (entry.getDeleted())
+                            todolistEntryMap.remove(entry.getId());
+                        else
+                            todolistEntryMap.put(entry.getId(), entry);
                     }
                     refreshTodoListDisplay();
 

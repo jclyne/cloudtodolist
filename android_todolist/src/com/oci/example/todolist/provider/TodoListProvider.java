@@ -39,7 +39,10 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
      */
     private static final int DATABASE_VERSION = 1;
 
-
+    public static final String TABLE_NAME = "entries";
+            public static final String PENDING_TX = "pending_tx";
+        public static final String PENDING_UPDATE = "pending_update";
+        public static final String PENDING_DELETE = "deleted";
     /*
      * Constants used by the Uri matcher to choose an action based on the pattern
      * of the incoming URI
@@ -57,8 +60,8 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
     static {
         // Add the URIs to the matcher
-        uriMatcher.addURI(TodoList.AUTHORITY, TodoList.Entries.PATH_TODOLIST_ENTRIES, ENTRIES);
-        uriMatcher.addURI(TodoList.AUTHORITY, TodoList.Entries.PATH_TODOLIST_ENTRY_ID + "#", ENTRY_ID);
+        uriMatcher.addURI(TodoListSchema.AUTHORITY, TodoListSchema.Entries.PATH_TODOLIST_ENTRIES, ENTRIES);
+        uriMatcher.addURI(TodoListSchema.AUTHORITY, TodoListSchema.Entries.PATH_TODOLIST_ENTRY_ID + "#", ENTRY_ID);
     }
 
     static class DatabaseHelper extends SQLiteOpenHelper {
@@ -72,17 +75,17 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + TodoList.Entries.TABLE_NAME + " ("
-                    + TodoList.Entries._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + TodoList.Entries.ID + " INTEGER KEY,"
-                    + TodoList.Entries.TITLE + " TEXT,"
-                    + TodoList.Entries.NOTES + " TEXT,"
-                    + TodoList.Entries.COMPLETE + " INTEGER,"
-                    + TodoList.Entries.CREATED + " LONG,"
-                    + TodoList.Entries.MODIFIED + " LONG,"
-                    + TodoList.Entries.PENDING_TX + " INTEGER DEFAULT 0,"
-                    + TodoList.Entries.DIRTY + " INTEGER DEFAULT 0,"
-                    + TodoList.Entries.DELETED + " INTEGER DEFAULT 0"
+            db.execSQL("CREATE TABLE " + TABLE_NAME + " ("
+                    + TodoListSchema.Entries._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + TodoListSchema.Entries.ID + " INTEGER KEY,"
+                    + TodoListSchema.Entries.TITLE + " TEXT,"
+                    + TodoListSchema.Entries.NOTES + " TEXT,"
+                    + TodoListSchema.Entries.COMPLETE + " INTEGER,"
+                    + TodoListSchema.Entries.CREATED + " LONG,"
+                    + PENDING_UPDATE + " LONG,"
+                    + PENDING_TX + " INTEGER DEFAULT 0,"
+                    + PENDING_UPDATE + " INTEGER DEFAULT 0,"
+                    + PENDING_DELETE + " INTEGER DEFAULT 0"
                     + ");");
         }
 
@@ -95,7 +98,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
                     + newVersion + ", which will destroy all old data");
 
             // Kills the table and existing data
-            db.execSQL("DROP TABLE IF EXISTS " + TodoList.Entries.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
 
             // Recreates the database with a new version
             onCreate(db);
@@ -129,10 +132,10 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
         switch (uriMatcher.match(uri)) {
 
             case ENTRIES:
-                return TodoList.Entries.CONTENT_TYPE;
+                return TodoListSchema.Entries.CONTENT_TYPE;
 
             case ENTRY_ID:
-                return TodoList.Entries.CONTENT_ITEM_TYPE;
+                return TodoListSchema.Entries.CONTENT_ITEM_TYPE;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -147,13 +150,13 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
         switch (uriMatcher.match(uri)) {
 
             case ENTRY_ID:
-                qb.appendWhere(TodoList.Entries._ID + "=" +
-                        uri.getPathSegments().get(TodoList.Entries.TODOLIST_ENTRY_ID_PATH_POSITION) + " AND ");
+                qb.appendWhere(TodoListSchema.Entries._ID + "=" +
+                        uri.getPathSegments().get(TodoListSchema.Entries.TODOLIST_ENTRY_ID_PATH_POSITION) + " AND ");
             case ENTRIES:
-                qb.appendWhere(TodoList.Entries.DELETED + "=" + 0);
-                qb.setTables(TodoList.Entries.TABLE_NAME);
+                qb.appendWhere(PENDING_DELETE + "=" + 0);
+                qb.setTables(TABLE_NAME);
                 if (TextUtils.isEmpty(sortOrder)) {
-                    orderBy = TodoList.Entries.DEFAULT_SORT_ORDER;
+                    orderBy = TodoListSchema.Entries.DEFAULT_SORT_ORDER;
                 } else {
                     orderBy = sortOrder;
                 }
@@ -185,38 +188,38 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
             case ENTRIES:
 
                 // All inserted entries have an ID of 0 until synced
-                values.put(TodoList.Entries.ID, 0);
+                values.put(TodoListSchema.Entries.ID, 0);
 
                 // Set the Created and Modified times to NOW if not set
                 Long now = System.currentTimeMillis();
-                if (!values.containsKey(TodoList.Entries.CREATED))
-                    values.put(TodoList.Entries.CREATED, now);
+                if (!values.containsKey(TodoListSchema.Entries.CREATED))
+                    values.put(TodoListSchema.Entries.CREATED, now);
 
-                if (!values.containsKey(TodoList.Entries.MODIFIED))
-                    values.put(TodoList.Entries.MODIFIED, now);
+                if (!values.containsKey(PENDING_UPDATE))
+                    values.put(PENDING_UPDATE, now);
 
                 // If the values map doesn't contain a title, sets the value to the default title.
-                if (!values.containsKey(TodoList.Entries.TITLE))
-                    values.put(TodoList.Entries.TITLE,
+                if (!values.containsKey(TodoListSchema.Entries.TITLE))
+                    values.put(TodoListSchema.Entries.TITLE,
                             Resources.getSystem().getString(android.R.string.untitled));
 
                 // If the values map doesn't contain notes text, sets the value to an empty string.
-                if (!values.containsKey(TodoList.Entries.NOTES))
-                    values.put(TodoList.Entries.NOTES, "");
+                if (!values.containsKey(TodoListSchema.Entries.NOTES))
+                    values.put(TodoListSchema.Entries.NOTES, "");
 
                 // If the values map doesn't contain a completed flag
-                if (!values.containsKey(TodoList.Entries.COMPLETE))
-                    values.put(TodoList.Entries.COMPLETE, 0);
+                if (!values.containsKey(TodoListSchema.Entries.COMPLETE))
+                    values.put(TodoListSchema.Entries.COMPLETE, 0);
 
                 // Mark the entry as pending a POST
-                if (!values.containsKey(TodoList.Entries.PENDING_TX))
-                    values.put(TodoList.Entries.PENDING_TX, 0);
+                if (!values.containsKey(PENDING_TX))
+                    values.put(PENDING_TX, 0);
 
-                if (!values.containsKey(TodoList.Entries.DIRTY))
-                    values.put(TodoList.Entries.DIRTY, 1);
+                if (!values.containsKey(PENDING_UPDATE))
+                    values.put(PENDING_UPDATE, 1);
 
-                if (!values.containsKey(TodoList.Entries.DELETED))
-                    values.put(TodoList.Entries.DELETED, 0);
+                if (!values.containsKey(PENDING_DELETE))
+                    values.put(PENDING_DELETE, 0);
 
                 break;
 
@@ -224,10 +227,10 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        long id = db.insert(TodoList.Entries.TABLE_NAME, null, values);
+        long id = db.insert(TABLE_NAME, null, values);
 
         if (id > 0) {
-            Uri entryUri = ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, id);
+            Uri entryUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, id);
             Context context = getContext();
             context.getContentResolver().notifyChange(entryUri, null);
             context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
@@ -249,23 +252,23 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
                 where = appendEntryIdWhereClause(uri, where);
             case ENTRIES:
                 SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-                qb.setTables(TodoList.Entries.TABLE_NAME);
-                final String[] what = {TodoList.Entries._ID,
-                        TodoList.Entries.DELETED};
+                qb.setTables(TABLE_NAME);
+                final String[] what = {TodoListSchema.Entries._ID,
+                        PENDING_DELETE};
 
                 db.beginTransaction();
                 try {
-                    final String _where = TodoList.Entries._ID + " = " + "?";
+                    final String _where = TodoListSchema.Entries._ID + " = " + "?";
                     Cursor cur = qb.query(db, what, where, whereArgs, null, null, null);
                     for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
 
-                        final int entryId = cur.getInt(cur.getColumnIndex(TodoList.Entries._ID));
+                        final int entryId = cur.getInt(cur.getColumnIndex(TodoListSchema.Entries._ID));
 
                         final String[] _whereArgs = {Integer.toString(entryId)};
 
                         ContentValues values = new ContentValues();
-                        values.put(TodoList.Entries.DELETED, 1);
-                        count += db.update(TodoList.Entries.TABLE_NAME, values, _where, _whereArgs);
+                        values.put(PENDING_DELETE, 1);
+                        count += db.update(TABLE_NAME, values, _where, _whereArgs);
                     }
                     cur.close();
                     db.setTransactionSuccessful();
@@ -303,14 +306,14 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
             case ENTRIES:
                 where = appendEntryDeletedWhereClause(where);
                 // Set the Modified times to NOW if not set
-                if (!values.containsKey(TodoList.Entries.MODIFIED))
-                    values.put(TodoList.Entries.MODIFIED, System.currentTimeMillis());
+                if (!values.containsKey(PENDING_UPDATE))
+                    values.put(PENDING_UPDATE, System.currentTimeMillis());
 
                 // Mark the entry as pending a POST
-                if (!values.containsKey(TodoList.Entries.DIRTY))
-                    values.put(TodoList.Entries.DIRTY, 1);
+                if (!values.containsKey(PENDING_UPDATE))
+                    values.put(PENDING_UPDATE, 1);
 
-                tableName = TodoList.Entries.TABLE_NAME;
+                tableName = TABLE_NAME;
                 break;
 
             default:
@@ -355,25 +358,25 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
     private ContentValues toContentValues(Cursor cursor) {
         ContentValues values = new ContentValues();
-        cursorIntToContentValues(cursor, TodoList.Entries._ID, values);
-        cursorIntToContentValues(cursor, TodoList.Entries.ID, values);
-        cursorStringToContentValues(cursor, TodoList.Entries.TITLE, values);
-        cursorStringToContentValues(cursor, TodoList.Entries.NOTES, values);
-        cursorIntToContentValues(cursor, TodoList.Entries.COMPLETE, values);
-        cursorIntToContentValues(cursor, TodoList.Entries.CREATED, values);
-        cursorIntToContentValues(cursor, TodoList.Entries.MODIFIED, values);
-        cursorIntToContentValues(cursor, TodoList.Entries.DIRTY, values);
-        cursorIntToContentValues(cursor, TodoList.Entries.DELETED, values);
-        cursorIntToContentValues(cursor, TodoList.Entries.PENDING_TX, values);
+        cursorIntToContentValues(cursor, TodoListSchema.Entries._ID, values);
+        cursorIntToContentValues(cursor, TodoListSchema.Entries.ID, values);
+        cursorStringToContentValues(cursor, TodoListSchema.Entries.TITLE, values);
+        cursorStringToContentValues(cursor, TodoListSchema.Entries.NOTES, values);
+        cursorIntToContentValues(cursor, TodoListSchema.Entries.COMPLETE, values);
+        cursorIntToContentValues(cursor, TodoListSchema.Entries.CREATED, values);
+        cursorIntToContentValues(cursor, PENDING_UPDATE, values);
+        cursorIntToContentValues(cursor, PENDING_UPDATE, values);
+        cursorIntToContentValues(cursor, PENDING_DELETE, values);
+        cursorIntToContentValues(cursor, PENDING_TX, values);
         return values;
     }
 
     private static boolean checkNeedsUpdate(Cursor cur, ContentValues entryValues) {
 
-        return ((cur.getInt(cur.getColumnIndex(TodoList.Entries.DIRTY)) == 0)
-                && (cur.getInt(cur.getColumnIndex(TodoList.Entries.DELETED)) == 0)
-                && (cur.getLong(cur.getColumnIndex(TodoList.Entries.MODIFIED))
-                != entryValues.getAsLong(TodoList.Entries.MODIFIED)));
+        return ((cur.getInt(cur.getColumnIndex(PENDING_UPDATE)) == 0)
+                && (cur.getInt(cur.getColumnIndex(PENDING_DELETE)) == 0)
+                && (cur.getLong(cur.getColumnIndex(PENDING_UPDATE))
+                != entryValues.getAsLong(PENDING_UPDATE)));
     }
 
     @Override
@@ -393,27 +396,27 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
     private boolean handleFullRefresh(Bundle syncData) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String where = TodoList.Entries.ID + " = ?";
+        String where = TodoListSchema.Entries.ID + " = ?";
         boolean notify = false;
 
         db.beginTransaction();
         try {
             SQLiteQueryBuilder query = new SQLiteQueryBuilder();
-            query.setTables(TodoList.Entries.TABLE_NAME);
+            query.setTables(TABLE_NAME);
             Cursor cur = query.query(db, null, null, null, null, null, null);
             for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-                String idString = Integer.toString(cur.getInt(cur.getColumnIndex(TodoList.Entries.ID)));
+                String idString = Integer.toString(cur.getInt(cur.getColumnIndex(TodoListSchema.Entries.ID)));
                 String[] whereArgs = {idString};
 
                 ContentValues entryValues = syncData.getParcelable(idString);
                 if (entryValues != null) {
                     if (checkNeedsUpdate(cur, entryValues)) {
                         notify = true;
-                        db.update(TodoList.Entries.TABLE_NAME, entryValues, where, whereArgs);
+                        db.update(TABLE_NAME, entryValues, where, whereArgs);
                     }
                 } else {
                     notify = true;
-                    db.delete(TodoList.Entries.TABLE_NAME, TodoList.Entries.ID + " = " + idString, null);
+                    db.delete(TABLE_NAME, TodoListSchema.Entries.ID + " = " + idString, null);
                 }
                 syncData.remove(idString);
             }
@@ -421,7 +424,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
             for (String idString : syncData.keySet()) {
                 ContentValues entryValues = syncData.getParcelable(idString);
                 notify = true;
-                db.insert(TodoList.Entries.TABLE_NAME, null, entryValues);
+                db.insert(TABLE_NAME, null, entryValues);
             }
 
             db.setTransactionSuccessful();
@@ -429,7 +432,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
             db.endTransaction();
         }
         if (notify) {
-            getContext().getContentResolver().notifyChange(TodoList.Entries.CONTENT_URI, null);
+            getContext().getContentResolver().notifyChange(TodoListSchema.Entries.CONTENT_URI, null);
         }
 
         return notify;
@@ -437,17 +440,17 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
     public List<ContentValues> stageUpstreamSync() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String where = "(" + TodoList.Entries.DIRTY + " = 1" + " OR "
-                + TodoList.Entries.DELETED + " = 1 )" + " AND "
-                + TodoList.Entries.PENDING_TX + " = 0";
+        String where = "(" + PENDING_UPDATE + " = 1" + " OR "
+                + PENDING_DELETE + " = 1 )" + " AND "
+                + PENDING_TX + " = 0";
 
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(TodoList.Entries.TABLE_NAME);
+        qb.setTables(TABLE_NAME);
 
         ContentValues values = new ContentValues();
-        values.put(TodoList.Entries.PENDING_TX, 1);
-        values.put(TodoList.Entries.DIRTY, 0);
-        values.put(TodoList.Entries.DELETED, 0);
+        values.put(PENDING_TX, 1);
+        values.put(PENDING_UPDATE, 0);
+        values.put(PENDING_DELETE, 0);
 
         List<ContentValues> toSync = new ArrayList<ContentValues>();
         db.beginTransaction();
@@ -456,7 +459,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
             for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext())
                 toSync.add(toContentValues(cur));
 
-            db.update(TodoList.Entries.TABLE_NAME, values, where, null);
+            db.update(TABLE_NAME, values, where, null);
 
             db.setTransactionSuccessful();
         } catch (Exception e) {
@@ -471,39 +474,39 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
     public void performUpstreamSync(SyncableClient client) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String where = TodoList.Entries._ID + " = ?";
+        String where = TodoListSchema.Entries._ID + " = ?";
         for (ContentValues values : stageUpstreamSync()) {
-            String[] whereArgs = {Integer.toString(values.getAsInteger(TodoList.Entries._ID))};
+            String[] whereArgs = {Integer.toString(values.getAsInteger(TodoListSchema.Entries._ID))};
 
-            if (values.getAsInteger(TodoList.Entries.DELETED) == 1) {
+            if (values.getAsInteger(PENDING_DELETE) == 1) {
                 if (client.delete(values)) {
-                    db.delete(TodoList.Entries.TABLE_NAME, where, whereArgs);
+                    db.delete(TABLE_NAME, where, whereArgs);
                 } else {
                     ContentValues entryValues = new ContentValues();
-                    entryValues.put(TodoList.Entries.DELETED, 1);
-                    entryValues.put(TodoList.Entries.PENDING_TX, 0);
-                    db.update(TodoList.Entries.TABLE_NAME, entryValues, where, whereArgs);
+                    entryValues.put(PENDING_DELETE, 1);
+                    entryValues.put(PENDING_TX, 0);
+                    db.update(TABLE_NAME, entryValues, where, whereArgs);
                 }
-            } else if (values.getAsInteger(TodoList.Entries.DIRTY) == 1) {
+            } else if (values.getAsInteger(PENDING_UPDATE) == 1) {
                 ContentValues entryValues;
-                if (values.getAsInteger(TodoList.Entries.ID) == 0) {
+                if (values.getAsInteger(TodoListSchema.Entries.ID) == 0) {
                     entryValues = client.insert(values);
                 } else {
                     entryValues = client.update(values);
                 }
                 if (entryValues == null) {
                     entryValues = new ContentValues();
-                    entryValues.put(TodoList.Entries.DIRTY, 1);
+                    entryValues.put(PENDING_UPDATE, 1);
                 }
-                entryValues.put(TodoList.Entries.PENDING_TX, 0);
-                db.update(TodoList.Entries.TABLE_NAME, entryValues, where, whereArgs);
+                entryValues.put(PENDING_TX, 0);
+                db.update(TABLE_NAME, entryValues, where, whereArgs);
             }
         }
     }
 
     private static String appendEntryIdWhereClause(Uri uri, String where) {
-        String entryId = uri.getPathSegments().get(TodoList.Entries.TODOLIST_ENTRY_ID_PATH_POSITION);
-        String newWhere = TodoList.Entries._ID + " = " + entryId;
+        String entryId = uri.getPathSegments().get(TodoListSchema.Entries.TODOLIST_ENTRY_ID_PATH_POSITION);
+        String newWhere = TodoListSchema.Entries._ID + " = " + entryId;
         if (where != null)
             newWhere += " AND " + where;
 
@@ -512,7 +515,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
     }
 
     private static String appendEntryDeletedWhereClause(String where) {
-        String newWhere = TodoList.Entries.DELETED + " = " + 0;
+        String newWhere = PENDING_DELETE + " = " + 0;
         if (where != null)
             newWhere += " AND " + where;
 

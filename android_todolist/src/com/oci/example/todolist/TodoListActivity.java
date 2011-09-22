@@ -17,7 +17,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.oci.example.todolist.provider.TodoList;
+import com.oci.example.todolist.provider.TodoListSchema;
 
 public class TodoListActivity extends FragmentActivity
                             implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -49,7 +49,7 @@ public class TodoListActivity extends FragmentActivity
                 public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
                     assert(id == TODOLIST_LOADER);
                     return new CursorLoader(getBaseContext(),
-                                    TodoList.Entries.CONTENT_URI,
+                                    TodoListSchema.Entries.CONTENT_URI,
                                     null, null, null, null);
                 }
 
@@ -187,9 +187,9 @@ public class TodoListActivity extends FragmentActivity
             return;
 
         ContentValues values = new ContentValues();
-        values.put(TodoList.Entries.TITLE, title);
+        values.put(TodoListSchema.Entries.TITLE, title);
         try {
-            getContentResolver().insert(TodoList.Entries.CONTENT_URI, values);
+            getContentResolver().insert(TodoListSchema.Entries.CONTENT_URI, values);
             Toast.makeText(this, getString(R.string.entry_added), Toast.LENGTH_SHORT).show();
 
         } catch (IllegalArgumentException e) {
@@ -203,14 +203,14 @@ public class TodoListActivity extends FragmentActivity
 
         startActivity(new Intent(
                 Intent.ACTION_EDIT,
-                ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, entryId)));
+                ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId)));
     }
 
     public void onDeleteEntry(long entryId) {
-        final String where = TodoList.Entries._ID + " = ?";
+        final String where = TodoListSchema.Entries._ID + " = ?";
         final String[] whereArgs = {Long.toString(entryId)};
         int rowsDeleted = getContentResolver().delete(
-                TodoList.Entries.CONTENT_URI, where, whereArgs);
+                TodoListSchema.Entries.CONTENT_URI, where, whereArgs);
 
         if (rowsDeleted > 0)
             Toast.makeText(this, getString(R.string.entry_deleted), Toast.LENGTH_SHORT).show();
@@ -218,10 +218,10 @@ public class TodoListActivity extends FragmentActivity
 
 
     public void onClearCompleted() {
-        final String where = TodoList.Entries.COMPLETE + " = ?";
+        final String where = TodoListSchema.Entries.COMPLETE + " = ?";
         final String[] whereArgs = {Integer.toString(1)};
         int rowsDeleted = getContentResolver().delete(
-                TodoList.Entries.CONTENT_URI, where, whereArgs);
+                TodoListSchema.Entries.CONTENT_URI, where, whereArgs);
 
         String msg = getResources().getQuantityString( R.plurals.clearedEntriesDeleted,rowsDeleted,rowsDeleted);
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
@@ -235,14 +235,14 @@ public class TodoListActivity extends FragmentActivity
 
 
     public Dialog buildNotesDialog(long entryId) {
-        Uri entryUri = ContentUris.withAppendedId(TodoList.Entries.CONTENT_ID_URI_BASE, entryId);
-        final String[] what = {TodoList.Entries.NOTES,
-                                TodoList.Entries.TITLE};
+        Uri entryUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId);
+        final String[] what = {TodoListSchema.Entries.NOTES,
+                                TodoListSchema.Entries.TITLE};
 
         Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
         cursor.moveToFirst();
-        String title = cursor.getString(cursor.getColumnIndex(TodoList.Entries.TITLE));
-        String notes = cursor.getString(cursor.getColumnIndex(TodoList.Entries.NOTES));
+        String title = cursor.getString(cursor.getColumnIndex(TodoListSchema.Entries.TITLE));
+        String notes = cursor.getString(cursor.getColumnIndex(TodoListSchema.Entries.NOTES));
         if (notes.equals("")){
             notes=getString(R.string.empty_notes);
         }
