@@ -24,12 +24,17 @@ public class HttpRestClient extends  RestClient {
     private static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
 
 
-    private final HttpClient client = new DefaultHttpClient();
+    private static final int SOCKET_TIMEOUT=1000;
+    private final HttpClient client;
     private static final String scheme = "http";
     private final String authority;
 
     public HttpRestClient(String authority) {
         this.authority = authority;
+
+        client = new DefaultHttpClient();
+        client.getParams().setParameter("http.socket.timeout", SOCKET_TIMEOUT);
+
     }
 
     @Override

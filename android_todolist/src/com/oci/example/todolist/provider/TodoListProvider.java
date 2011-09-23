@@ -7,18 +7,24 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
-import com.oci.example.todolist.client.SyncableClient;
+import com.oci.example.todolist.TodoListSyncService;
+import com.oci.example.todolist.client.SyncableEntry;
+import com.oci.example.todolist.client.SyncableEntryList;
 import com.oci.example.todolist.client.SyncableProvider;
+import com.oci.example.todolist.client.SyncableProviderClient;
+import org.json.JSONException;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import static android.database.DatabaseUtils.cursorIntToContentValues;
-import static android.database.DatabaseUtils.cursorStringToContentValues;
+import java.util.Map;
 
 /**
  * Provides access to a database of todolist entries. Each entry has an id, a title, notes,
@@ -47,7 +53,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
         public static final class Entries implements BaseColumns {
 
             /**
-             *  Table Name
+             * Table Name
              */
             private static final String TABLE_NAME = "entries";
 
@@ -69,7 +75,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
                     = Uri.parse(SCHEME + AUTHORITY + "/" + PATH_TODOLIST_ENTRIES);
 
             public static final Uri CONTENT_ID_URI_BASE
-                    = Uri.parse(SCHEME + AUTHORITY + "/" +PATH_TODOLIST_ENTRY_ID);
+                    = Uri.parse(SCHEME + AUTHORITY + "/" + PATH_TODOLIST_ENTRY_ID);
 
 
             /*
@@ -92,13 +98,9 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
             public static final String COMPLETE = "complete";
             public static final String CREATED = "created";
             public static final String MODIFIED = "modified";
-
-            /**
-             * Private
-             */
-            private static final String PENDING_TX = "pending_tx";
-            private static final String PENDING_UPDATE = "pending_update";
-            private static final String PENDING_DELETE = "deleted";
+            public static final String PENDING_TX = "pending_tx";
+            public static final String PENDING_UPDATE = "pending_update";
+            public static final String PENDING_DELETE = "pending_delete";
         }
     }
 
@@ -115,9 +117,9 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
 
     /*
-     * Constants used by the Uri matcher to choose an action based on the pattern
-     * of the incoming URI
-     */
+    * Constants used by the Uri matcher to choose an action based on the pattern
+    * of the incoming URI
+    */
     private static final int ENTRIES = 1;
     private static final int ENTRY_ID = 2;
 
@@ -135,7 +137,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
         uriMatcher.addURI(Schema.AUTHORITY, Schema.Entries.PATH_TODOLIST_ENTRY_ID + "#", ENTRY_ID);
     }
 
-    static class DatabaseHelper extends SQLiteOpenHelper {
+    class DatabaseHelper extends SQLiteOpenHelper {
 
         DatabaseHelper(Context context) {
 
@@ -148,7 +150,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + Schema.Entries.TABLE_NAME + " ("
                     + Schema.Entries._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + Schema.Entries.ID + " INTEGER KEY,"
+                    + Schema.Entries.ID + " INTEGER UNIQUE DEFAULT NULL,"
                     + Schema.Entries.TITLE + " TEXT,"
                     + Schema.Entries.NOTES + " TEXT,"
                     + Schema.Entries.COMPLETE + " INTEGER,"
@@ -158,6 +160,10 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
                     + Schema.Entries.PENDING_UPDATE + " INTEGER DEFAULT 0,"
                     + Schema.Entries.PENDING_DELETE + " INTEGER DEFAULT 0"
                     + ");");
+
+            lastSyncTime = 0;
+            commitLastSyncTime();
+            requestSync();
         }
 
 
@@ -189,12 +195,16 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
         return Schema.Entries.TABLE_NAME;
     }
 
+    private static String LAST_SYNC_TIME_FILENAME = "lastSyncTime";
+    private double lastSyncTime = 0;
+
     @Override
     public boolean onCreate() {
         // Creates a new helper object. Note that the database itself isn't opened until
         // something tries to access it, and it's only created if it doesn't already exist.
         dbHelper = new DatabaseHelper(getContext());
 
+        initLastSyncTime();
         // Assumes that any failures will be reported by a thrown exception.
         return true;
     }
@@ -263,7 +273,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
         switch (uriMatcher.match(uri)) {
             case ENTRIES:
-                values.put(Schema.Entries.ID, 0);
+                //values.put(Schema.Entries.ID, null);
                 values.put(Schema.Entries.PENDING_TX, 0);
                 values.put(Schema.Entries.PENDING_UPDATE, 1);
                 values.put(Schema.Entries.PENDING_DELETE, 0);
@@ -298,7 +308,7 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
             Uri entryUri = ContentUris.withAppendedId(Schema.Entries.CONTENT_ID_URI_BASE, id);
             Context context = getContext();
             context.getContentResolver().notifyChange(entryUri, null);
-            //context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+            context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
             return entryUri;
         }
 
@@ -327,10 +337,10 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
-        if (count > 0){
+        if (count > 0) {
             Context context = getContext();
             context.getContentResolver().notifyChange(uri, null);
-            //context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+            context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
         }
 
         return count;
@@ -365,10 +375,10 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
         }
 
 
-        if (count > 0){
+        if (count > 0) {
             Context context = getContext();
             context.getContentResolver().notifyChange(uri, null);
-            //context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+            context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
         }
 
         return count;
@@ -401,151 +411,234 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
     }
 
 
-    private ContentValues toContentValues(Cursor cursor) {
-        ContentValues values = new ContentValues();
-        cursorIntToContentValues(cursor, Schema.Entries._ID, values);
-        cursorIntToContentValues(cursor, Schema.Entries.ID, values);
-        cursorStringToContentValues(cursor, Schema.Entries.TITLE, values);
-        cursorStringToContentValues(cursor, Schema.Entries.NOTES, values);
-        cursorIntToContentValues(cursor, Schema.Entries.COMPLETE, values);
-        cursorIntToContentValues(cursor, Schema.Entries.CREATED, values);
-        cursorIntToContentValues(cursor, Schema.Entries.MODIFIED, values);
-        cursorIntToContentValues(cursor, Schema.Entries.PENDING_UPDATE, values);
-        cursorIntToContentValues(cursor, Schema.Entries.PENDING_DELETE, values);
-        cursorIntToContentValues(cursor, Schema.Entries.PENDING_TX, values);
-        return values;
-    }
-
-    private static boolean checkNeedsUpdate(Cursor cur, ContentValues entryValues) {
-
-        return ((cur.getInt(cur.getColumnIndex(Schema.Entries.PENDING_UPDATE)) == 0)
-                && (cur.getInt(cur.getColumnIndex(Schema.Entries.PENDING_DELETE)) == 0)
-                && (cur.getLong(cur.getColumnIndex(Schema.Entries.MODIFIED))
-                != entryValues.getAsLong(Schema.Entries.MODIFIED)));
-    }
-
     @Override
-    public SyncResult onPerformSync(SyncableClient client) {
-        SyncResult result = SyncResult.failed;
-        Bundle syncData = client.getAll();
-        if (syncData != null) {
-            if (handleFullRefresh(syncData))
-                result = SyncResult.success_updated;
-            else
-                result = SyncResult.success_no_change;
+    public SyncResult onPerformSync(SyncableProviderClient providerClient,boolean fullRefresh) {
+        SyncResult result = SyncResult.success_no_change;
+        if (fullRefresh)
+            lastSyncTime = 0;
 
-            performUpstreamSync(client);
+        try{
+            if (lastSyncTime > 0){
+                if (performSyncUpdate(providerClient) )
+                    result = SyncResult.success_updated;
+
+            } else {
+                if (performSyncRefresh(providerClient) )
+                    result = SyncResult.success_updated;
+            }
+
+            performUpstreamSync(providerClient);
+        } catch (SyncableProviderClient.NetworkError e) {
+            result = SyncResult.failed_network_error;
+
+        } catch (SyncableProviderClient.InvalidResponse e) {
+            result = SyncResult.failed_invalid_response;
+
+        } catch (SyncableProviderClient.InvalidRequest e) {
+            result = SyncResult.failed_invalid_request;
         }
+
         return result;
     }
 
-    private boolean handleFullRefresh(Bundle syncData) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String where = Schema.Entries.ID + " = ?";
-        boolean notify = false;
+    private boolean performSyncUpdate(SyncableProviderClient providerClient)
+            throws SyncableProviderClient.InvalidRequest,
+            SyncableProviderClient.NetworkError,
+            SyncableProviderClient.InvalidResponse {
+        boolean notify=false;
 
-        db.beginTransaction();
-        try {
-            SQLiteQueryBuilder query = new SQLiteQueryBuilder();
-            query.setTables(Schema.Entries.TABLE_NAME);
-            Cursor cur = query.query(db, null, null, null, null, null, null);
-            for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-                String idString = Integer.toString(cur.getInt(cur.getColumnIndex(Schema.Entries.ID)));
-                String[] whereArgs = {idString};
+        // Perform an update sync
+        Map<String, String> args = new HashMap<String, String>();
+        args.put("modified", String.format("%f", lastSyncTime));
+        SyncableEntryList entryList = providerClient.getEntries(args);
+        if (entryList != null) {
+            List<SyncableEntry> syncData = entryList.getEntries();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            String where = Schema.Entries.ID + " = ?";
 
-                ContentValues entryValues = syncData.getParcelable(idString);
-                if (entryValues != null) {
-                    if (checkNeedsUpdate(cur, entryValues)) {
-                        notify = true;
-                        db.update(Schema.Entries.TABLE_NAME, entryValues, where, whereArgs);
+            db.beginTransaction();
+            try {
+                for (SyncableEntry entry : syncData) {
+                    String[] whereArgs = {entry.getValues().getAsString(Schema.Entries.ID)};
+                    if (entry.isDeleted()) {
+                        // If the entry is deleted, remove it from the local database
+                        //  regardless of whether or not it is dirty. If its been deleted,
+                        //  our local changes are irrelevant.
+                        db.delete(Schema.Entries.TABLE_NAME, where, whereArgs);
+                        notify=true;
+                    } else {
+                        // Append to the where clause the non-dirty flags
+                        where += " AND " + Schema.Entries.PENDING_TX + " = 0"
+                                + " AND " + Schema.Entries.PENDING_DELETE + " = 0"
+                                + " AND " + Schema.Entries.PENDING_UPDATE + " = 0";
+
+                        // First try and update an existing row, if that doesn't work insert a new one
+                        int updatedRows = db.update(Schema.Entries.TABLE_NAME, entry.getValues(),where,whereArgs);
+                        if (updatedRows == 0){
+                            long id = db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE, entry.getValues());
+                            if (id != -1)
+                                notify=true;
+                        }
+                        else
+                            notify=true;
                     }
-                } else {
-                    notify = true;
-                    db.delete(Schema.Entries.TABLE_NAME, Schema.Entries.ID + " = " + idString, null);
                 }
-                syncData.remove(idString);
+                lastSyncTime = entryList.getMetaData().getDouble("timestamp");
+                commitLastSyncTime();
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
-
-            for (String idString : syncData.keySet()) {
-                ContentValues entryValues = syncData.getParcelable(idString);
-                notify = true;
-                db.insert(Schema.Entries.TABLE_NAME, null, entryValues);
-            }
-
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
         }
-        if (notify) {
+
+        if (notify)
             getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
-        }
 
         return notify;
     }
 
-    public List<ContentValues> stageUpstreamSync() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String where = "(" + Schema.Entries.PENDING_UPDATE + " = 1" + " OR "
-                + Schema.Entries.PENDING_DELETE + " = 1 )" + " AND "
-                + Schema.Entries.PENDING_TX + " = 0";
+    private boolean performSyncRefresh(SyncableProviderClient providerClient)
+            throws SyncableProviderClient.InvalidRequest,
+            SyncableProviderClient.NetworkError,
+            SyncableProviderClient.InvalidResponse {
 
-        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-        qb.setTables(Schema.Entries.TABLE_NAME);
+        boolean notify = false;
+        SyncableEntryList entryList = providerClient.getEntries(null);
+        if (entryList != null) {
+            List<SyncableEntry> syncData = entryList.getEntries();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            String tempTableName = Schema.Entries.TABLE_NAME + "_refresh";
+
+            db.beginTransaction();
+            try {
+                // Create a Temporary Table to store all the dirty entries
+                db.execSQL("CREATE TEMP TABLE " + tempTableName
+                        + " AS SELECT * from " + Schema.Entries.TABLE_NAME
+                        + " WHERE " + Schema.Entries.PENDING_TX + " = 1"
+                        + " OR " + Schema.Entries.PENDING_DELETE + " = 1"
+                        + " OR " + Schema.Entries.PENDING_UPDATE + " = 1;");
+
+                // Replace the current table with the entries from the refresh
+                db.delete(Schema.Entries.TABLE_NAME, null, null);
+                for (SyncableEntry entry : syncData)
+                    db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE, entry.getValues());
+
+                // Now add back the Temporary items as an UPDATE. This insures that deleted
+                //  dirty items are deleted                           KEY
+
+                Cursor cur = db.query(tempTableName,null,null,null,null,null,null);
+                String where = Schema.Entries.ID + "= ?";
+                for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+                    String[] whereArgs = {cur.getString(cur.getColumnIndex(Schema.Entries.ID))};
+                    ContentValues values = new ContentValues();
+                    for (String column : cur.getColumnNames())
+                        values.put(column, cur.getString(cur.getColumnIndex(column)));
+                    db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs);
+                }
+
+                lastSyncTime = entryList.getMetaData().getDouble("timestamp");
+                commitLastSyncTime();
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+                // Clean up the temporary Table
+                db.execSQL("DROP TABLE IF EXISTS" + tempTableName + ";");
+            }
+        }
+
+        if (notify)
+            getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
+
+        return notify;
+    }
+
+    public void performUpstreamSync(SyncableProviderClient providerClient)
+            throws SyncableProviderClient.InvalidRequest,
+                    SyncableProviderClient.NetworkError,
+                    SyncableProviderClient.InvalidResponse {
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        String tempTableName = Schema.Entries.TABLE_NAME + "_upsync";
+        String syncableWhere = Schema.Entries.PENDING_TX + " = 0"
+                + " AND (" + Schema.Entries.PENDING_DELETE + " = 1"
+                + " OR " + Schema.Entries.PENDING_UPDATE + " = 1)";
 
         ContentValues values = new ContentValues();
         values.put(Schema.Entries.PENDING_TX, 1);
         values.put(Schema.Entries.PENDING_UPDATE, 0);
         values.put(Schema.Entries.PENDING_DELETE, 0);
 
-        List<ContentValues> toSync = new ArrayList<ContentValues>();
         db.beginTransaction();
         try {
-            Cursor cur = qb.query(db, null, where, null, null, null, null);
-            for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext())
-                toSync.add(toContentValues(cur));
+            // Create a Temporary Table to store all the syncable items
+            db.execSQL("CREATE TEMP TABLE " + tempTableName
+                    + " AS SELECT * from " + Schema.Entries.TABLE_NAME
+                    + " WHERE " + syncableWhere + ";");
 
-            db.update(Schema.Entries.TABLE_NAME, values, where, null);
-
+            // Update the pending flags to indicate that the entry
+            //  is currently being processed
+            db.update(Schema.Entries.TABLE_NAME, values, syncableWhere, null);
             db.setTransactionSuccessful();
-        } catch (Exception e) {
-            Log.e(TAG, e.toString());
-            toSync.clear();
         } finally {
             db.endTransaction();
         }
 
-        return toSync;
-    }
+        try {
+            String idWhere = Schema.Entries._ID + " = ?";
+            // Walk through the temporary table of syncable items and perform
+            //  the pending action
+            Cursor cur = db.query(tempTableName,null,null,null,null,null,Schema.Entries.DEFAULT_SORT_ORDER);
+            for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
+                String[] whereArgs = {Integer.toString(cur.getInt(cur.getColumnIndex(Schema.Entries._ID)))};
+                int id = cur.getInt(cur.getColumnIndex(Schema.Entries.ID));
 
-    public void performUpstreamSync(SyncableClient client) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String where = Schema.Entries._ID + " = ?";
-        for (ContentValues values : stageUpstreamSync()) {
-            String[] whereArgs = {Integer.toString(values.getAsInteger(Schema.Entries._ID))};
+                if (cur.getInt(cur.getColumnIndex(Schema.Entries.PENDING_DELETE)) == 1) {
+                    // Attempt to delete the item via the client, if it succeeds, delete it locally
+                    if (providerClient.delete(id)) {
+                        db.delete(Schema.Entries.TABLE_NAME, idWhere, whereArgs);
+                    } else {
+                        // If it fails, reset the pending flags to indicate that it needs to be
+                        //  retried
+                        values.clear();
+                        values.put(Schema.Entries.PENDING_DELETE, 1);
+                        values.put(Schema.Entries.PENDING_TX, 0);
+                        db.update(Schema.Entries.TABLE_NAME, values, idWhere, whereArgs);
+                    }
+                } else if (cur.getInt(cur.getColumnIndex(Schema.Entries.PENDING_UPDATE)) == 1) {
+                    values.clear();
+                    values.put(Schema.Entries.TITLE, cur.getString(cur.getColumnIndex(Schema.Entries.TITLE)));
+                    values.put(Schema.Entries.NOTES, cur.getString(cur.getColumnIndex(Schema.Entries.NOTES)));
+                    values.put(Schema.Entries.COMPLETE, cur.getInt(cur.getColumnIndex(Schema.Entries.COMPLETE)));
 
-            if (values.getAsInteger(Schema.Entries.PENDING_DELETE) == 1) {
-                if (client.delete(values)) {
-                    db.delete(Schema.Entries.TABLE_NAME, where, whereArgs);
-                } else {
-                    ContentValues entryValues = new ContentValues();
-                    entryValues.put(Schema.Entries.PENDING_DELETE, 1);
-                    entryValues.put(Schema.Entries.PENDING_TX, 0);
-                    db.update(Schema.Entries.TABLE_NAME, entryValues, where, whereArgs);
+                    // If the entry was updated, check if it has a valid ID. If it
+                    //  is zero, the entry need to be inserted, otherwise update
+                    SyncableEntry newEntry;
+                    if (id == 0) {
+                        newEntry = providerClient.insert(values);
+                    } else {
+                        newEntry = providerClient.update(id,values);
+                    }
+                    // If success, update the local entry if it is not dirty
+                    if (newEntry != null) {
+                        values = newEntry.getValues();
+                        values.put(Schema.Entries.PENDING_TX, 0);
+                        String where = idWhere + " AND (" + Schema.Entries.PENDING_DELETE + " = 0"
+                                + " AND " + Schema.Entries.PENDING_UPDATE + " = 0)";
+                        db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs);
+                    } else {
+                        // If it fails, make sure that the flags are reset
+                        //  to indicate that it needs to be retried
+                        values.clear();
+                        values.put(Schema.Entries.PENDING_UPDATE, 1);
+                        values.put(Schema.Entries.PENDING_TX, 0);
+                        db.update(Schema.Entries.TABLE_NAME, values, idWhere, whereArgs);
+                    }
                 }
-            } else if (values.getAsInteger(Schema.Entries.PENDING_UPDATE) == 1) {
-                ContentValues entryValues;
-                if (values.getAsInteger(Schema.Entries.ID) == 0) {
-                    entryValues = client.insert(values);
-                } else {
-                    entryValues = client.update(values);
-                }
-                if (entryValues == null) {
-                    entryValues = new ContentValues();
-                    entryValues.put(Schema.Entries.PENDING_UPDATE, 1);
-                }
-                entryValues.put(Schema.Entries.PENDING_TX, 0);
-                db.update(Schema.Entries.TABLE_NAME, entryValues, where, whereArgs);
             }
+        } finally {
+            // Clean up the temporary Table
+            db.execSQL("DROP TABLE " + tempTableName + ";");
         }
     }
 
@@ -566,6 +659,51 @@ public class TodoListProvider extends ContentProvider implements SyncableProvide
 
         return newWhere;
 
+    }
+
+    private void requestSync() {
+        getContext().startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+    }
+
+    private void initLastSyncTime() {
+        FileInputStream stream = null;
+
+        try {
+            stream = getContext().openFileInput(LAST_SYNC_TIME_FILENAME);
+            byte[] buffer = new byte[128];
+            if (stream.read(buffer, 0, buffer.length) > 0) {
+                lastSyncTime = Double.parseDouble(new String(buffer));
+            }
+
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to retrieve last sync time: " + LAST_SYNC_TIME_FILENAME);
+            lastSyncTime = 0;
+        } finally {
+            try {
+                if (stream != null)
+                    stream.close();
+            } catch (IOException e) {
+            }
+        }
+
+    }
+
+    private void commitLastSyncTime() {
+        FileOutputStream stream = null;
+
+        try {
+            stream = getContext().openFileOutput(LAST_SYNC_TIME_FILENAME, Context.MODE_PRIVATE);
+            stream.write(String.format("%f", lastSyncTime).getBytes());
+
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to save last sync time: " + LAST_SYNC_TIME_FILENAME);
+        } finally {
+            try {
+                if (stream != null)
+                    stream.close();
+            } catch (IOException e) {
+            }
+        }
     }
 
 }

@@ -10,7 +10,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 import com.oci.example.todolist.client.HttpRestClient;
-import com.oci.example.todolist.client.TodoListClient;
+import com.oci.example.todolist.client.TodoListProviderClient;
 import com.oci.example.todolist.provider.TodoListProvider;
 
 public class TodoListSyncService extends IntentService {
@@ -20,7 +20,7 @@ public class TodoListSyncService extends IntentService {
     public static final String ACTION_TODOLIST_SYNC = INTENT_BASE+".SYNC";
 
     TodoListProvider provider;
-    private TodoListClient client;
+    private TodoListProviderClient client;
     private NotificationManager notificationManager;
 
     public TodoListSyncService() {
@@ -33,7 +33,7 @@ public class TodoListSyncService extends IntentService {
 
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        client = new TodoListClient(new HttpRestClient(settings.getString("server_address","")));
+        client = new TodoListProviderClient(new HttpRestClient(settings.getString("server_address","")));
 
         provider = (TodoListProvider)getContentResolver()
                         .acquireContentProviderClient(TodoListProvider.Schema.AUTHORITY)
@@ -67,11 +67,11 @@ public class TodoListSyncService extends IntentService {
     }
 
     private void handleSyncIntent() {
-       switch ( provider.onPerformSync(client) ) {
+       switch ( provider.onPerformSync(client,false) ) {
 
-            case failed:
-                Toast.makeText(getApplicationContext(), R.string.sync_failed, Toast.LENGTH_SHORT).show();
-                break;
+            //case failed:
+            //    Toast.makeText(getApplicationContext(), R.string.sync_failed, Toast.LENGTH_SHORT).show();
+            //    break;
 
             case success_updated:
                 showUpdateNotification();

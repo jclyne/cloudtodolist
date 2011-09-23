@@ -1,16 +1,16 @@
 package com.oci.example.todolist.client;
 
 
-import java.security.PublicKey;
-
 public interface SyncableProvider {
 
     public enum SyncResult {
-        failed,
+        failed_network_error,
+        failed_invalid_request,
+        failed_invalid_response,
         success_no_change,
         success_updated
     }
 
-    public SyncResult onPerformSync(final SyncableClient client);
+    public SyncResult onPerformSync(final SyncableProviderClient providerClient,boolean fullRefresh);
 
 }

@@ -11,9 +11,13 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-public final class TodoListClient implements SyncableClient {
-    private static final String TAG = "TodoListClient";
+public final class TodoListProviderClient implements SyncableProviderClient {
+    private static final String TAG = "TodoListProviderClient";
+
 
     private final RestClient client;
     private static final String ENTRIES_PATH = "/todolist/entries";
@@ -26,29 +30,29 @@ public final class TodoListClient implements SyncableClient {
     private static final String ENTRY_CREATED = "created";
     private static final String ENTRY_MODIFIED = "modified";
 
-    public TodoListClient(RestClient client) {
+    public TodoListProviderClient(RestClient client) {
         this.client = client;
     }
 
     @Override
-    public ContentValues insert(ContentValues entry) {
+    public SyncableEntry insert(ContentValues entry) throws NetworkError, InvalidResponse, InvalidRequest {
 
         String uri = ENTRIES_PATH;
 
-        String[] validQueryValues = {
+        String[] validQueryParams = {
                 TodoListProvider.Schema.Entries.TITLE,
                 TodoListProvider.Schema.Entries.NOTES,
                 TodoListProvider.Schema.Entries.COMPLETE};
 
-        String uriQueryString = buildQueryString(entry, validQueryValues);
+        String uriQueryString = buildQueryString(validQueryParams, entry);
 
         try {
             RestClient.Response response = client.Post(uri, uriQueryString, RestClient.ContentType.JSON);
             if (response.succeeded()) {
                 JSONObject jsonEntry = new JSONObject(response.getContent());
-                ContentValues result = parseJsonEntry(jsonEntry);
+                SyncableEntry result = parseJsonEntry(jsonEntry);
 
-                Log.i(TAG, "inserted entry: " + result.getAsInteger(TodoListProvider.Schema.Entries.ID));
+                Log.i(TAG, "inserted entry: " + result.getValues().getAsInteger(TodoListProvider.Schema.Entries.ID));
                 return result;
             } else {
                 Log.e(TAG, "insert failed: " + response.getStatusCode() + "- " + response.getContent());
@@ -56,37 +60,40 @@ public final class TodoListClient implements SyncableClient {
 
         } catch (IOException e) {
             Log.e(TAG, "insert network error: " + e.toString());
+            throw new NetworkError(e.getMessage());
 
         } catch (URISyntaxException e) {
             Log.e(TAG, "insert invalid URI: " + e.toString());
+            throw new InvalidRequest(e.getMessage());
 
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "insert error: " + e.toString());
+            throw new InvalidRequest(e.getMessage());
 
         } catch (JSONException e) {
             Log.e(TAG, "insert unexpected response: " + e.toString());
+            throw new InvalidResponse(e.getMessage());
         }
 
         return null;
     }
 
     @Override
-    public ContentValues update(ContentValues entry) {
+    public SyncableEntry update(Object id, ContentValues entry) throws NetworkError, InvalidRequest, InvalidResponse {
 
-        int id = entry.getAsInteger(TodoListProvider.Schema.Entries.ID);
-        String uri = ENTRIES_PATH + "/" + entry.getAsInteger(TodoListProvider.Schema.Entries.ID);
-        String[] validQueryValues = {
+        String uri = ENTRIES_PATH + "/" + id;
+        String[] validQueryParams = {
                 TodoListProvider.Schema.Entries.TITLE,
                 TodoListProvider.Schema.Entries.NOTES,
                 TodoListProvider.Schema.Entries.COMPLETE};
 
-        String uriQueryString = buildQueryString(entry, validQueryValues);
+        String uriQueryString = buildQueryString(validQueryParams, entry);
 
         try {
             RestClient.Response response = client.Put(uri, uriQueryString, RestClient.ContentType.JSON);
             if (response.succeeded()) {
                 JSONObject jsonEntry = new JSONObject(response.getContent());
-                ContentValues result = parseJsonEntry(jsonEntry);
+                SyncableEntry result = parseJsonEntry(jsonEntry);
 
                 Log.i(TAG, "updated entry: " + id);
                 return result;
@@ -94,26 +101,30 @@ public final class TodoListClient implements SyncableClient {
                 Log.e(TAG, "update failed: " + response.getStatusCode() + "- " + response.getContent());
             }
 
-        } catch (IOException e) {
+         } catch (IOException e) {
             Log.e(TAG, "update network error: " + e.toString());
+            throw new NetworkError(e.getMessage());
 
         } catch (URISyntaxException e) {
             Log.e(TAG, "update invalid URI: " + e.toString());
+            throw new InvalidRequest(e.getMessage());
 
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "update error: " + e.toString());
+            throw new InvalidRequest(e.getMessage());
 
         } catch (JSONException e) {
             Log.e(TAG, "update unexpected response: " + e.toString());
+            throw new InvalidResponse(e.getMessage());
         }
 
         return null;
     }
 
     @Override
-    public boolean delete(ContentValues entry) {
-        int id = entry.getAsInteger(TodoListProvider.Schema.Entries.ID);
+    public boolean delete(Object id) throws NetworkError, InvalidRequest {
         String uri = ENTRIES_PATH + "/" + id;
+
 
         try {
             RestClient.Response response = client.Delete(uri, null, RestClient.ContentType.JSON);
@@ -126,76 +137,102 @@ public final class TodoListClient implements SyncableClient {
 
         } catch (IOException e) {
             Log.e(TAG, "delete network error: " + e.toString());
+            throw new NetworkError(e.getMessage());
 
         } catch (URISyntaxException e) {
             Log.e(TAG, "delete invalid URI: " + e.toString());
+            throw new InvalidRequest(e.getMessage());
 
         } catch (IllegalArgumentException e) {
             Log.e(TAG, "delete error: " + e.toString());
-
+            throw new InvalidRequest(e.getMessage());
         }
 
         return false;
     }
 
-
     @Override
-    public Bundle getAll() {
+    public SyncableEntryList getEntries(Map<String,String> args) throws NetworkError, InvalidRequest, InvalidResponse {
+
+        String[] validQueryParams = {
+                TodoListProvider.Schema.Entries.ID,
+                TodoListProvider.Schema.Entries.MODIFIED};
+
         try {
-            RestClient.Response response = client.Get(ENTRIES_PATH, null, RestClient.ContentType.JSON);
+            RestClient.Response response = client.Get(
+                    ENTRIES_PATH,
+                    buildQueryString(validQueryParams,args),
+                    RestClient.ContentType.JSON);
             if (response.succeeded()) {
-                Bundle result = new Bundle();
-                JSONObject entryList = new JSONObject(response.getContent());
-                double timestamp = entryList.getDouble("timestamp");
-                JSONArray entries = entryList.getJSONArray("entries");
-                for (int idx = 0; idx < entryList.length(); idx++) {
-                    ContentValues entryValues = parseJsonEntry(entries.getJSONObject(idx));
-                    result.putParcelable(
-                            entryValues.getAsString(TodoListProvider.Schema.Entries.ID),
-                            entryValues);
-                }
-                Log.i(TAG, "getAll retrieved " + Integer.toString(result.size()) + " entries");
-                return result;
+                List<SyncableEntry> entries = new ArrayList<SyncableEntry>();
+                Bundle metaData= new Bundle();
+
+                JSONObject jsonEntryList = new JSONObject(response.getContent());
+                metaData.putDouble("timestamp",jsonEntryList.getDouble("timestamp"));
+                JSONArray jsonEntries = jsonEntryList.getJSONArray("entries");
+                for (int idx = 0; idx < jsonEntries.length(); idx++)
+                    entries.add(parseJsonEntry(jsonEntries.getJSONObject(idx)));
+
+                Log.i(TAG, "getEntries retrieved " + Integer.toString(entries.size()) + " entries");
+
+                return new SyncableEntryList(entries, metaData);
             } else {
-                Log.e(TAG, "getAll failed: " + response.getStatusCode() + "- " + response.getContent());
+                Log.e(TAG, "getEntries failed: " + response.getStatusCode() + "- " + response.getContent());
             }
 
 
-        } catch (IOException e) {
-            Log.e(TAG, "getAll network error: " + e.toString());
+       } catch (IOException e) {
+            Log.e(TAG, "getEntries network error: " + e.toString());
+            throw new NetworkError(e.getMessage());
 
         } catch (URISyntaxException e) {
-            Log.e(TAG, "getAll invalid URI: " + e.toString());
+            Log.e(TAG, "getEntries invalid URI: " + e.toString());
+            throw new InvalidRequest(e.getMessage());
 
         } catch (IllegalArgumentException e) {
-            Log.e(TAG, "getAll error: " + e.toString());
+            Log.e(TAG, "getEntries error: " + e.toString());
+            throw new InvalidRequest(e.getMessage());
 
         } catch (JSONException e) {
-            Log.e(TAG, "getAll unexpected response: " + e.toString());
+            Log.e(TAG, "getEntries unexpected response: " + e.toString());
+            throw new InvalidResponse(e.getMessage());
         }
 
 
         return null;
     }
 
-    private static String buildQueryString(ContentValues entry, String[] values) {
-        String query = "";
-        for (String value : values) {
-            if (entry.containsKey(value)) {
-                if (query.length() > 0) query += ";";
-                query += value + "=" + entry.getAsString(value);
+    private String buildQueryString(String[] keys, Map<String,String> values){
+        String queryString = "";
+        if (values != null){
+            for (String key : keys) {
+                if (values.containsKey(key)) {
+                    if (!queryString.isEmpty()) queryString += ";";
+                    queryString += key + "=" + values.get(key);
+                }
             }
         }
-        return query;
+        return (queryString.isEmpty() ? null : queryString);
     }
 
-    private static ContentValues parseJsonEntry(JSONObject entry) throws JSONException {
+    private static String buildQueryString(String[] keys, ContentValues values) {
+        String queryString = "";
+        if (values != null){
+            for (String key : keys) {
+                if (values.containsKey(key)) {
+                    if (!queryString.isEmpty()) queryString += ";";
+                    queryString += key + "=" + values.getAsString(key);
+                }
+            }
+        }
+        return (queryString.isEmpty() ? null : queryString);
+    }
+
+    private static SyncableEntry parseJsonEntry(JSONObject entry) throws JSONException {
         ContentValues entryValues = new ContentValues();
 
-        int id = entry.getInt(ENTRY_ID);
-        entryValues.put(TodoListProvider.Schema.Entries.ID, id);
+        entryValues.put(TodoListProvider.Schema.Entries.ID, entry.getInt(ENTRY_ID));
         entryValues.put(TodoListProvider.Schema.Entries.COMPLETE, entry.getInt(ENTRY_COMPLETE));
-        entryValues.put(ENTRY_DELETED, entry.getInt(ENTRY_COMPLETE));
         String title = entry.optString(ENTRY_TITLE);
         if (!title.equals(""))
             entryValues.put(TodoListProvider.Schema.Entries.TITLE, title);
@@ -206,7 +243,7 @@ public final class TodoListClient implements SyncableClient {
         entryValues.put(TodoListProvider.Schema.Entries.CREATED, (long) (entry.getDouble(ENTRY_CREATED) * 1000));
         entryValues.put(TodoListProvider.Schema.Entries.MODIFIED, (long) (entry.getDouble(ENTRY_MODIFIED) * 1000));
 
-        return entryValues;
+        return new SyncableEntry(entry.getInt(ENTRY_DELETED)==1,entryValues);
 
     }
 
