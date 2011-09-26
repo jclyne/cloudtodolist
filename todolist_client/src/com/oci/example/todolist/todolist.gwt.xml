@@ -20,9 +20,9 @@
     <inherits name="com.google.gwt.json.JSON"/>
 
     <!-- Specify the app entry point class.                   -->
-    <entry-point class='com.oci.example.todolist.providerClient.TodoList'/>
+    <entry-point class='com.oci.example.todolist.client.TodoList'/>
 
      <!-- Specify the paths for translatable code                    -->
-    <source path='providerClient'/>
+    <source path='client'/>
 
 </module>

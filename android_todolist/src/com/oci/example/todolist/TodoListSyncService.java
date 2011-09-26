@@ -8,10 +8,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 import com.oci.example.todolist.client.HttpRestClient;
-import com.oci.example.todolist.client.TodoListProviderClient;
 import com.oci.example.todolist.provider.TodoListProvider;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 
 public class TodoListSyncService extends IntentService {
     private static final String TAG = "TodoListSyncService";
@@ -20,8 +20,9 @@ public class TodoListSyncService extends IntentService {
     public static final String ACTION_TODOLIST_SYNC = INTENT_BASE+".SYNC";
 
     TodoListProvider provider;
-    private TodoListProviderClient client;
+    private HttpRestClient client;
     private NotificationManager notificationManager;
+    private int SOCKET_TIMEOUT = 1000;
 
     public TodoListSyncService() {
         super("TodoListSyncService");
@@ -33,7 +34,9 @@ public class TodoListSyncService extends IntentService {
 
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-        client = new TodoListProviderClient(new HttpRestClient(settings.getString("server_address","")));
+        HttpClient httpClient = new DefaultHttpClient();
+        httpClient.getParams().setParameter("http.socket.timeout", SOCKET_TIMEOUT);
+        client =  new HttpRestClient(httpClient,settings.getString("server_address",""));
 
         provider = (TodoListProvider)getContentResolver()
                         .acquireContentProviderClient(TodoListProvider.Schema.AUTHORITY)
