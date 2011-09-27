@@ -21,7 +21,6 @@ public class TodoListSyncService extends IntentService {
 
     TodoListProvider provider;
     private HttpRestClient client;
-    private NotificationManager notificationManager;
     private int SOCKET_TIMEOUT = 1000;
 
     public TodoListSyncService() {
@@ -32,7 +31,6 @@ public class TodoListSyncService extends IntentService {
     public void onCreate() {
         super.onCreate();
 
-        notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
         HttpClient httpClient = new DefaultHttpClient();
         httpClient.getParams().setParameter("http.socket.timeout", SOCKET_TIMEOUT);
@@ -70,33 +68,7 @@ public class TodoListSyncService extends IntentService {
     }
 
     private void handleSyncIntent() {
-       switch ( provider.onPerformSync(client,false) ) {
-
-            //case failed:
-            //    Toast.makeText(getApplicationContext(), R.string.sync_failed, Toast.LENGTH_SHORT).show();
-            //    break;
-
-            case success_updated:
-                showUpdateNotification();
-                break;
-        }
+       provider.onPerformSync(client);
     }
 
-
-    private static final int SYNC_UPDATE_ID = 1;
-    private void showUpdateNotification() {
-        int icon = R.drawable.icon;
-        CharSequence tickerText = "Todo List Updated";
-        long when = System.currentTimeMillis();
-        Notification notification = new Notification(icon, tickerText, when);
-
-        CharSequence contentTitle = "Todo List Updated";
-        CharSequence contentText = "New Entries";
-        Intent notificationIntent = new Intent(this, TodoListActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-        notification.setLatestEventInfo(getApplicationContext(), contentTitle, contentText, contentIntent);
-        notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notificationManager.notify(SYNC_UPDATE_ID, notification);
-    }
 }

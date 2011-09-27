@@ -69,7 +69,7 @@ public class TodoListCursorAdapter extends CursorAdapter {
 
         titleTextView.setText(title);
         notesButton.setTag(id);
-        notesButton.setVisibility( (notes.equals("") ? View.GONE : View.VISIBLE) );
+        notesButton.setVisibility( ( (notes == null) || (notes.isEmpty()) ) ? View.GONE : View.VISIBLE );
     }
 
     public void prepareEntryText(TextView textView, boolean complete) {
