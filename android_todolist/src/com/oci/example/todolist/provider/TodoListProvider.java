@@ -7,12 +7,14 @@ import android.content.*;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
-import android.database.sqlite.*;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteDoneException;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 import com.oci.example.todolist.R;
 import com.oci.example.todolist.TodoListActivity;
 import com.oci.example.todolist.TodoListSyncService;
@@ -165,7 +167,6 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
 
             lastSyncTime = 0;
             commitLastSyncTime();
-            requestSync();
         }
 
 
@@ -197,13 +198,13 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
         return Schema.Entries.TABLE_NAME;
     }
 
-    private static final String WHERE_DIRTY_ENTRIES = " ("+Schema.Entries.PENDING_DELETE + " > 0"
-                                                + " OR " + Schema.Entries.PENDING_UPDATE + " > 0) ";
+    private static final String WHERE_DIRTY_ENTRIES = " (" + Schema.Entries.PENDING_DELETE + " > 0"
+            + " OR " + Schema.Entries.PENDING_UPDATE + " > 0) ";
 
-    private static final String  WHERE_CURRENT_ENTRIES = " ("+Schema.Entries.PENDING_DELETE + " = 0"
-                                                  + " AND " + Schema.Entries.PENDING_UPDATE + " = 0) ";
+    private static final String WHERE_CURRENT_ENTRIES = " (" + Schema.Entries.PENDING_DELETE + " = 0"
+            + " AND " + Schema.Entries.PENDING_UPDATE + " = 0) ";
 
-    private static final String  WHERE_NON_DELETED_ENTRIES =Schema.Entries.PENDING_DELETE + " = 0";
+    private static final String WHERE_NON_DELETED_ENTRIES = Schema.Entries.PENDING_DELETE + " = 0";
 
     private NotificationManager notificationManager;
     private static String LAST_SYNC_TIME_FILENAME = "lastSyncTime";
@@ -216,7 +217,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
         dbHelper = new DatabaseHelper(getContext());
 
         Context ctxt = getContext();
-        notificationManager = (NotificationManager)ctxt.getSystemService(ctxt.NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) ctxt.getSystemService(ctxt.NOTIFICATION_SERVICE);
 
         initLastSyncTime();
         // Assumes that any failures will be reported by a thrown exception.
@@ -319,9 +320,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
 
         if (id > 0) {
             Uri entryUri = ContentUris.withAppendedId(Schema.Entries.CONTENT_ID_URI_BASE, id);
-            Context context = getContext();
-            context.getContentResolver().notifyChange(entryUri, null);
-            context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+            getContext().getContentResolver().notifyChange(entryUri, null);
             return entryUri;
         }
 
@@ -329,20 +328,80 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
         throw new IllegalArgumentException("Failed to insert row into " + uri);
     }
 
+    @SuppressWarnings({"UnusedDeclaration"})
+    private class WhereStringBuilder {
+        String where;
+        String append;
+
+        WhereStringBuilder() {
+            this.where = null;
+            this.append = null;
+        }
+
+        WhereStringBuilder(String where) {
+            this.where = where;
+            this.append = null;
+        }
+
+        void appendAnd(String append) {
+            if (this.append != null) {
+                this.append += " AND " + append;
+            } else {
+                this.append = append;
+            }
+        }
+
+        void appendAndParenthesis(String append) {
+            if (this.append != null) {
+                this.append += " AND (" + append + ")";
+            } else {
+                this.append = append;
+            }
+        }
+
+        void appendOr(String append) {
+            if (this.append != null) {
+                this.append += " OR " + append;
+            } else {
+                this.append = append;
+            }
+        }
+
+        void appendOrParenthesis(String append) {
+            if (this.append != null) {
+                this.append += " OR (" + append + ")";
+            } else {
+                this.append = append;
+            }
+        }
+
+        public String build() {
+            if (where != null) {
+                return where + " AND (" + append + ")";
+            } else {
+                return append;
+            }
+        }
+    }
+
+
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
 
         ContentValues values = new ContentValues();
         int count;
+
+        WhereStringBuilder whereBuilder = new WhereStringBuilder(where);
         switch (uriMatcher.match(uri)) {
 
             case ENTRY_ID:
-                where += " AND " + Schema.Entries._ID + " = "+ getEntryIdFromUri(uri);
+                whereBuilder.appendAnd(Schema.Entries._ID + " = " + getEntryIdFromUri(uri));
             case ENTRIES:
-                where += " AND "+WHERE_NON_DELETED_ENTRIES;
+                whereBuilder.appendAnd(WHERE_NON_DELETED_ENTRIES);
                 values.put(Schema.Entries.PENDING_DELETE, 1);
 
-                count = dbHelper.getWritableDatabase().update(Schema.Entries.TABLE_NAME, values, where, whereArgs);
+                count = dbHelper.getWritableDatabase().update(Schema.Entries.TABLE_NAME,
+                                                values, whereBuilder.build(), whereArgs);
                 break;
 
             // If the incoming pattern is invalid, throws an exception.
@@ -351,13 +410,12 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
         }
 
         if (count > 0) {
-            Context context = getContext();
-            context.getContentResolver().notifyChange(uri, null);
-            context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+            getContext().getContentResolver().notifyChange(uri, null);
         }
 
         return count;
     }
+
 
     @Override
     public int update(Uri uri, ContentValues contentValues, String where, String[] whereArgs) {
@@ -367,13 +425,15 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
         ContentValues values = new ContentValues();
         if (contentValues != null)
             values.putAll(contentValues);
+
+        WhereStringBuilder wherebuilder = new WhereStringBuilder(where);
         int count;
         switch (uriMatcher.match(uri)) {
 
             case ENTRY_ID:
-                where += " AND " + Schema.Entries._ID + " = "+ getEntryIdFromUri(uri);
+                wherebuilder.appendAnd(Schema.Entries._ID + " = " + getEntryIdFromUri(uri));
             case ENTRIES:
-                where += " AND "+WHERE_NON_DELETED_ENTRIES;
+                wherebuilder.appendAnd(WHERE_NON_DELETED_ENTRIES);
 
                 // Set the Modified times to NOW if not set
                 values.put(Schema.Entries.MODIFIED, System.currentTimeMillis());
@@ -381,7 +441,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
                 values.put(Schema.Entries.PENDING_UPDATE, 2);
 
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
-                count = db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs);
+                count = db.update(Schema.Entries.TABLE_NAME, values, wherebuilder.build(), whereArgs);
                 break;
 
             default:
@@ -390,9 +450,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
 
 
         if (count > 0) {
-            Context context = getContext();
-            context.getContentResolver().notifyChange(uri, null);
-            context.startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
+            getContext().getContentResolver().notifyChange(uri, null);
         }
 
         return count;
@@ -426,31 +484,38 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
 
 
     @Override
-     public void onPerformSync(HttpRestClient httpRestCleint) {
+    public void onPerformSync(HttpRestClient httpRestCleint, boolean refresh) {
         TodoListRestClient client = new TodoListRestClient(httpRestCleint);
         boolean notify = false;
         try {
-            performUpstreamSync(client);
+            if (refresh) {
+                dbHelper.getWritableDatabase().delete(Schema.Entries.TABLE_NAME, null, null);
+                lastSyncTime = 0;
+            } else {
+                performUpstreamSync(client);
+            }
+
             if (lastSyncTime > 0) {
                 notify = performSyncUpdate(client);
             } else {
                 notify = performSyncRefresh(client);
             }
 
-            if (notify){
-                showUpdateNotification("TodoList Updated","TodoList Updated","New Entries");
+            if (notify) {
+                getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
+                showUpdateNotification("TodoList Updated", "TodoList Updated", "New Entries");
             }
         } catch (IOException e) {
-            Log.e(TAG,"Network Error: "+e.getMessage());
+            Log.e(TAG, "Network Error: " + e.getMessage());
             showSyncErrorNotification("TodoList Sync Error", "Network Error", e.getMessage());
         } catch (URISyntaxException e) {
-            Log.e(TAG,"Invalid request: "+e.getMessage());
+            Log.e(TAG, "Invalid request: " + e.getMessage());
             showSyncErrorNotification("TodoList Sync Error", "Invalid Request", e.getMessage());
-        } catch (IllegalArgumentException e){
-            Log.e(TAG,"Invalid request: "+e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Invalid request: " + e.getMessage());
             showSyncErrorNotification("TodoList Sync Error", "Invalid Request", e.getMessage());
         } catch (JSONException e) {
-            Log.e(TAG,"Invalid response: "+e.getMessage());
+            Log.e(TAG, "Invalid response: " + e.getMessage());
             showSyncErrorNotification("TodoList Sync Error", "Invalid Response", e.getMessage());
         }
     }
@@ -475,14 +540,15 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
         return entryValues;
 
     }
+
     private boolean performSyncUpdate(TodoListRestClient client)
-                throws IOException, URISyntaxException, JSONException {
-        boolean notify=false;
+            throws IOException, URISyntaxException, JSONException {
+        boolean notify = false;
 
         // Perform an update sync
         TodoListRestClient.EntryListResponse response = client.getEntries(lastSyncTime);
         int statusCode = response.getResponse().getStatusCode();
-        if ( statusCode == TodoListRestClient.Response.SUCCESS_OK) {
+        if (statusCode == TodoListRestClient.Response.SUCCESS_OK) {
             List<JSONObject> entries = response.getEntryList();
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             String idWhere = Schema.Entries.ID + " = ?";
@@ -490,29 +556,29 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
             db.beginTransaction();
             try {
                 for (JSONObject entry : entries) {
-                    String[] whereArgs = { Integer.toString(entry.getInt(TodoListRestClient.ENTRY_ID))};
+                    String[] whereArgs = {Integer.toString(entry.getInt(TodoListRestClient.ENTRY_ID))};
                     if (entry.getInt(TodoListRestClient.ENTRY_DELETED) > 0) {
                         // If the entry is deleted, remove it from the local database
                         //  regardless of whether or not it is dirty. If its been deleted,
                         //  our local changes are irrelevant.
                         if (db.delete(Schema.Entries.TABLE_NAME, idWhere, whereArgs) > 0)
-                            notify=true;
+                            notify = true;
                     } else {
                         // Append to the where clause the non-dirty flags
                         String where = idWhere + " AND " + WHERE_CURRENT_ENTRIES;
-                        ContentValues values =  entryObjectValues(entry);
-                        try{
+                        ContentValues values = entryObjectValues(entry);
+                        try {
                             long modifiedTime = DatabaseUtils.longForQuery(db,
-                                                        "SELECT "+Schema.Entries.MODIFIED
-                                                       +" FROM "+Schema.Entries.TABLE_NAME
-                                                       +" WHERE "+where,whereArgs);
+                                    "SELECT " + Schema.Entries.MODIFIED
+                                            + " FROM " + Schema.Entries.TABLE_NAME
+                                            + " WHERE " + where, whereArgs);
                             if (modifiedTime != values.getAsLong(Schema.Entries.MODIFIED)) {
-                                db.update(Schema.Entries.TABLE_NAME, values,where,whereArgs);
-                                notify=true;
+                                db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs);
+                                notify = true;
                             }
                         } catch (SQLiteDoneException e) {
                             db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE, entryObjectValues(entry));
-                            notify=true;
+                            notify = true;
                         }
                     }
                 }
@@ -522,15 +588,11 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
             } finally {
                 db.endTransaction();
             }
-        }
-        else if ( statusCode == TodoListRestClient.Response.FAILED_BAD_REQUEST) {
+        } else if (statusCode == TodoListRestClient.Response.FAILED_BAD_REQUEST) {
             // A bad request is returned if the last sync time is out of the acceptable
             //  window. In this case, we need to do a refresh.
             notify = performSyncRefresh(client);
         }
-
-        if (notify)
-            getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
 
         return notify;
     }
@@ -551,7 +613,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
                 // Create a Temporary Table to store all the dirty entries
                 db.execSQL("CREATE TEMP TABLE " + tempTableName
                         + " AS SELECT * from " + Schema.Entries.TABLE_NAME
-                        + " WHERE " +  WHERE_DIRTY_ENTRIES);
+                        + " WHERE " + WHERE_DIRTY_ENTRIES);
 
                 // Replace the current table with the entries from the refresh
                 db.delete(Schema.Entries.TABLE_NAME, null, null);
@@ -561,7 +623,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
                 // Now add back the Temporary items as an UPDATE. This insures that deleted
                 //  dirty items are deleted                           KEY
 
-                Cursor cur = db.query(tempTableName,null,null,null,null,null,null);
+                Cursor cur = db.query(tempTableName, null, null, null, null, null, null);
                 String where = Schema.Entries.ID + "= ?";
                 for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
                     String[] whereArgs = {cur.getString(cur.getColumnIndex(Schema.Entries.ID))};
@@ -573,7 +635,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
 
                 lastSyncTime = response.getTimestamp();
                 commitLastSyncTime();
-                notify=true;
+                notify = true;
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
@@ -581,9 +643,6 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
                 db.execSQL("DROP TABLE IF EXISTS " + tempTableName + ";");
             }
         }
-
-        if (notify)
-            getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
 
         return notify;
     }
@@ -614,13 +673,13 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
             String idWhere = Schema.Entries._ID + " = ?";
             // Walk through the temporary table of syncable items and perform
             //  the pending action
-            Cursor cur = db.query(tempTableName,null,null,null,null,null,Schema.Entries.DEFAULT_SORT_ORDER);
+            Cursor cur = db.query(tempTableName, null, null, null, null, null, Schema.Entries.DEFAULT_SORT_ORDER);
             for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
                 String[] whereArgs = {Integer.toString(cur.getInt(cur.getColumnIndex(Schema.Entries._ID)))};
                 int id = cur.getInt(cur.getColumnIndex(Schema.Entries.ID));
 
 
-                try{
+                try {
                     if (cur.getInt(cur.getColumnIndex(Schema.Entries.PENDING_DELETE)) > 0) {
                         // Attempt to delete the item via the client, if it succeeds, delete it locally
                         TodoListRestClient.Response response = client.deleteEntry(id);
@@ -639,34 +698,34 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
                         if (id == 0) {
                             response = client.postEntry(values);
                         } else {
-                            response = client.putEntry(id,values);
+                            response = client.putEntry(id, values);
                         }
                         // If success, update the local entry if it is not dirty
                         int statusCode = response.getResponse().getStatusCode();
-                        if ( statusCode == TodoListRestClient.Response.SUCCESS_OK
-                             || statusCode ==  TodoListRestClient.Response.SUCCESS_ADDED) {
+                        if (statusCode == TodoListRestClient.Response.SUCCESS_OK
+                                || statusCode == TodoListRestClient.Response.SUCCESS_ADDED) {
                             values = entryObjectValues(response.getEntryObject());
                             values.remove(Schema.Entries.TITLE);
                             values.remove(Schema.Entries.NOTES);
                             values.remove(Schema.Entries.COMPLETE);
                             db.beginTransaction();
-                            try{
+                            try {
                                 long pendingTx = DatabaseUtils.longForQuery(db,
-                                                        "SELECT "+Schema.Entries.PENDING_UPDATE
-                                                       +" FROM "+Schema.Entries.TABLE_NAME
-                                                       +" WHERE "+idWhere,whereArgs);
-                                values.put(Schema.Entries.PENDING_UPDATE,pendingTx-1);
+                                        "SELECT " + Schema.Entries.PENDING_UPDATE
+                                                + " FROM " + Schema.Entries.TABLE_NAME
+                                                + " WHERE " + idWhere, whereArgs);
+                                values.put(Schema.Entries.PENDING_UPDATE, pendingTx - 1);
                                 db.update(Schema.Entries.TABLE_NAME, values, idWhere, whereArgs);
                                 db.setTransactionSuccessful();
-                            } finally{
+                            } finally {
                                 db.endTransaction();
                             }
                         }
                     }
                 } catch (JSONException e) {
-                    Log.e(TAG,"Invalid response: "+e.getMessage());
+                    Log.e(TAG, "Invalid response: " + e.getMessage());
                 } catch (URISyntaxException e) {
-                    Log.e(TAG,"Invalid request: "+e.getMessage());
+                    Log.e(TAG, "Invalid request: " + e.getMessage());
                 }
             }
         } finally {
@@ -676,10 +735,6 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
 
     private static int getEntryIdFromUri(Uri uri) {
         return Integer.parseInt(uri.getPathSegments().get(Schema.Entries.TODOLIST_ENTRY_ID_PATH_POSITION));
-    }
-
-    private void requestSync() {
-        getContext().startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
     }
 
     private void initLastSyncTime() {
@@ -724,26 +779,28 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
     }
 
 
-
     private static final int SYNC_UPDATE_ID = 1;
-    private void showUpdateNotification(CharSequence tickerText,CharSequence contentTitle,CharSequence contentText) {
-        int icon = R.drawable.icon;
-        long when = System.currentTimeMillis();
-        Notification notification = new Notification(icon, tickerText, when);
+
+    private void showUpdateNotification(CharSequence tickerText, CharSequence contentTitle, CharSequence contentText) {
+
+        Notification notification = new Notification(R.drawable.icon, tickerText, System.currentTimeMillis());
+        //notification.defaults |= Notification.DEFAULT_ALL;
 
         Intent notificationIntent = new Intent(getContext(), TodoListActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(getContext(), 0, notificationIntent, 0);
 
         notification.setLatestEventInfo(getContext(), contentTitle, contentText, contentIntent);
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
-        notificationManager.notify(SYNC_ERROR_ID, notification);
+        notificationManager.cancel(SYNC_ERROR_ID);
+        notificationManager.notify(SYNC_UPDATE_ID, notification);
     }
 
     private static final int SYNC_ERROR_ID = 2;
-    private void showSyncErrorNotification (CharSequence tickerText,CharSequence contentTitle,CharSequence contentText) {
-        int icon = R.drawable.icon;
-        long when = System.currentTimeMillis();
-        Notification notification = new Notification(icon, tickerText, when);
+
+    private void showSyncErrorNotification(CharSequence tickerText, CharSequence contentTitle, CharSequence contentText) {
+
+        Notification notification = new Notification(R.drawable.icon, tickerText, System.currentTimeMillis());
+        //notification.defaults |= Notification.DEFAULT_ALL;
 
         Intent notificationIntent = new Intent(getContext(), TodoListActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(getContext(), 0, notificationIntent, 0);

@@ -1,18 +1,17 @@
 <resources>
-     <string-array name="setting_sync_frequency_entries">
+     <string-array name="setting_sync_interval_entries">
 		<item>1 minute</item>
 		<item>5 minutes</item>
 		<item>15 minutes</item>
 		<item>30 minutes</item>
-		<item>45 minutes</item>
 		<item>60 minutes</item>
 	</string-array>
-	<string-array name="setting_sync_frequency_entry_values">
+
+	<string-array name="setting_sync_interval_entry_values">
 		<item>1</item>
 		<item>5</item>
 		<item>15</item>
 		<item>30</item>
-		<item>45</item>
 		<item>60</item>
 	</string-array>
 </resources>

@@ -1,7 +1,9 @@
 package com.oci.example.todolist;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
@@ -20,10 +22,10 @@ import android.widget.Toast;
 import com.oci.example.todolist.provider.TodoListProvider;
 
 public class TodoListActivity extends FragmentActivity
-                            implements SharedPreferences.OnSharedPreferenceChangeListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "TodoListActivity";
-    private static final int TODOLIST_LOADER = 1;
+    private static final int TODOLIST_CURSOR_LOADER = 1;
     private static final int NOTES_DIALOG = 1;
 
     private EditText newEntryBox;
@@ -37,34 +39,39 @@ public class TodoListActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.i(TAG, "Created"+" ("+ Thread.currentThread().getName()+")");
         setContentView(R.layout.todolist_layout);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         final ListView todoListView = (ListView) findViewById(R.id.todo_list);
 
-        getSupportLoaderManager().initLoader(TODOLIST_LOADER,null,
-            new LoaderManager.LoaderCallbacks<Cursor>() {
+        getSupportLoaderManager().initLoader(TODOLIST_CURSOR_LOADER, null,
+                new LoaderManager.LoaderCallbacks<Cursor>() {
 
-                @Override
-                public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-                    assert(id == TODOLIST_LOADER);
-                    return new CursorLoader(getBaseContext(),
-                                    TodoListProvider.Schema.Entries.CONTENT_URI,
-                                    null, null, null, null);
-                }
+                    @Override
+                    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
+                        Log.i(TAG, "Cursor Loader Initialized"+" ("+ Thread.currentThread().getName()+")");
+                        assert (id == TODOLIST_CURSOR_LOADER);
+                        return new CursorLoader(getBaseContext(),
+                                TodoListProvider.Schema.Entries.CONTENT_URI,
+                                null, null, null, null);
+                    }
 
-                @Override
-                public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-                    todoListAdapter.swapCursor(cursor);
-                }
+                    @Override
+                    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+                        Log.i(TAG, "Cursor Loader Finished"+" ("+ Thread.currentThread().getName()+")");
+                        todoListAdapter.swapCursor(cursor);
+                        TodoListSyncHelper.requestSync(getBaseContext());
+                    }
 
-                @Override
-                public void onLoaderReset(Loader<Cursor> cursorLoader) {
-                    todoListAdapter.swapCursor(null);
-                }
-        });
+                    @Override
+                    public void onLoaderReset(Loader<Cursor> cursorLoader) {
+                        Log.i(TAG, "Cursor Loader Reset"+" ("+ Thread.currentThread().getName()+")");
+                        todoListAdapter.swapCursor(null);
+                    }
+                });
 
-        todoListAdapter=new TodoListCursorAdapter(this, null);
+        todoListAdapter = new TodoListCursorAdapter(this, null);
         todoListView.setAdapter(todoListAdapter);
 
         registerForContextMenu(todoListView);
@@ -92,7 +99,6 @@ public class TodoListActivity extends FragmentActivity
 
         PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
 
-        requestSync(false);
     }
 
     @Override
@@ -109,13 +115,25 @@ public class TodoListActivity extends FragmentActivity
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.entry_menu, menu);
+
+        MenuItem notesItem = menu.getItem(0);
+
+        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+        Uri entryUri = ContentUris.withAppendedId(TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, info.id);
+        final String[] what = {TodoListProvider.Schema.Entries.NOTES};
+        Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
+        cursor.moveToFirst();
+        String notes = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES));
+
+        notesItem.setEnabled( (notes != null && !notes.isEmpty()) );
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
-                requestSync(true);
+                Toast.makeText(this, R.string.sync_initiated, Toast.LENGTH_SHORT).show();
+                TodoListSyncHelper.requestSync(this);
                 return true;
 
             case R.id.menu_clear_selected:
@@ -132,10 +150,15 @@ public class TodoListActivity extends FragmentActivity
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
+            case R.id.menu_notes_item:
+                onShowNotes(info.id);
+                return true;
+
             case R.id.menu_edit_item:
                 onEditEntry(info.id);
                 return true;
@@ -147,11 +170,14 @@ public class TodoListActivity extends FragmentActivity
         }
     }
 
-     @Override
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-         if (key.equals("server_address")){
-            requestSync(true);
-         }
+        if (key.equals("server_address")) {
+            // When the server address is changed, we need to delete all the entries in the
+            TodoListSyncHelper.requestRefresh(this);
+        } else if (key.equals("sync_interval")){
+            TodoListSyncHelper.enableBackgroundSync(this);
+        }
     }
 
     @Override
@@ -175,10 +201,9 @@ public class TodoListActivity extends FragmentActivity
         super.onResume();
     }
 
-    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
-    public void showNotes(View view) {
+    public void onShowNotes(long entryId) {
         Bundle args = new Bundle();
-        args.putLong("entryId", (Integer)view.getTag());
+        args.putLong("entryId", entryId);
         showDialog(NOTES_DIALOG, args);
     }
 
@@ -207,10 +232,10 @@ public class TodoListActivity extends FragmentActivity
     }
 
     public void onDeleteEntry(long entryId) {
-        final String where = TodoListProvider.Schema.Entries._ID + " = ?";
-        final String[] whereArgs = {Long.toString(entryId)};
-        int rowsDeleted = getContentResolver().delete(
-                TodoListProvider.Schema.Entries.CONTENT_URI, where, whereArgs);
+        final Uri entryUri =
+                ContentUris.withAppendedId(
+                        TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, entryId);
+        int rowsDeleted = getContentResolver().delete(entryUri, null, null);
 
         if (rowsDeleted > 0)
             Toast.makeText(this, getString(R.string.entry_deleted), Toast.LENGTH_SHORT).show();
@@ -223,28 +248,22 @@ public class TodoListActivity extends FragmentActivity
         int rowsDeleted = getContentResolver().delete(
                 TodoListProvider.Schema.Entries.CONTENT_URI, where, whereArgs);
 
-        String msg = getResources().getQuantityString( R.plurals.clearedEntriesDeleted,rowsDeleted,rowsDeleted);
+        String msg = getResources().getQuantityString(R.plurals.clearedEntriesDeleted, rowsDeleted, rowsDeleted);
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    }
-
-    private void requestSync(boolean notify){
-        if (notify)
-            Toast.makeText(getBaseContext(), R.string.sync_initiated, Toast.LENGTH_SHORT).show();
-        startService(new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC));
     }
 
 
     public Dialog buildNotesDialog(long entryId) {
         Uri entryUri = ContentUris.withAppendedId(TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, entryId);
         final String[] what = {TodoListProvider.Schema.Entries.NOTES,
-                                TodoListProvider.Schema.Entries.TITLE};
+                TodoListProvider.Schema.Entries.TITLE};
 
         Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
         cursor.moveToFirst();
         String title = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE));
         String notes = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES));
-        if (notes.equals("")){
-            notes=getString(R.string.empty_notes);
+        if (notes == null || notes.isEmpty()) {
+            notes = getString(R.string.empty_notes);
         }
 
         AlertDialog notesDialog = new AlertDialog.Builder(this)

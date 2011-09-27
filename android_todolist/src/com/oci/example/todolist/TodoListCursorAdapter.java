@@ -1,9 +1,11 @@
 package com.oci.example.todolist;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Paint;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +39,6 @@ public class TodoListCursorAdapter extends CursorAdapter {
 
         final CheckBox completeCheckBox = (CheckBox) view.findViewById(R.id.entry_complete);
         final TextView titleTextView = (TextView) view.findViewById(R.id.entry_title);
-        final Button notesButton = (Button) view.findViewById(R.id.notes_button);
 
         completeCheckBox.setTag(id);
 
@@ -57,19 +58,17 @@ public class TodoListCursorAdapter extends CursorAdapter {
                 CheckBox completeCheckBox = (CheckBox) view;
                 final Integer tag = (Integer) completeCheckBox.getTag();
 
-                final String where = TodoListProvider.Schema.Entries._ID + " = " + "?";
-                final String[] whereArgs = {tag.toString()};
+                final Uri entryUri =
+                        ContentUris.withAppendedId(
+                                TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, tag);
 
                 ContentValues values = new ContentValues();
                 values.put(TodoListProvider.Schema.Entries.COMPLETE, (completeCheckBox.isChecked() ? 1 : 0));
-                TodoListCursorAdapter.this.context.getContentResolver().update(
-                        TodoListProvider.Schema.Entries.CONTENT_URI, values, where, whereArgs);
+                TodoListCursorAdapter.this.context.getContentResolver().update(entryUri, values, null, null);
             }
         });
 
         titleTextView.setText(title);
-        notesButton.setTag(id);
-        notesButton.setVisibility( ( (notes == null) || (notes.isEmpty()) ) ? View.GONE : View.VISIBLE );
     }
 
     public void prepareEntryText(TextView textView, boolean complete) {

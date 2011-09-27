@@ -20,13 +20,4 @@
             android:layout_weight="100"/>
 
 
-    <Button
-            android:id="@+id/notes_button"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:gravity="right|center_vertical"
-            android:background="@drawable/notes_button"
-            android:onClick="showNotes"/>
-
-
 </LinearLayout>
