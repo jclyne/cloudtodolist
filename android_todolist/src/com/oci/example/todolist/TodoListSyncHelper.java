@@ -49,17 +49,17 @@ public class TodoListSyncHelper {
                                         res.getString(R.string.setting_sync_interval_default_value)));
         long alarmInterval;
         switch (syncInterval) {
-            case 15:
+            case 900000:
                 alarmInterval = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
                 break;
-            case 30:
+            case 1800000:
                 alarmInterval = AlarmManager.INTERVAL_HALF_HOUR;
                 break;
-            case 60:
+            case 3600000:
                 alarmInterval = AlarmManager.INTERVAL_HOUR;
                 break;
             default:
-                alarmInterval = syncInterval*60*1000;
+                alarmInterval = syncInterval;
         }
 
         PendingIntent syncOperation = PendingIntent.getService(ctxt, 0,

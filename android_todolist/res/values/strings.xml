@@ -27,7 +27,7 @@
     <string name="setting_sync_interval">Sync Frequency</string>
     <string name="setting_sync_interval_summary">Frequency to sync todo list entries</string>
     <string name="setting_sync_interval_dialog_title">Sync Frequence</string>
-    <string name="setting_sync_interval_default_value">15</string>
+    <string name="setting_sync_interval_default_value">900000</string>
     <string name="menu_notes_item">Notes</string>
 
 </resources>
