@@ -158,6 +158,11 @@ public final class TodoListRestClient {
         return new Response(response);
     }
 
+    public EntryListResponse getEntries()
+            throws IOException, URISyntaxException, JSONException {
+        return getEntries(null);
+
+    }
     public EntryListResponse getEntries(Double modified)
             throws IOException, URISyntaxException, JSONException {
 

@@ -19,7 +19,7 @@
 
 
     <EditText android:id="@+id/new_entry"
-              style="@style/todolist_new_entry_text"
+              style="@style/todolist_new_entry"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"
               android:singleLine="true"

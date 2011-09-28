@@ -1,9 +1,6 @@
 package com.oci.example.todolist;
 
 import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -67,12 +64,22 @@ public class TodoListSyncService extends IntentService {
 
         String action = intent.getAction();
         Log.d(TAG, "onHandleIntent: Action = " + action + " (" + Thread.currentThread().getName() + ")");
-        if (connManager.getBackgroundDataSetting()) {
-            if (action.equals(ACTION_TODOLIST_SYNC)){
+        if (action.equals(ACTION_TODOLIST_SYNC)){
+
+            if (checkPerformSync())
                 provider.onPerformSync(client, false);
-            } else if (action.equals(ACTION_TODOLIST_REFRESH)){
+            TodoListSyncHelper.scheduleSync(getBaseContext());
+
+        } else if (action.equals(ACTION_TODOLIST_REFRESH)){
+
+            if (checkPerformSync())
                 provider.onPerformSync(client, true);
-            }
+            TodoListSyncHelper.scheduleSync(getBaseContext());
         }
+    }
+
+    private boolean checkPerformSync() {
+        return connManager.getActiveNetworkInfo().isConnected() &&
+                connManager.getBackgroundDataSetting();
     }
 }

@@ -17,17 +17,15 @@ public class TodoListSyncScheduler extends BroadcastReceiver {
 
         if (action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
             if (intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false)) {
-                Log.w(TAG, "Loss of Network connectivity detected, disabling background sync");
-                TodoListSyncHelper.disableBackgroundSync(ctxt);
+                Log.w(TAG, "Loss of Network connectivity detected, disabling sync");
             } else {
-                Log.i(TAG, "Network connectivity detected, enabling background sync");
-                TodoListSyncHelper.enableBackgroundSync(ctxt);
+                Log.i(TAG, "Network connectivity detected, enabling sync");
                 TodoListSyncHelper.requestSync(ctxt);
             }
 
         } else if (action.equals( Intent.ACTION_BOOT_COMPLETED)) {
             Log.i(TAG, "Enabling boot time background sync");
-            TodoListSyncHelper.enableBackgroundSync(ctxt);
+            TodoListSyncHelper.requestSync(ctxt);
         }
 
     }

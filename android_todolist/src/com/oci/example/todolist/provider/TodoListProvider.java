@@ -8,16 +8,16 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDoneException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.TextUtils;
 import android.util.Log;
 import com.oci.example.todolist.R;
 import com.oci.example.todolist.TodoListActivity;
-import com.oci.example.todolist.TodoListSyncService;
+import com.oci.example.todolist.TodoListSyncHelper;
 import com.oci.example.todolist.client.HttpRestClient;
 import com.oci.example.todolist.client.TodoListRestClient;
 import org.json.JSONException;
@@ -34,7 +34,7 @@ import java.util.List;
  * Provides access to a database of todolist entries. Each entry has an id, a title, notes,
  * and a completed flag
  */
-public class TodoListProvider extends ContentProvider implements RestServiceProvider {
+public class TodoListProvider extends ContentProvider implements RestDataProvider {
 
     // Used for debugging and logging
     private static final String TAG = "TodoListProvider";
@@ -217,7 +217,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
         dbHelper = new DatabaseHelper(getContext());
 
         Context ctxt = getContext();
-        notificationManager = (NotificationManager) ctxt.getSystemService(ctxt.NOTIFICATION_SERVICE);
+        notificationManager = (NotificationManager) ctxt.getSystemService(Context.NOTIFICATION_SERVICE);
 
         initLastSyncTime();
         // Assumes that any failures will be reported by a thrown exception.
@@ -321,6 +321,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
         if (id > 0) {
             Uri entryUri = ContentUris.withAppendedId(Schema.Entries.CONTENT_ID_URI_BASE, id);
             getContext().getContentResolver().notifyChange(entryUri, null);
+            TodoListSyncHelper.requestLazySync(getContext());
             return entryUri;
         }
 
@@ -411,6 +412,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
 
         if (count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
+            TodoListSyncHelper.requestLazySync(getContext());
         }
 
         return count;
@@ -451,6 +453,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
 
         if (count > 0) {
             getContext().getContentResolver().notifyChange(uri, null);
+            TodoListSyncHelper.requestLazySync(getContext());
         }
 
         return count;
@@ -486,7 +489,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
     @Override
     public void onPerformSync(HttpRestClient httpRestCleint, boolean refresh) {
         TodoListRestClient client = new TodoListRestClient(httpRestCleint);
-        boolean notify = false;
+        boolean notify;
         try {
             if (refresh) {
                 dbHelper.getWritableDatabase().delete(Schema.Entries.TABLE_NAME, null, null);
@@ -542,7 +545,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
     }
 
     private boolean performSyncUpdate(TodoListRestClient client)
-            throws IOException, URISyntaxException, JSONException {
+                throws IOException, URISyntaxException, JSONException {
         boolean notify = false;
 
         // Perform an update sync
@@ -553,10 +556,13 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
             SQLiteDatabase db = dbHelper.getWritableDatabase();
             String idWhere = Schema.Entries.ID + " = ?";
 
+            SQLiteStatement entryCount = db.compileStatement(
+                    "SELECT COUNT(*) FROM "+Schema.Entries.TABLE_NAME + " WHERE "+idWhere);
             db.beginTransaction();
             try {
                 for (JSONObject entry : entries) {
-                    String[] whereArgs = {Integer.toString(entry.getInt(TodoListRestClient.ENTRY_ID))};
+                    long id =  entry.getLong(TodoListRestClient.ENTRY_ID);
+                    String[] whereArgs = {Long.toString(id)};
                     if (entry.getInt(TodoListRestClient.ENTRY_DELETED) > 0) {
                         // If the entry is deleted, remove it from the local database
                         //  regardless of whether or not it is dirty. If its been deleted,
@@ -564,20 +570,18 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
                         if (db.delete(Schema.Entries.TABLE_NAME, idWhere, whereArgs) > 0)
                             notify = true;
                     } else {
-                        // Append to the where clause the non-dirty flags
-                        String where = idWhere + " AND " + WHERE_CURRENT_ENTRIES;
                         ContentValues values = entryObjectValues(entry);
-                        try {
-                            long modifiedTime = DatabaseUtils.longForQuery(db,
-                                    "SELECT " + Schema.Entries.MODIFIED
-                                            + " FROM " + Schema.Entries.TABLE_NAME
-                                            + " WHERE " + where, whereArgs);
-                            if (modifiedTime != values.getAsLong(Schema.Entries.MODIFIED)) {
-                                db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs);
+                        entryCount.bindLong(1,id);
+                        if (entryCount.simpleQueryForLong() > 0){
+
+                            String where = idWhere
+                                + " AND " + WHERE_CURRENT_ENTRIES
+                                + " AND " + Schema.Entries.MODIFIED
+                                    + " != "+values.getAsLong(Schema.Entries.MODIFIED);
+                            if ( db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs) > 0 )
                                 notify = true;
-                            }
-                        } catch (SQLiteDoneException e) {
-                            db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE, entryObjectValues(entry));
+                        } else {
+                            db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE,values);
                             notify = true;
                         }
                     }
@@ -601,7 +605,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
             throws IOException, URISyntaxException, JSONException {
 
         boolean notify = false;
-        TodoListRestClient.EntryListResponse response = client.getEntries(null);
+        TodoListRestClient.EntryListResponse response = client.getEntries();
         if (response.getResponse().getStatusCode() == TodoListRestClient.Response.SUCCESS_OK) {
             List<JSONObject> entries = response.getEntryList();
             SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -716,6 +720,15 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
                                                 + " WHERE " + idWhere, whereArgs);
                                 values.put(Schema.Entries.PENDING_UPDATE, pendingTx - 1);
                                 db.update(Schema.Entries.TABLE_NAME, values, idWhere, whereArgs);
+
+                                // Notify the content observers that the status of the entry
+                                //  has changed. Specifically, it is now synced.
+                                getContext().getContentResolver().notifyChange(
+                                        ContentUris.withAppendedId(
+                                                Schema.Entries.CONTENT_ID_URI_BASE,
+                                                values.getAsInteger(Schema.Entries.ID)),
+                                        null);
+
                                 db.setTransactionSuccessful();
                             } finally {
                                 db.endTransaction();
@@ -754,7 +767,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
             try {
                 if (stream != null)
                     stream.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
 
@@ -773,7 +786,7 @@ public class TodoListProvider extends ContentProvider implements RestServiceProv
             try {
                 if (stream != null)
                     stream.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
     }

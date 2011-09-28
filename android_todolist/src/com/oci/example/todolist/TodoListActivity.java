@@ -1,14 +1,14 @@
 package com.oci.example.todolist;
 
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.PendingIntent;
-import android.content.*;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -21,8 +21,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 import com.oci.example.todolist.provider.TodoListProvider;
 
-public class TodoListActivity extends FragmentActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class TodoListActivity extends FragmentActivity {
 
     private static final String TAG = "TodoListActivity";
     private static final int TODOLIST_CURSOR_LOADER = 1;
@@ -61,7 +60,6 @@ public class TodoListActivity extends FragmentActivity
                     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
                         Log.i(TAG, "Cursor Loader Finished"+" ("+ Thread.currentThread().getName()+")");
                         todoListAdapter.swapCursor(cursor);
-                        TodoListSyncHelper.requestSync(getBaseContext());
                     }
 
                     @Override
@@ -96,9 +94,6 @@ public class TodoListActivity extends FragmentActivity
                 }
             }
         });
-
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener(this);
-
     }
 
     @Override
@@ -167,16 +162,6 @@ public class TodoListActivity extends FragmentActivity
                 return true;
             default:
                 return super.onContextItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("server_address")) {
-            // When the server address is changed, we need to delete all the entries in the
-            TodoListSyncHelper.requestRefresh(this);
-        } else if (key.equals("sync_interval")){
-            TodoListSyncHelper.enableBackgroundSync(this);
         }
     }
 

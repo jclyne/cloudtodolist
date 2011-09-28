@@ -6,13 +6,13 @@ import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Paint;
 import android.net.Uri;
+import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.CursorAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import com.oci.example.todolist.provider.TodoListProvider;
 
@@ -35,10 +35,13 @@ public class TodoListCursorAdapter extends CursorAdapter {
         final int id = cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries._ID));
         final boolean complete = (cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.COMPLETE)) == 1);
         final String title = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE));
-        final String notes = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES));
+        final boolean dirty = (
+                ( cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_UPDATE))  > 0)
+                || ( cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_DELETE))  > 0 ) );
 
         final CheckBox completeCheckBox = (CheckBox) view.findViewById(R.id.entry_complete);
         final TextView titleTextView = (TextView) view.findViewById(R.id.entry_title);
+        final ImageView statusImageView = (ImageView) view.findViewById(R.id.entry_status);
 
         completeCheckBox.setTag(id);
 
@@ -69,13 +72,18 @@ public class TodoListCursorAdapter extends CursorAdapter {
         });
 
         titleTextView.setText(title);
+        statusImageView.setImageDrawable(
+                context.getResources().getDrawable(dirty ? R.drawable.ic_dirty : R.drawable.ic_synced));
     }
 
     public void prepareEntryText(TextView textView, boolean complete) {
         if (complete) {
+            textView.setTextAppearance(context, R.style.todolist_entry_text_complete);
             textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
+            textView.setTextAppearance(context,R.style.todolist_entry_text);
             textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
+
         }
     }
 }
