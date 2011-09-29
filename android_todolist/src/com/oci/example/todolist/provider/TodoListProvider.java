@@ -487,8 +487,8 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
 
 
     @Override
-    public void onPerformSync(HttpRestClient httpRestCleint, boolean refresh) {
-        TodoListRestClient client = new TodoListRestClient(httpRestCleint);
+    synchronized public void onPerformSync(HttpRestClient httpRestClient, boolean refresh) {
+        TodoListRestClient client = new TodoListRestClient(httpRestClient);
         boolean notify;
         try {
             if (refresh) {
@@ -520,6 +520,12 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         } catch (JSONException e) {
             Log.e(TAG, "Invalid response: " + e.getMessage());
             showSyncErrorNotification("TodoList Sync Error", "Invalid Response", e.getMessage());
+        } finally{
+            ContentValues pendingTxValue = new ContentValues();
+            pendingTxValue.put(Schema.Entries.PENDING_TX,0);
+            if (getWritableDatabase().update(Schema.Entries.TABLE_NAME,
+                    pendingTxValue,Schema.Entries.PENDING_TX+"=1", null) > 0)
+                getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
         }
     }
 
@@ -657,6 +663,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
 
         ContentValues values = new ContentValues();
         values.put(Schema.Entries.PENDING_UPDATE, 1);
+        values.put(Schema.Entries.PENDING_TX,1);
 
         db.beginTransaction();
         try {
@@ -797,7 +804,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
     private void showUpdateNotification(CharSequence tickerText, CharSequence contentTitle, CharSequence contentText) {
 
         Notification notification = new Notification(R.drawable.icon, tickerText, System.currentTimeMillis());
-        //notification.defaults |= Notification.DEFAULT_ALL;
+        notification.defaults |= Notification.DEFAULT_ALL;
 
         Intent notificationIntent = new Intent(getContext(), TodoListActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(getContext(), 0, notificationIntent, 0);
@@ -813,7 +820,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
     private void showSyncErrorNotification(CharSequence tickerText, CharSequence contentTitle, CharSequence contentText) {
 
         Notification notification = new Notification(R.drawable.icon, tickerText, System.currentTimeMillis());
-        //notification.defaults |= Notification.DEFAULT_ALL;
+        notification.defaults |= Notification.DEFAULT_ALL;
 
         Intent notificationIntent = new Intent(getContext(), TodoListActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(getContext(), 0, notificationIntent, 0);

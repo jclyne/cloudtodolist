@@ -10,10 +10,7 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.*;
 import com.oci.example.todolist.provider.TodoListProvider;
 
 public class TodoListCursorAdapter extends CursorAdapter {
@@ -21,7 +18,7 @@ public class TodoListCursorAdapter extends CursorAdapter {
     private final Context context;
 
     public TodoListCursorAdapter(Context context, Cursor c) {
-        super(context, c, FLAG_REGISTER_CONTENT_OBSERVER);
+        super(context, c, 0);
         this.context = context;
     }
 
@@ -30,10 +27,11 @@ public class TodoListCursorAdapter extends CursorAdapter {
         return LayoutInflater.from(context).inflate(R.layout.entry_layout, parent, false);
     }
 
+
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         final int id = cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries._ID));
-        final boolean complete = (cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.COMPLETE)) == 1);
+        final boolean complete = cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.COMPLETE)) == 1;
         final String title = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE));
         final boolean dirty = (
                 ( cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_UPDATE))  > 0)
@@ -42,6 +40,7 @@ public class TodoListCursorAdapter extends CursorAdapter {
         final CheckBox completeCheckBox = (CheckBox) view.findViewById(R.id.entry_complete);
         final TextView titleTextView = (TextView) view.findViewById(R.id.entry_title);
         final ImageView statusImageView = (ImageView) view.findViewById(R.id.entry_status);
+
 
         completeCheckBox.setTag(id);
 
@@ -73,7 +72,8 @@ public class TodoListCursorAdapter extends CursorAdapter {
 
         titleTextView.setText(title);
         statusImageView.setImageDrawable(
-                context.getResources().getDrawable(dirty ? R.drawable.ic_dirty : R.drawable.ic_synced));
+                    context.getResources().getDrawable(dirty ? R.drawable.ic_dirty : R.drawable.ic_synced));
+
     }
 
     public void prepareEntryText(TextView textView, boolean complete) {

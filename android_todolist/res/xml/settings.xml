@@ -2,11 +2,20 @@
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <CheckBoxPreference
+            android:key="offline_mode"
+            android:title="@string/setting_offline_mode"
+            android:summaryOn="@string/setting_offline_mode_summary_on"
+            android:summaryOff="@string/setting_offline_mode_summary_off"
+            android:defaultValue="off"
+            android:disableDependentsState="true"/>
+
     <EditTextPreference
             android:key="server_address"
             android:title="@string/setting_server_address"
             android:summary="@string/setting_server_address_summary"
-            android:dialogTitle="@string/setting_server_address_title"/>
+            android:dialogTitle="@string/setting_server_address_title"
+            android:dependency="offline_mode"/>
 
     <ListPreference
             android:key="sync_interval"
