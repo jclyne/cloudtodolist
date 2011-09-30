@@ -114,26 +114,22 @@ urls = (
 )
 
 
-dbn= "mysql"
-user= "root"
-passwd="Vel0city"
-
-todolist_db= "todolist"
+dbn= "sqlite"
+todolist_db= "todolist.db"
 entries_table="entries"
-current_entries="current_entries"
 
 archive_duration=86400.0 # 24 hours
 cleanup_interval=1800.0 # 30 minutes
 
 
 
-db = web.database(dbn=dbn,user=user,passwd=passwd)
-db.query("CREATE DATABASE IF NOT EXISTS "+todolist_db)
-db = web.database(dbn=dbn,db=todolist_db,user=user,passwd=passwd)
+#db = web.database(dbn=dbn,user=user,passwd=passwd)
+#db.query("CREATE DATABASE IF NOT EXISTS "+todolist_db)
+db = web.database(dbn=dbn,db=todolist_db)
 
 # Execute the schema sql statements to setup the required tables
-with open("schema.sql") as file:
-    map(db.query,[stmt for stmt in file.read().translate(None,"\n\r").split(';') if stmt!="" ])
+#with open("schema.sql") as file:
+#    map(db.query,[stmt for stmt in file.read().translate(None,"\n\r").split(';') if stmt!="" ])
 
 
 class encode_response(object):
@@ -248,19 +244,17 @@ class EntryListHandler(object):
         where=None
 
         if modified:
-            table=entries_table
             if ( now - float(modified) ) > archive_duration:
                 raise web.badrequest
 
             where="(modified > %s AND modified <= %f)"%(modified,now)
         else:
-            table=current_entries
+            where="(deleted = 0)"
 
         if id:
-            if where: where+= " AND "
-            where="("+web.db.sqlors('id = ',id)+")"
+            where+=" AND ("+web.db.sqlors('id = ',id)+")"
 
-        return {"timestamp":now, "entries":tuple(db.select(table,order='created', where=where))}
+        return {"timestamp":now, "entries":tuple(db.select(entries_table,order='created', where=where))}
 
     @encode_response('json')
     @web_input('title', 'notes', 'complete')
@@ -283,7 +277,8 @@ class EntryListHandler(object):
         now = time.time()
         params.update( {"created":now, "modified":now} )
         with db.transaction():
-            new_entry= db.where( current_entries, id=db.insert( entries_table, **params ) )[0]
+            newid=db.insert( entries_table, **params )
+            new_entry = db.where( entries_table, id=newid, deleted=0 )[0]
 
         raise web.created(new_entry)
 
@@ -304,12 +299,11 @@ class EntryListHandler(object):
         """
 
         now = time.time()
+        where="deleted = 0"
         if id:
-            where=web.db.sqlors('id = ',id)
-        else:
-            where=None
+            where+=" AND "+web.db.sqlors('id = ',id)
 
-        db.update(current_entries, where=where, deleted=1,modified=now)
+        db.update(entries_table, where=where, deleted=1,modified=now)
         
 class EntryHandler(object):
     """ Servlet to handle the /todolist/entries/(\d+) URL"""
@@ -326,7 +320,7 @@ class EntryHandler(object):
             410(gone) - entry with specified id does not exist
         """
         try:
-            return db.where(current_entries,id=id)[0]
+            return db.where(entries_table,id=id,deleted=0)[0]
         except IndexError:
             raise web.gone()
 
@@ -355,12 +349,12 @@ class EntryHandler(object):
         data = web.data()
 
         with db.transaction():
-            db.update(current_entries,
-                      where='id=$id',
+            db.update(entries_table,
+                      where='id=$id AND deleted=0',
                       vars=locals(),
                       **params)
             try:
-                return db.where(entries_table,  id=id )[0]
+                return db.where(entries_table,  id=id, deleted=0 )[0]
             except IndexError:
                 raise web.gone()
 
@@ -375,7 +369,7 @@ class EntryHandler(object):
         """
 
         now = time.time()
-        db.update(current_entries, where='id = $id',vars=locals(),deleted=1,modified=now)
+        db.update(entries_table, where='id = $id AND deleted=0',vars=locals(),deleted=1,modified=now)
 
 class CleanDeletedEntriesTask (Thread):
 

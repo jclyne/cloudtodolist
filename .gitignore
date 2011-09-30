@@ -3,3 +3,4 @@ out/
 */gen/
 *.pyc
 jar/
+*.db
