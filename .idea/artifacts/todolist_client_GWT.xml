@@ -1,6 +1,6 @@
 <component name="ArtifactManager">
   <artifact name="todolist_client:GWT">
-    <output-path>$PROJECT_DIR$/todolist_server/static</output-path>
+    <output-path>$PROJECT_DIR$/todolist_server/templates</output-path>
     <root id="root">
       <element id="gwt-compiler-output" facet="todolist_client/gwt/GWT" />
       <element id="javaee-facet-resources" facet="todolist_client/web/Web" />

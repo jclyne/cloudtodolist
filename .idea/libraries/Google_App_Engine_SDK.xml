@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Google App Engine SDK">
+    <CLASSES>
+      <root url="file://$USER_HOME$/google_appengine" />
+      <root url="file://$USER_HOME$/google_appengine/lib/django_1_2" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

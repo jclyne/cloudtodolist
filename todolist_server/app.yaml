@@ -1,0 +1,8 @@
+application: cloudtodolist
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /.*
+  script: todolist_server.py
