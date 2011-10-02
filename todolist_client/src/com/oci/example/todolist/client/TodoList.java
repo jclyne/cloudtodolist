@@ -31,7 +31,7 @@ import java.util.*;
 @SuppressWarnings({"GWTStyleCheck"})
 public class TodoList implements EntryPoint {
 
-    private static final String TODOLIST_BASE_URL = "http://" + Window.Location.getHost() + "/todolist/";
+    private static final String TODOLIST_BASE_URL = Window.Location.getProtocol() +"//" + Window.Location.getHost() + "/todolist/";
     private static final String ENTRY_URL = TODOLIST_BASE_URL + "entries/";
     private static final String ENTRY_LIST_URL = TODOLIST_BASE_URL + "entries";
 

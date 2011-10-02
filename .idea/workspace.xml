@@ -21,18 +21,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a48de36-16e4-49c5-b7b4-b1e8f9695f60" name="Default" comment="">
-      <change type="DELETED" beforePath="C:\Users\jclyne\Projects\todolist_example\todolist_server\schema.sql" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\jclyne\Projects\todolist_example\todolist_server\todolist_server_orig.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/todolist_client_GWT.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/todolist_client_GWT.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/Google_App_Engine_SDK.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Google_App_Engine_SDK.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" afterPath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_client/todolist_client.iml" afterPath="$PROJECT_DIR$/todolist_client/todolist_client.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/app.yaml" afterPath="$PROJECT_DIR$/todolist_server/app.yaml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/index.yaml" afterPath="$PROJECT_DIR$/todolist_server/index.yaml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/todolist_server.iml" afterPath="$PROJECT_DIR$/todolist_server/todolist_server.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_server/todolist_server.py" afterPath="$PROJECT_DIR$/todolist_server/todolist_server.py" />
     </list>
     <ignored path="todolist.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -60,6 +50,21 @@
     <groupTables value="false" />
   </component>
   <component name="DebuggerManager">
+    <line_breakpoints>
+      <breakpoint url="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" line="307" class="com.oci.example.todolist.client.TodoList" package="com.oci.example.todolist.client">
+        <option name="ENABLED" value="true" />
+        <option name="LOG_ENABLED" value="false" />
+        <option name="LOG_EXPRESSION_ENABLED" value="false" />
+        <option name="SUSPEND_POLICY" value="SuspendAll" />
+        <option name="COUNT_FILTER_ENABLED" value="false" />
+        <option name="COUNT_FILTER" value="0" />
+        <option name="CONDITION_ENABLED" value="false" />
+        <option name="CLASS_FILTERS_ENABLED" value="false" />
+        <option name="INSTANCE_FILTERS_ENABLED" value="false" />
+        <option name="CONDITION" value="" />
+        <option name="LOG_MESSAGE" value="" />
+      </breakpoint>
+    </line_breakpoints>
     <breakpoint_any>
       <breakpoint>
         <option name="NOTIFY_CAUGHT" value="true" />
@@ -129,12 +134,12 @@
       <file leaf-file-name="TodoList.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="62" column="43" selection-start="2866" selection-end="2866" vertical-scroll-proportion="0.84334207">
+            <state line="33" column="86" selection-start="1322" selection-end="1322" vertical-scroll-proportion="0.5223464">
               <folding>
-                <marker date="1317532976087" expanded="true" signature="13404:13478" placeholder="{...}" />
-                <marker date="1317532976087" expanded="true" signature="13404:13478" placeholder="{...}" />
-                <marker date="1317532976087" expanded="true" signature="13548:13622" placeholder="{...}" />
-                <marker date="1317532976087" expanded="true" signature="13548:13622" placeholder="{...}" />
+                <marker date="1317561491913" expanded="true" signature="13430:13504" placeholder="{...}" />
+                <marker date="1317561491913" expanded="true" signature="13430:13504" placeholder="{...}" />
+                <marker date="1317561491913" expanded="true" signature="13574:13648" placeholder="{...}" />
+                <marker date="1317561491913" expanded="true" signature="13574:13648" placeholder="{...}" />
               </folding>
             </state>
           </provider>
@@ -244,6 +249,16 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="todolist" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="todolist_server" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
     </panes>
@@ -292,7 +307,7 @@
       <recent name="com.oci.example.todolist.client" />
     </key>
   </component>
-  <component name="RunManager" selected="App Engine server.todolist_server">
+  <component name="RunManager" selected="GWT Configuration.todolist_client">
     <configuration default="true" type="PythonUnitTestConfigurationType" factoryName="Python's unittest">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -580,7 +595,7 @@
     <configuration default="false" name="todolist_client" type="GWT.ConfigurationType" factoryName="GWT Configuration">
       <module name="todolist_client" />
       <option name="SHELL_PARAMETERS" value="-noserver" />
-      <option name="RUN_PAGE" value="http://localhost:8080/todolist.html" />
+      <option name="RUN_PAGE" value="http://localhost:8080/" />
       <RunnerSettings RunnerId="Debug">
         <option name="DEBUG_PORT" value="53790" />
         <option name="TRANSPORT" value="0" />
@@ -857,12 +872,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="62" column="43" selection-start="2866" selection-end="2866" vertical-scroll-proportion="0.84334207">
+        <state line="33" column="86" selection-start="1322" selection-end="1322" vertical-scroll-proportion="0.5223464">
           <folding>
-            <marker date="1317532976087" expanded="true" signature="13404:13478" placeholder="{...}" />
-            <marker date="1317532976087" expanded="true" signature="13404:13478" placeholder="{...}" />
-            <marker date="1317532976087" expanded="true" signature="13548:13622" placeholder="{...}" />
-            <marker date="1317532976087" expanded="true" signature="13548:13622" placeholder="{...}" />
+            <marker date="1317561491913" expanded="true" signature="13430:13504" placeholder="{...}" />
+            <marker date="1317561491913" expanded="true" signature="13430:13504" placeholder="{...}" />
+            <marker date="1317561491913" expanded="true" signature="13574:13648" placeholder="{...}" />
+            <marker date="1317561491913" expanded="true" signature="13574:13648" placeholder="{...}" />
           </folding>
         </state>
       </provider>
