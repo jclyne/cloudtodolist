@@ -39,7 +39,7 @@ public class TodoListSyncService extends IntentService {
 
         HttpClient httpClient = new DefaultHttpClient();
         httpClient.getParams().setParameter("http.socket.timeout", SOCKET_TIMEOUT);
-        client =  new HttpRestClient(httpClient,prefs.getString("server_address",""));
+        client =  new HttpRestClient(httpClient,getString(R.string.app_host_name),true);
 
         provider = (TodoListProvider)getContentResolver()
                         .acquireContentProviderClient(TodoListProvider.Schema.AUTHORITY)

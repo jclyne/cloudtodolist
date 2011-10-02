@@ -533,7 +533,8 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         ContentValues entryValues = new ContentValues();
 
         entryValues.put(TodoListProvider.Schema.Entries.ID, entry.getInt(TodoListRestClient.ENTRY_ID));
-        entryValues.put(TodoListProvider.Schema.Entries.COMPLETE, entry.getInt(TodoListRestClient.ENTRY_COMPLETE));
+        entryValues.put(TodoListProvider.Schema.Entries.COMPLETE,
+                            entry.getBoolean(TodoListRestClient.ENTRY_COMPLETE)?1:0);
         String title = entry.optString(TodoListRestClient.ENTRY_TITLE);
         if (!title.isEmpty())
             entryValues.put(TodoListProvider.Schema.Entries.TITLE, title);
@@ -569,7 +570,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                 for (JSONObject entry : entries) {
                     long id =  entry.getLong(TodoListRestClient.ENTRY_ID);
                     String[] whereArgs = {Long.toString(id)};
-                    if (entry.getInt(TodoListRestClient.ENTRY_DELETED) > 0) {
+                    if (entry.getBoolean(TodoListRestClient.ENTRY_DELETED)) {
                         // If the entry is deleted, remove it from the local database
                         //  regardless of whether or not it is dirty. If its been deleted,
                         //  our local changes are irrelevant.

@@ -19,11 +19,12 @@ public class HttpRestClient {
 
     private static final String TAG = "HttpRestClient";
 
-    private static final String SCHEME = "http";
+
     private static final String ACCEPT_TYPE_HEADER = "Accept";
     private static final String ACCEPT_ENCODING_HEADER = "Accept-Encoding";
 
     private final HttpClient client;
+    private final String scheme;
     private final String authority;
 
     public static enum ContentType {
@@ -114,7 +115,8 @@ public class HttpRestClient {
         }
     }
 
-    public HttpRestClient(HttpClient client, String authority) {
+    public HttpRestClient(HttpClient client, String authority, boolean useHttps) {
+        this.scheme = (useHttps ? "https" : "http");
         this.authority = authority;
 
         this.client = client;
@@ -204,7 +206,7 @@ public class HttpRestClient {
         if ( acceptEncodingMimeType != null )
             request.setHeader(ACCEPT_ENCODING_HEADER, acceptEncodingMimeType);
 
-        request.setURI(new URI(SCHEME,authority,path,query,fragment));
+        request.setURI(new URI(scheme,authority,path,query,fragment));
 
         HttpResponse response = client.execute(request);
 

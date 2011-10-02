@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Cloud Todo List</string>
+    <string name="app_host_name">cloudtodolist.appspot.com</string>
     <string name="untitled">UNTITLED</string>
     <string name="entry_added">Entry Added</string>
     <string name="entry_deleted">Entry Deleted</string>
