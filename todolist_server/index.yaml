@@ -14,3 +14,14 @@ indexes:
   properties:
   - name: deleted
   - name: created
+
+- kind: TodolistEntry
+  properties:
+  - name: deleted
+  - name: id
+  - name: created
+
+- kind: TodolistEntry
+  properties:
+  - name: id
+  - name: modified

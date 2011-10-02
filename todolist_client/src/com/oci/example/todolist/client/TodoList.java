@@ -33,7 +33,7 @@ public class TodoList implements EntryPoint {
 
     private static final String TODOLIST_BASE_URL = "http://" + Window.Location.getHost() + "/todolist/";
     private static final String ENTRY_URL = TODOLIST_BASE_URL + "entries/";
-    private static final String ENTRY_LIST_URL = TODOLIST_BASE_URL + "entries?";
+    private static final String ENTRY_LIST_URL = TODOLIST_BASE_URL + "entries";
 
 
     private static final ProvidesKey<TodoListEntry> todoListEntryKeyProvider = new ProvidesKey<TodoListEntry>() {
@@ -113,7 +113,7 @@ public class TodoList implements EntryPoint {
             public void onValueChange(ValueChangeEvent<String> stringValueChangeEvent) {
                 String newTitle = stringValueChangeEvent.getValue();
                 newEntry.setText("");
-                String urlString = ENTRY_LIST_URL + "title=" + newTitle;
+                String urlString = ENTRY_LIST_URL + "?title=" + newTitle;
                 sendRequest(urlString, RequestBuilder.POST, new EntryResponseHandler());
             }
         });
@@ -150,9 +150,9 @@ public class TodoList implements EntryPoint {
                 for (TodoListEntry entry : todoListDataProvider.getList()) {
                     if (entry.isComplete()) {
                         if (entryIdList.size() == 0) {
-                            urlString += "id=" + Integer.toString(entry.getId());
+                            urlString += "?id=" + Integer.toString(entry.getId());
                         } else {
-                            urlString += "+" + Integer.toString(entry.getId());
+                            urlString += ";id=" + Integer.toString(entry.getId());
                         }
                         entryIdList.add(entry.getId());
                     }
@@ -307,7 +307,7 @@ public class TodoList implements EntryPoint {
     private void refreshTodoListEntries() {
         String URL= ENTRY_LIST_URL;
         if (lastSyncTime != 0)
-            URL+="modified="+lastSyncTime;
+            URL+="?modified="+lastSyncTime;
         sendRequest(URL, RequestBuilder.GET, new EntryListResponseHandler());
     }
 

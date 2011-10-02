@@ -6,6 +6,15 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
+  <component name="FacetAutodetectingManager">
+    <autodetection-disabled>
+      <facet-type id="google-appengine-python">
+        <modules>
+          <module name="todolist_server" />
+        </modules>
+      </facet-type>
+    </autodetection-disabled>
+  </component>
   <component name="IdProvider" IDEtalkID="BEF16CF9152DC004938FF4CB3679A031" />
   <component name="JavadocGenerationManager">
     <option name="OUTPUT_DIRECTORY" />

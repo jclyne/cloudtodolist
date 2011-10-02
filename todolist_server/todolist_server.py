@@ -67,7 +67,7 @@
 
             POST
                 Format - todolist_entry
-                Query Parameters = title,notes,completed (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
+                Query Parameters = title,notes,complete (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
                 Status Codes - 201,400
 
             DELETE
@@ -82,7 +82,7 @@
 
             PUT
                 Format - todolist_entry
-                Query Parameters = title,notes,completed (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
+                Query Parameters = title,notes,complete (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
                 Status Codes - 200,400,410
 
             DELETE
@@ -90,14 +90,12 @@
                 Status Codes - 200
                 
 """
-
-
+from google.appengine.api.datastore import Key
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from django.utils import simplejson as json
 from time import time
-from threading import Thread,Event
 
 
 __author__ = "Jeff Clyne"
@@ -113,7 +111,7 @@ __status__= "released"
 
 archive_duration=86400.0 # 24 hours
 cleanup_interval=1800.0 # 30 minutes
-
+now=time()
 
 class Index(webapp.RequestHandler):
     """ Servlet to handle a redirect on the base module URL"""
@@ -125,19 +123,102 @@ def sqlors(key,values):
     return " OR ".join([key+" = "+value for value in values])
 
 class TodolistEntry(db.Model):
+    id = db.IntegerProperty(required=True,default=0)
     title = db.StringProperty(required=True)
     notes = db.StringProperty()
-    completed = db.BooleanProperty(required=True,default=False)
+    complete = db.BooleanProperty(required=True,default=False)
     created = db.FloatProperty(required=True)
     modified = db.FloatProperty(required=True)
     deleted = db.BooleanProperty(required=True,default=False)
 
+    @staticmethod
+    def create(title,notes=None,complete=None):
+        entry = TodolistEntry(
+                              id=0,
+                              title=title,
+                              created=now,
+                              modified=now)
+        if notes: entry.notes=notes
+        if complete: entry.complete= not int(complete)==0
+
+        def put_and_update_id_tx():
+            entry.id = entry.put().id()
+            return entry.put()
+
+
+        put_and_update_id_tx()
+        return entry
+
+    @classmethod
+    def update(cls,id,title=None,notes=None,complete=None):
+        def update_tx():
+            entry = db.get(Key.from_path(cls.__name__, int(id)))
+            if not entry or entry.deleted:
+                return None
+
+            entry.modified=now
+            if title: entry.title=title
+            if notes: entry.notes=notes
+            if complete: entry.complete=not int(complete)==0
+            entry.put()
+            return entry
+
+        return db.run_in_transaction(update_tx)
+
+    @classmethod
+    def mark_deleted(cls,id):
+        def update_tx():
+            entry = db.get(Key.from_path(cls.__name__, int(id)))
+            if not entry or entry.deleted:
+                return  None
+
+            entry.modified=now
+            entry.deleted=True
+            entry.put()
+            return entry
+
+        return db.run_in_transaction(update_tx)
+
+
     def to_dict(self):
-       return dict(self.__dict__)
+       return {"id" : self.id,
+               "title" : self.title,
+               "notes" : self.notes,
+               "complete" : self.complete,
+               "created" : self.created,
+               "modified" : self.modified,
+               "deleted" : self.deleted}
+
+
+def update_timestamp(method):
+    def wrapper(self,*args,**kwargs):
+        global now
+        now=time()
+        method(self,*args,**kwargs)
+    return wrapper
+
+
+def encode_json_response(method):
+    def wrapper(self,*args,**kwargs):
+        result = method(self,*args,**kwargs)
+        if type(result) is tuple:
+            status,body = result
+            if status >=200 and status < 300:
+                self.response.headers['Content-type'] = 'application/json'
+                self.response.out.write(json.dumps(body,indent=2))
+                self.response.set_status(status)
+            else:
+                self.error(status)
+        else:
+            self.error(result)
+
+    return wrapper
 
 class EntryListHandler(webapp.RequestHandler):
     """ Servlet to handle the /todolist? URL"""
 
+    @update_timestamp
+    @encode_json_response
     def get(self):
         """Retrieves the list of todolist entries,
 
@@ -146,43 +227,41 @@ class EntryListHandler(webapp.RequestHandler):
 
         Query String Params:
             id - entry id to include in result
-                NOTE: this parameter can have multiple values
+                NOTE: this parameter can be specified multiple times
+
+            modified - include all entries modified after specified timestamp
+                NOTE: this should usually be a timestamp previously returned in a GET
 
         Status Codes:
             200(ok) - ok, body includes the todolist_entry list
             400(bad request) - invalid query string  specified
         """
 
-        now = time()
+
+
         ids = self.request.get_all("id")
         modified = self.request.get("modified",None)
-        where=None
+
+        query = TodolistEntry.all()
 
         if modified:
-            if ( now - float(modified) ) > archive_duration:
-                raise self.error(400)
+            modified = float(modified)
+            if ( now - modified ) > archive_duration:
+                return 400
 
-            where="(modified > %s AND modified <= %f)"%(modified,now)
+            query.filter("modified >",modified)
+            query.filter("modified <=",now)
         else:
-            where="deleted = False"
+            query.filter("deleted =",False)
+            query.order("created")
 
         if ids:
-            where+=" AND ("+sqlors('id',ids)+")"
+            query.filter("id IN",[int(id) for id in ids])
 
-        query = db.GqlQuery("SELECT * from TodolistEntry "+
-                            "WHERE "+where+ " "+
-                            "ORDER BY created ")
+        return 200,{"timestamp":now,"entries":tuple([r.to_dict() for r in tuple(query)])}
 
-        res = tuple(query)
-        entries = tuple([r.to_dict() for r in res])
-
-        self.response.headers['Content-type'] = 'application/json'
-        self.response.out.write(
-                json.dumps({"timestamp":now, "entries":entries}
-                           ,indent=2) )
-
-        self.response.set_status(200)
-
+    @update_timestamp
+    @encode_json_response
     def post(self):
         """Creates a new todolist entry
 
@@ -199,20 +278,17 @@ class EntryListHandler(webapp.RequestHandler):
             400(bad request) - invalid query string  specified
         """
 
-        now = time()
+        try:
+            entry = TodolistEntry.create( title = self.request.get("title",None),
+                                          notes = self.request.get("notes",None),
+                                          complete = self.request.get("complete",None) )
+        except db.BadValueError:
+            return 400
 
-        entry = TodolistEntry(title = self.request.get("title",None),
-                                notes = self.request.get("notes",None),
-                                completed = self.request.get("completed",False),
-                                created=now,modified=now)
+        return 201,entry.to_dict()
 
-        newid = entry.put()
-
-        self.response.headers['Content-type'] = 'application/json'
-        self.response.out.write({"id":newid.id()})
-        self.response.set_status(201)
-
-    def delete(self,id=None):
+    @update_timestamp
+    def delete(self):
         """Deletes the specified list of entries
 
         URI Params:
@@ -226,11 +302,20 @@ class EntryListHandler(webapp.RequestHandler):
         Status Codes:
             200(ok) - ok, body is empty
         """
-        pass
-        
+
+        ids = self.request.get_all("id")
+        if ids:
+            for id in ids:
+                TodolistEntry.mark_deleted(id)
+        else:
+            for entry in TodolistEntry.all():
+                TodolistEntry.mark_deleted(entry.id)
+
 class EntryHandler(webapp.RequestHandler):
     """ Servlet to handle the /todolist/entries/(\d+) URL"""
 
+    @update_timestamp
+    @encode_json_response
     def get(self,id):
         """Returns a single todolist_entry, specified by id
 
@@ -241,9 +326,15 @@ class EntryHandler(webapp.RequestHandler):
             200(ok) - ok, body includes the todolist_entry
             410(gone) - entry with specified id does not exist
         """
-        pass
+        entry = db.get(Key.from_path("TodolistEntry", int(id)))
+        if not entry or entry.deleted:
+            return 410
+
+        return 200,entry.to_dict()
 
 
+    @update_timestamp
+    @encode_json_response
     def put(self,id,**params):
         """Updates the specified entry, with the values specified
         in the query string, and returns the updated todolist_entry
@@ -262,8 +353,18 @@ class EntryHandler(webapp.RequestHandler):
             410(gone) - entry with specified id does not exist
         """
 
-        pass
 
+        entry = TodolistEntry.update(id,
+                                    title = self.request.get("title",None),
+                                      notes = self.request.get("notes",None),
+                                      complete = self.request.get("complete",None))
+        if not entry:
+            return 410
+        return 200,entry.to_dict()
+
+
+
+    @update_timestamp
     def delete(self,id):
         """Deletes the specified entry
 
@@ -274,7 +375,9 @@ class EntryHandler(webapp.RequestHandler):
             200(ok) - ok, body is empty
         """
 
-        pass
+        if not TodolistEntry.mark_deleted(id):
+            return 410
+        return 200
 
 
 app = webapp.WSGIApplication([('/todolist', Index),

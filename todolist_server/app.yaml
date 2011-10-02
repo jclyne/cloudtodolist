@@ -3,6 +3,22 @@ version: 1
 runtime: python
 api_version: 1
 
+
 handlers:
-- url: /.*
+- url: /todolist/entries
   script: todolist_server.py
+
+- url: /todolist/entries/\d+
+  script: todolist_server.py
+
+- url: /todolist
+  static_dir: static/todolist/
+
+- url: /
+  static_files: static/todolist.html
+  upload: static/todolist.html
+
+
+
+
+
