@@ -18,6 +18,7 @@
 
     <inherits name="com.google.gwt.http.HTTP" />
     <inherits name="com.google.gwt.json.JSON"/>
+    <inherits name="com.google.gwt.appengine.channel.Channel"/>
 
     <!-- Specify the app entry point class.                   -->
     <entry-point class='com.oci.example.todolist.client.TodoList'/>

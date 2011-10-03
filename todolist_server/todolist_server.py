@@ -34,21 +34,25 @@
               "complete": flag indicating whether the entry is complete
             }
         todolist_entry array
-            [
-              {
-                "id": entry ID,
-                "title": title of the Entry,
-                "notes": notes associated with the entry,
-                "complete": flag indicating whether the entry is complete
-              },
-              {
-                "id": entry ID,
-                "title": title of the Entry,
-                "notes": notes associated with the entry,
-                "complete": flag indicating whether the entry is complete
-              },
-              ...
-            ]
+            {
+                timestamp: timestamp to be used in a get with a modified time
+                entries:
+                [
+                  {
+                    "id": entry ID,
+                    "title": title of the Entry,
+                    "notes": notes associated with the entry,
+                    "complete": flag indicating whether the entry is complete
+                  },
+                  {
+                    "id": entry ID,
+                    "title": title of the Entry,
+                    "notes": notes associated with the entry,
+                    "complete": flag indicating whether the entry is complete
+                  },
+                  ...
+                ]
+            }
 
     Status Codes:
         200(ok) - request was successful
@@ -61,8 +65,10 @@
         todolist/entries - list of todolist entries
             GET
                 Format - todolist_entry array
-                Query Parameters = id (e.g. '?id=1' or '?id=1+2+5')
+                Query Parameters = id,modified (e.g. '?id=1;id=3;id=5' or "?modified=1317532850.83)
                     NOTE: Omitting the id parameter will retrieve all entries
+                    NOTE: When a modified flag is used, deleted entries may be returned with a
+                          deleted flag=true
                 Status Codes - 200,400
 
             POST
@@ -90,12 +96,15 @@
                 Status Codes - 200
                 
 """
+from google.appengine.api import channel
 from google.appengine.api.datastore import Key
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from django.utils import simplejson as json
 from time import time
+
+from todolist_update_handler import *
 
 
 __author__ = "Jeff Clyne"
@@ -109,23 +118,22 @@ __status__= "released"
 
 
 
+# Make duration to archive deleted entries. The deleted
+#  entries are necessary for Gets on the entrylist with a
+#  modified time
 archive_duration=86400.0 # 24 hours
-cleanup_interval=1800.0 # 30 minutes
-now=time()
 
-class Index(webapp.RequestHandler):
-    """ Servlet to handle a redirect on the base module URL"""
-    def GET(self):
-        pass
-
-
-def sqlors(key,values):
-    return " OR ".join([key+" = "+value for value in values])
 
 class TodolistEntry(db.Model):
+    """
+    Data model for a TodoList Entry
+    Also contains static methods for transactional operations on data
+    of this kind.
+    """
+
     id = db.IntegerProperty(required=True,default=0)
     title = db.StringProperty(required=True)
-    notes = db.StringProperty()
+    notes = db.StringProperty(multiline=True)
     complete = db.BooleanProperty(required=True,default=False)
     created = db.FloatProperty(required=True)
     modified = db.FloatProperty(required=True)
@@ -133,6 +141,12 @@ class TodolistEntry(db.Model):
 
     @staticmethod
     def create(title,notes=None,complete=None):
+        """
+        Creates a new entry with the specified title and optional values
+        The item is created and then the generated ID from the key is stored
+        in the 'id' field. This is done atomically in a transaction to guarantee that
+        the 'id' field is never 0.
+        """
         entry = TodolistEntry(
                               id=0,
                               title=title,
@@ -151,6 +165,11 @@ class TodolistEntry(db.Model):
 
     @classmethod
     def update(cls,id,title=None,notes=None,complete=None):
+        """
+        Updates the specified fields in the entity with the specified id.
+        This will atomically update only the specified fields and update
+        the modified time.
+        """
         def update_tx():
             entry = db.get(Key.from_path(cls.__name__, int(id)))
             if not entry or entry.deleted:
@@ -167,7 +186,13 @@ class TodolistEntry(db.Model):
 
     @classmethod
     def mark_deleted(cls,id):
-        def update_tx():
+        """
+        When entries are 'deleted', the delete flag is marked.
+        This allows for update lists that contain deleted entries. A
+        cron job will delete all marked entries that are older than the
+        archival cutoff time.   This will also update the modified time.
+        """
+        def mark_deleted_tx():
             entry = db.get(Key.from_path(cls.__name__, int(id)))
             if not entry or entry.deleted:
                 return  None
@@ -177,11 +202,15 @@ class TodolistEntry(db.Model):
             entry.put()
             return entry
 
-        return db.run_in_transaction(update_tx)
+        return db.run_in_transaction(mark_deleted_tx)
 
 
     def to_dict(self):
-       return {"id" : self.id,
+        """
+        Converts the data model to a dictionary.
+        This is primarily used as input to the JSON encoder
+        """
+        return {"id" : self.id,
                "title" : self.title,
                "notes" : self.notes,
                "complete" : self.complete,
@@ -190,35 +219,31 @@ class TodolistEntry(db.Model):
                "deleted" : self.deleted}
 
 
+# Global timestamp that can be referenced anywhere in the package and is
+#  updated by the update_timestamp method decorator
+now=time()
+
 def update_timestamp(method):
+    """  Method wrapper that will update a global timestamp to the current time
+        before calling the URI handler method. Add this decoration if there is a
+        need for the handler to reference the current time.
+    """
+
+    #noinspection PyUnusedLocal
     def wrapper(self,*args,**kwargs):
         global now
         now=time()
         method(self,*args,**kwargs)
     return wrapper
 
-
-def encode_json_response(method):
-    def wrapper(self,*args,**kwargs):
-        result = method(self,*args,**kwargs)
-        if type(result) is tuple:
-            status,body = result
-            if status >=200 and status < 300:
-                self.response.headers['Content-type'] = 'application/json'
-                self.response.out.write(json.dumps(body,indent=2))
-                self.response.set_status(status)
-            else:
-                self.error(status)
-        else:
-            self.error(result)
-
-    return wrapper
+def encode_json(data):
+    """  Encodes the specfied data structure into JSON"""
+    return json.dumps(data,indent=2)
 
 class EntryListHandler(webapp.RequestHandler):
     """ Servlet to handle the /todolist? URL"""
 
     @update_timestamp
-    @encode_json_response
     def get(self):
         """Retrieves the list of todolist entries,
 
@@ -231,13 +256,14 @@ class EntryListHandler(webapp.RequestHandler):
 
             modified - include all entries modified after specified timestamp
                 NOTE: this should usually be a timestamp previously returned in a GET
+                NOTE:  since the archived "deleted" entries   are only saved for 24 hours,
+                       a modified  timestamp more than 24 hours in the past will fail
+                       with 400 status
 
         Status Codes:
             200(ok) - ok, body includes the todolist_entry list
             400(bad request) - invalid query string  specified
         """
-
-
 
         ids = self.request.get_all("id")
         modified = self.request.get("modified",None)
@@ -247,7 +273,8 @@ class EntryListHandler(webapp.RequestHandler):
         if modified:
             modified = float(modified)
             if ( now - modified ) > archive_duration:
-                return 400
+                self.error(400)
+                return
 
             query.filter("modified >",modified)
             query.filter("modified <=",now)
@@ -258,10 +285,11 @@ class EntryListHandler(webapp.RequestHandler):
         if ids:
             query.filter("id IN",[int(id) for id in ids])
 
-        return 200,{"timestamp":now,"entries":tuple([r.to_dict() for r in tuple(query)])}
+        self.response.headers['Content-type'] = 'application/json'
+        body = encode_json({"timestamp":now,"entries":tuple([r.to_dict() for r in tuple(query)])})
+        self.response.out.write(body)
 
     @update_timestamp
-    @encode_json_response
     def post(self):
         """Creates a new todolist entry
 
@@ -282,10 +310,15 @@ class EntryListHandler(webapp.RequestHandler):
             entry = TodolistEntry.create( title = self.request.get("title",None),
                                           notes = self.request.get("notes",None),
                                           complete = self.request.get("complete",None) )
-        except db.BadValueError:
-            return 400
 
-        return 201,entry.to_dict()
+            self.response.set_status(201)
+            self.response.headers['Content-type'] = 'application/json'
+            body = encode_json(entry.to_dict())
+            self.response.out.write(body)
+            send_update(body)
+
+        except db.BadValueError:
+            self.error(400)
 
     @update_timestamp
     def delete(self):
@@ -306,16 +339,19 @@ class EntryListHandler(webapp.RequestHandler):
         ids = self.request.get_all("id")
         if ids:
             for id in ids:
-                TodolistEntry.mark_deleted(id)
+                entry = TodolistEntry.mark_deleted(id)
+                if entry:
+                    send_update(encode_json(entry.to_dict()))
         else:
             for entry in TodolistEntry.all():
-                TodolistEntry.mark_deleted(entry.id)
+                entry = TodolistEntry.mark_deleted(entry.id)
+                if entry:
+                    send_update(encode_json(entry.to_dict()))
 
 class EntryHandler(webapp.RequestHandler):
     """ Servlet to handle the /todolist/entries/(\d+) URL"""
 
     @update_timestamp
-    @encode_json_response
     def get(self,id):
         """Returns a single todolist_entry, specified by id
 
@@ -327,14 +363,15 @@ class EntryHandler(webapp.RequestHandler):
             410(gone) - entry with specified id does not exist
         """
         entry = db.get(Key.from_path("TodolistEntry", int(id)))
-        if not entry or entry.deleted:
-            return 410
-
-        return 200,entry.to_dict()
+        if entry and not entry.deleted:
+            self.response.headers['Content-type'] = 'application/json'
+            body = encode_json(entry.to_dict())
+            self.response.out.write(body)
+        else:
+            self.error(410)
 
 
     @update_timestamp
-    @encode_json_response
     def put(self,id,**params):
         """Updates the specified entry, with the values specified
         in the query string, and returns the updated todolist_entry
@@ -355,13 +392,16 @@ class EntryHandler(webapp.RequestHandler):
 
 
         entry = TodolistEntry.update(id,
-                                    title = self.request.get("title",None),
-                                      notes = self.request.get("notes",None),
-                                      complete = self.request.get("complete",None))
-        if not entry:
-            return 410
-        return 200,entry.to_dict()
-
+                            title = self.request.get("title",None),
+                              notes = self.request.get("notes",None),
+                              complete = self.request.get("complete",None))
+        if entry:
+            self.response.headers['Content-type'] = 'application/json'
+            body = encode_json(entry.to_dict())
+            self.response.out.write(body)
+            send_update(body)
+        else:
+            self.error(410)
 
 
     @update_timestamp
@@ -375,14 +415,89 @@ class EntryHandler(webapp.RequestHandler):
             200(ok) - ok, body is empty
         """
 
-        if not TodolistEntry.mark_deleted(id):
-            return 410
-        return 200
+        entry = TodolistEntry.mark_deleted(id)
+        if entry:
+            send_update(entry.to_dict())
+        else:
+            self.error(410)
 
 
-app = webapp.WSGIApplication([('/todolist', Index),
-                              ('/todolist/entries', EntryListHandler),
-                              ('/todolist/entries/(\d+)',EntryHandler)],
+
+
+class ChannelHandler(webapp.RequestHandler):
+    """ Servlet to handle update channel token requests"""
+
+    def get (self):
+        """Returns a single channel token that can
+            be used by a client to connect to for updates
+
+        URI Params:
+            none
+
+        Status Codes:
+            200(ok) - ok, body includes the channel token
+        """
+
+        # creates a token that is generated by a client_id, which is
+        # the source ip address and the current time in milliseconds
+        token = channel.create_channel(self.request.remote_addr+str(now))
+
+        self.response.headers['Content-type'] = 'application/json'
+        body = encode_json({"token":token})
+        self.response.out.write(body)
+
+
+class ChannelConnectHandler(webapp.RequestHandler):
+    """ Servlet that handles notification of a channel connect """
+
+    def post(self):
+        """ Stores the client_id of the client that connected
+            to a channel. Once stored, updates will be sent
+            out, via the channel to this client
+
+            Note: the post is genereted, on this URI, from the channel
+                  module to indicate a channel connect. The 'from'
+                  header has the client_id used to generatethe channel
+                  token
+
+            URI Params:
+                none
+
+            Status Codes:
+                200(ok) - ok
+
+        """
+
+        add_update_client(self.request.get('from'))
+
+
+class ChannelDisconnectHandler(webapp.RequestHandler):
+    """ Servlet that handles notification of a channel disconnect """
+
+    def post(self):
+        """ Stores the client_id of the client that disconnected
+            to a channel.
+
+            Note: the post is genereted, on this URI, from the channel
+                  module to indicate a channel disconnect. The 'from'
+                  header has the client_id used to generatethe channel
+                  token
+
+            URI Params:
+                none
+
+            Status Codes:
+                200(ok) - ok
+
+        """
+        remove_update_client(self.request.get('from'))
+
+
+app = webapp.WSGIApplication([('/todolist/entries', EntryListHandler),
+                              ('/todolist/entries/(\d+)',EntryHandler),
+                              ('/todolist/update_channel', ChannelHandler),
+                              ('/_ah/channel/connected/', ChannelConnectHandler),
+                              ('/_ah/channel/disconnected/', ChannelDisconnectHandler)],
                              debug=True)
 
 if __name__ == '__main__':

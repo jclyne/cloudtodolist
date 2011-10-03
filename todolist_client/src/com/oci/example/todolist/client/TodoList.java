@@ -1,5 +1,10 @@
 package com.oci.example.todolist.client;
 
+import com.google.gwt.appengine.channel.client.Channel;
+import com.google.gwt.appengine.channel.client.ChannelFactory;
+import com.google.gwt.appengine.channel.client.ChannelFactory.ChannelCreatedCallback;
+import com.google.gwt.appengine.channel.client.SocketError;
+import com.google.gwt.appengine.channel.client.SocketListener;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.CheckboxCell;
 import com.google.gwt.cell.client.ClickableTextCell;
@@ -15,7 +20,6 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
@@ -31,10 +35,12 @@ import java.util.*;
 @SuppressWarnings({"GWTStyleCheck"})
 public class TodoList implements EntryPoint {
 
-    private static final String TODOLIST_BASE_URL = Window.Location.getProtocol() +"//" + Window.Location.getHost() + "/todolist/";
+    private static final String TODOLIST_BASE_URL = Window.Location.getProtocol() + "//"
+            + Window.Location.getHost()
+            + "/todolist/";
     private static final String ENTRY_URL = TODOLIST_BASE_URL + "entries/";
     private static final String ENTRY_LIST_URL = TODOLIST_BASE_URL + "entries";
-
+    private static final String UPDATE_CHANNEL_URL = TODOLIST_BASE_URL + "update_channel";
 
     private static final ProvidesKey<TodoListEntry> todoListEntryKeyProvider = new ProvidesKey<TodoListEntry>() {
         public Object getKey(TodoListEntry entry) {
@@ -46,7 +52,7 @@ public class TodoList implements EntryPoint {
     private final NoSelectionModel<TodoListEntry> noEntrySelectionModel = new NoSelectionModel<TodoListEntry>();
     private final ListDataProvider<TodoListEntry> todoListDataProvider = new ListDataProvider<TodoListEntry>();
 
-    private final String HeaderText= "Cloud Todo List";
+    private final String HeaderText = "Cloud Todo List";
     private final String newEntryHelpText = "Add a new entry";
 
     private final VerticalPanel mainPanel = new VerticalPanel();
@@ -59,8 +65,8 @@ public class TodoList implements EntryPoint {
     private final TextBox newEntry = new TextBox();
     private final InlineLabel statusLabel = new InlineLabel("");
 
-    private double lastSyncTime=0;
-    private static int REFRESH_INTERVAL = 3000;
+    private double lastSyncTime = 0;
+    private String updateToken = null;
 
     public void onModuleLoad() {
 
@@ -173,8 +179,8 @@ public class TodoList implements EntryPoint {
         todoList.setColumnWidth(completeColumn, 45.0, Style.Unit.PX);
         todoList.setColumnWidth(titleColumn, 100.0, Style.Unit.PCT);
         todoList.setStyleName("todoList");
-        todoList.addColumnStyleName(0,"todoListColumn");
-        todoList.addColumnStyleName(1,"todoListColumn");
+        todoList.addColumnStyleName(0, "todoListColumn");
+        todoList.addColumnStyleName(1, "todoListColumn");
 
         newEntry.setStyleName("newEntry");
         newEntry.addStyleName("newEntryHelpText");
@@ -198,15 +204,6 @@ public class TodoList implements EntryPoint {
         // Add it to the root panel.
         RootPanel.get("todoList").add(mainPanel);
 
-        // Setup timer to refresh list automatically.
-        Timer refreshTimer = new Timer() {
-            @Override
-            public void run() {
-                refreshTodoListEntries();
-            }
-        };
-
-        refreshTimer.scheduleRepeating(REFRESH_INTERVAL);
     }
 
     private void refreshTodoListDisplay() {
@@ -243,18 +240,17 @@ public class TodoList implements EntryPoint {
         notesText.setText(entry.getNotes());
         dialogContents.add(notesText);
 
-        final Date created = new Date ((long)(entry.getCreated()*1000));
-        final Date modified = new Date((long)(entry.getModified()*1000));
+        final Date created = new Date((long) (entry.getCreated() * 1000));
+        final Date modified = new Date((long) (entry.getModified() * 1000));
         final DateTimeFormat dateTimeFmt = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.DATE_TIME_SHORT);
 
-        final InlineLabel createdLabel = new InlineLabel("Created: "+ dateTimeFmt.format(created));
+        final InlineLabel createdLabel = new InlineLabel("Created: " + dateTimeFmt.format(created));
         createdLabel.setStyleName("entryDateText");
         dialogContents.add(createdLabel);
 
         final InlineLabel modifiedLabel = new InlineLabel("Last Modified: " + dateTimeFmt.format(modified));
         modifiedLabel.setStyleName("entryDateText");
         dialogContents.add(modifiedLabel);
-
 
 
         HorizontalPanel buttonPanel = new HorizontalPanel();
@@ -305,11 +301,27 @@ public class TodoList implements EntryPoint {
     }
 
     private void refreshTodoListEntries() {
-        String URL= ENTRY_LIST_URL;
+        String URL = ENTRY_LIST_URL;
         if (lastSyncTime != 0)
-            URL+="?modified="+lastSyncTime;
+            URL += "?modified=" + lastSyncTime;
         sendRequest(URL, RequestBuilder.GET, new EntryListResponseHandler());
     }
+
+
+    native TodoListEntryList parseTodoListEntryList(String json) /*-{
+        eval('var res = ' + json);
+        return res;
+    }-*/;
+
+    native TodoListEntry parseTodoListEntry(String json) /*-{
+        eval('var res = ' + json);
+        return res;
+    }-*/;
+
+    native String parseUpdateChannel(String json) /*-{
+        eval('var res = ' + json);
+        return res.token;
+    }-*/;
 
     class ResponseHandler implements RequestCallback {
 
@@ -331,16 +343,6 @@ public class TodoList implements EntryPoint {
                 }
             }
         }
-
-        native TodoListEntryList parseTodoListEntryList(String json) /*-{
-            eval('var res = ' + json);
-            return res;
-        }-*/;
-
-        native TodoListEntry parseTodoListEntry(String json) /*-{
-            eval('var res = ' + json);
-            return res;
-        }-*/;
     }
 
     class EntryResponseHandler extends ResponseHandler {
@@ -377,6 +379,9 @@ public class TodoList implements EntryPoint {
                             todolistEntryMap.put(entry.getId(), entry);
                     }
                     refreshTodoListDisplay();
+                    if (updateToken == null)
+                         sendRequest(UPDATE_CHANNEL_URL, RequestBuilder.GET,
+                                 new UpdateChannelResponseHandler());
 
                 default:
                     super.onResponseReceived(request, response);
@@ -408,8 +413,57 @@ public class TodoList implements EntryPoint {
         }
     }
 
+    class UpdateChannelResponseHandler extends ResponseHandler {
+        @Override
+        public void onResponseReceived(Request request, Response response) {
+            switch (response.getStatusCode()) {
+
+                case 200:
+                    updateToken = parseUpdateChannel(response.getText());
+                    ChannelFactory.createChannel(updateToken, new ChannelCreatedCallback() {
+                        @Override
+                        public void onChannelCreated(Channel channel) {
+                            channel.open(new SocketListener() {
+                                @Override
+                                public void onOpen() {
+                                }
+
+                                @Override
+                                public void onMessage(String message) {
+                                    TodoListEntry entry = parseTodoListEntry(message);
+                                    if (entry.getDeleted())
+                                        todolistEntryMap.remove(entry.getId());
+                                    else
+                                        todolistEntryMap.put(entry.getId(), entry);
+                                    refreshTodoListDisplay();
+                                }
+
+                                @Override
+                                public void onError(SocketError error) {
+                                    updateToken=null;
+                                }
+
+                                @Override
+                                public void onClose() {
+                                    updateToken=null;
+                                    sendRequest(UPDATE_CHANNEL_URL, RequestBuilder.GET,
+                                                    new UpdateChannelResponseHandler());
+                                }
+                            });
+                        }
+                    });
+
+
+                default:
+                    super.onResponseReceived(request, response);
+            }
+        }
+
+    }
+
     private void sendRequest(String url, RequestBuilder.Method httpMethod, ResponseHandler handler) {
         RequestBuilder builder = new RequestBuilder(httpMethod, URL.encode(url));
+        builder.setHeader("Content-length","0");
         try {
             builder.sendRequest(null, handler);
         } catch (RequestException e) {
