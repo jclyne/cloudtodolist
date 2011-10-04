@@ -7,9 +7,22 @@ import android.net.ConnectivityManager;
 import android.util.Log;
 
 
+/**
+ * Broadcast receiver that handles scheduling sync requests on resumption of
+ * network access as well as scheduling periodic syncs at boot time
+ */
 public class TodoListSyncScheduler extends BroadcastReceiver {
+
+    // Log Tag
     private static final String TAG = "TodoListSyncScheduler";
 
+    /**
+     * Called when the BroadcastReceiver is receiving an Intent broadcast.
+     *
+     * @param ctxt current application context
+     * @param intent intent being received
+     */
+    @Override
     public void onReceive(Context ctxt, Intent intent) {
         Log.d(TAG, intent.toString());
 

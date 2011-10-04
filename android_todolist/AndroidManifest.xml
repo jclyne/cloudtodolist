@@ -35,7 +35,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".TodoListSettingsActivity" android:label="Settings"/>
+        <activity android:name=".TodoListPreferencesActivity" android:label="Settings"/>
 
         <service android:name=".TodoListSyncService"
                  android:label="TodoListSyncService">

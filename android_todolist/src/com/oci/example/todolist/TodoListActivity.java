@@ -224,7 +224,7 @@ public class TodoListActivity extends FragmentActivity
 
             case R.id.menu_settings:
                 Intent intent = new Intent();
-                intent.setClass(this, TodoListSettingsActivity.class);
+                intent.setClass(this, TodoListPreferencesActivity.class);
                 startActivity(intent);
                 return true;
         }

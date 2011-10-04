@@ -10,19 +10,35 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.oci.example.todolist.provider.TodoListProvider;
 
+/**
+ * Activity that provides an interface to edit a TodoList entry
+ */
 public class TodoListEditEntryActivity extends Activity {
 
+    // Reference to the EditText view for the entry title
     private EditText titleEditText;
+    // Reference to the multi-line EditText view for the entry notes
     private EditText notesEditText;
 
+    // Current value of the entry title
     private String currentTitle;
+    // Current value of the entry notes
     private String currentNotes;
 
+    // Uri, in the content provider, of the entry being edited
     private Uri entryUri;
 
+    /**
+     * Called when the activity is starting. Inflates the activiy UI
+     * from the edit_entry_layout xml, binds the view with the data
+     * specified in the intent.
+     *
+     * @param savedInstanceState saved instance state
+     */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_entry_layout);
+
         titleEditText = (EditText) findViewById(R.id.edit_title);
         notesEditText = (EditText) findViewById(R.id.edit_notes);
 
@@ -31,7 +47,7 @@ public class TodoListEditEntryActivity extends Activity {
 
         // Get the current title and notes strings to pre-populate
         final String[] what = {TodoListProvider.Schema.Entries.TITLE,
-                TodoListProvider.Schema.Entries.NOTES};
+                                TodoListProvider.Schema.Entries.NOTES};
 
         Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
         final int titleIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE);
@@ -39,13 +55,40 @@ public class TodoListEditEntryActivity extends Activity {
         cursor.moveToFirst();
 
         currentTitle = cursor.getString(titleIndex);
-        titleEditText.setText(currentTitle);
-
         currentNotes = cursor.getString(notesIndex);
-        notesEditText.setText(currentNotes);
+
+        // Restore any saved state
+        if (savedInstanceState != null){
+            titleEditText.setText(savedInstanceState.getString("title"));
+            notesEditText.setText(savedInstanceState.getString("notes"));
+        } else {
+            titleEditText.setText(currentTitle);
+            notesEditText.setText(currentNotes);
+        }
     }
 
-    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    /**
+     * Called to retrieve per-instance state from an activity before being killed so
+     * that the state can be restored in onCreate
+     *
+     * @param outState bundle in which to place saved state.
+
+     */
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("title",titleEditText.getText().toString());
+        outState.putString("notes",notesEditText.getText().toString());
+    }
+
+    /**
+     * Handler for the edit_entry_apply button.
+     * This will update the entry with the values that have changed
+     * in the activity
+     *
+     * @param view button view that was clicked
+     */
+    @SuppressWarnings({"UnusedDeclaration", "UnusedParameters"})
     public void apply(View view) {
         ContentValues values = new ContentValues();
 
@@ -64,7 +107,13 @@ public class TodoListEditEntryActivity extends Activity {
         finish();
     }
 
-    @SuppressWarnings({"UnusedParameters", "UnusedDeclaration"})
+    /**
+     * Handler for the edit_entry_cancel button.
+     * This just ends the activity and leaves the entry alone.
+     *
+     * @param view button view that was clicked
+     */
+    @SuppressWarnings({"UnusedDeclaration", "UnusedParameters"})
     public void cancel(View view) {
         finish();
     }

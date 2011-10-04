@@ -19,7 +19,6 @@ import com.oci.example.todolist.R;
 import com.oci.example.todolist.TodoListActivity;
 import com.oci.example.todolist.TodoListSyncHelper;
 import com.oci.example.todolist.client.HttpRestClient;
-import com.oci.example.todolist.client.TodoListRestClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
