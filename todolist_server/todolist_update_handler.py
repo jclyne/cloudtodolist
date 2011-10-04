@@ -10,7 +10,8 @@ def add_update_client(client_id):
 
 def remove_update_client(client_id):
     """ Removes a client id to the client list """
-    client_list.remove(client_id)
+    if client_id in client_list:
+        client_list.remove(client_id)
 
 def send_update(message):
     """ Sends the specfied updated message to all clients in the client_list """

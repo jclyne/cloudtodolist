@@ -16,15 +16,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 public class TodoListSyncService extends IntentService {
     private static final String TAG = "TodoListSyncService";
 
-    static final String INTENT_BASE="com.oci.example.todolist";
-    public static final String ACTION_TODOLIST_SYNC = INTENT_BASE+".SYNC";
-    public static final String ACTION_TODOLIST_REFRESH = INTENT_BASE+".REFRESH";
+    private static final String INTENT_BASE = "com.oci.example.todolist";
+    public static final String ACTION_TODOLIST_SYNC = INTENT_BASE + ".SYNC";
+    public static final String ACTION_TODOLIST_REFRESH = INTENT_BASE + ".REFRESH";
 
-    private  ConnectivityManager connManager;
-    private  SharedPreferences prefs;
-    private  TodoListProvider provider;
+    private ConnectivityManager connManager;
+    private SharedPreferences prefs;
+    private TodoListProvider provider;
     private HttpRestClient client;
-    private int SOCKET_TIMEOUT = 1000;
+    private final int SOCKET_TIMEOUT = 1000;
 
     public TodoListSyncService() {
         super("TodoListSyncService");
@@ -39,11 +39,11 @@ public class TodoListSyncService extends IntentService {
 
         HttpClient httpClient = new DefaultHttpClient();
         httpClient.getParams().setParameter("http.socket.timeout", SOCKET_TIMEOUT);
-        client =  new HttpRestClient(httpClient,getString(R.string.app_host_name),true);
+        client = new HttpRestClient(httpClient, getString(R.string.app_host_name), true);
 
-        provider = (TodoListProvider)getContentResolver()
-                        .acquireContentProviderClient(TodoListProvider.Schema.AUTHORITY)
-                        .getLocalContentProvider();
+        provider = (TodoListProvider) getContentResolver()
+                .acquireContentProviderClient(TodoListProvider.Schema.AUTHORITY)
+                .getLocalContentProvider();
 
         Log.d(TAG, "Service Created" + " (" + Thread.currentThread().getName() + ")");
     }
@@ -66,13 +66,13 @@ public class TodoListSyncService extends IntentService {
 
         String action = intent.getAction();
         Log.d(TAG, "onHandleIntent: Action = " + action + " (" + Thread.currentThread().getName() + ")");
-        if (action.equals(ACTION_TODOLIST_SYNC)){
+        if (action.equals(ACTION_TODOLIST_SYNC)) {
 
             if (!isOffline())
                 provider.onPerformSync(client, false);
             TodoListSyncHelper.scheduleSync(getBaseContext());
 
-        } else if (action.equals(ACTION_TODOLIST_REFRESH)){
+        } else if (action.equals(ACTION_TODOLIST_REFRESH)) {
 
             if (!isOffline())
                 provider.onPerformSync(client, true);
@@ -82,7 +82,7 @@ public class TodoListSyncService extends IntentService {
 
     private boolean isOffline() {
         final NetworkInfo netInfo = connManager.getActiveNetworkInfo();
-        return  prefs.getBoolean("offline_mode",false) ||
+        return prefs.getBoolean("offline_mode", false) ||
                 !connManager.getBackgroundDataSetting() ||
                 netInfo == null ||
                 !netInfo.isConnected();

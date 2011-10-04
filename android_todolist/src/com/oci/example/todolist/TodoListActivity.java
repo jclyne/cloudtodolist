@@ -29,7 +29,7 @@ public class TodoListActivity extends FragmentActivity
     private static ConnectivityManager connManager;
     private static SharedPreferences prefs;
     private static final int TODOLIST_CURSOR_LOADER = 1;
-    private static final int TODOLIST_PENDING_TX_LOADER=2;
+    private static final int TODOLIST_PENDING_TX_LOADER = 2;
     private static final int NOTES_DIALOG = 1;
 
     private EditText newEntryBox;
@@ -44,7 +44,7 @@ public class TodoListActivity extends FragmentActivity
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "Created"+" ("+ Thread.currentThread().getName()+")");
+        Log.d(TAG, "Created" + " (" + Thread.currentThread().getName() + ")");
 
         connManager = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
@@ -88,7 +88,7 @@ public class TodoListActivity extends FragmentActivity
                     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
                         // Swap the new cursor in.  (The framework will take care of closing the
                         // old cursor once we return.)
-                        Log.d(TAG, "TodoList Cursor Loader Finished"+" ("+ cursor.getCount()+")");
+                        Log.d(TAG, "TodoList Cursor Loader Finished" + " (" + cursor.getCount() + ")");
                         todoListAdapter.swapCursor(cursor);
                     }
 
@@ -111,12 +111,12 @@ public class TodoListActivity extends FragmentActivity
                         return new CursorLoader(getBaseContext(),
                                 TodoListProvider.Schema.Entries.CONTENT_URI,
                                 new String[]{TodoListProvider.Schema.Entries.PENDING_TX},
-                                TodoListProvider.Schema.Entries.PENDING_TX+"=1", null, null);
+                                TodoListProvider.Schema.Entries.PENDING_TX + "=1", null, null);
                     }
 
                     @Override
                     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-                        Log.i(TAG,"Pending TX Loader is Finished loading: "+cursor.getCount());
+                        Log.i(TAG, "Pending TX Loader is Finished loading: " + cursor.getCount());
                     }
 
                     @Override
@@ -146,13 +146,12 @@ public class TodoListActivity extends FragmentActivity
         });
 
 
-
         prefs.registerOnSharedPreferenceChangeListener(this);
 
         IntentFilter broadcastFilter = new IntentFilter();
         broadcastFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         broadcastFilter.addAction(ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED);
-        broadcastReceiver= new BroadcastReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 setWindowTitle();
@@ -172,7 +171,7 @@ public class TodoListActivity extends FragmentActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-        if (key.equals("offline_mode")){
+        if (key.equals("offline_mode")) {
             setWindowTitle();
         }
     }
@@ -209,7 +208,6 @@ public class TodoListActivity extends FragmentActivity
 
         menu.getItem(0).setEnabled((notes != null && !notes.isEmpty()));
     }
-
 
 
     @Override
@@ -327,18 +325,18 @@ public class TodoListActivity extends FragmentActivity
     }
 
 
-    private void setWindowTitle(){
+    private void setWindowTitle() {
 
         String title = getString(R.string.app_name);
         NetworkInfo netInfo = connManager.getActiveNetworkInfo();
-        if (prefs.getBoolean("offline_mode",false)) {
+        if (prefs.getBoolean("offline_mode", false)) {
             title += " - Offline Mode";
-        } else if (!connManager.getBackgroundDataSetting() ) {
+        } else if (!connManager.getBackgroundDataSetting()) {
             title += " - Background data disabled";
-        } else if (netInfo == null || !netInfo.isConnected() ) {
+        } else if (netInfo == null || !netInfo.isConnected()) {
             title += " - Network Unavailable";
         } else {
-             title += " - Online";
+            title += " - Online";
         }
 
         setTitle(title);

@@ -11,7 +11,7 @@ public class TodoListSyncScheduler extends BroadcastReceiver {
     private static final String TAG = "TodoListSyncScheduler";
 
     public void onReceive(Context ctxt, Intent intent) {
-        Log.d(TAG,intent.toString());
+        Log.d(TAG, intent.toString());
 
         String action = intent.getAction();
 
@@ -23,7 +23,7 @@ public class TodoListSyncScheduler extends BroadcastReceiver {
                 TodoListSyncHelper.requestSync(ctxt);
             }
 
-        } else if (action.equals( Intent.ACTION_BOOT_COMPLETED)) {
+        } else if (action.equals(Intent.ACTION_BOOT_COMPLETED)) {
             Log.i(TAG, "Enabling boot time background sync");
             TodoListSyncHelper.requestSync(ctxt);
         }

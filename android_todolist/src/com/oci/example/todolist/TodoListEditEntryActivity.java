@@ -23,25 +23,25 @@ public class TodoListEditEntryActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_entry_layout);
-        titleEditText = (EditText)findViewById(R.id.edit_title);
-        notesEditText = (EditText)findViewById(R.id.edit_notes);
+        titleEditText = (EditText) findViewById(R.id.edit_title);
+        notesEditText = (EditText) findViewById(R.id.edit_notes);
 
         // Get the entry uri from the intent
         entryUri = getIntent().getData();
 
         // Get the current title and notes strings to pre-populate
         final String[] what = {TodoListProvider.Schema.Entries.TITLE,
-                                TodoListProvider.Schema.Entries.NOTES};
+                TodoListProvider.Schema.Entries.NOTES};
 
-        Cursor cursor = getContentResolver().query(entryUri,what,null,null,null);
+        Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
         final int titleIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE);
         final int notesIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES);
         cursor.moveToFirst();
 
-        currentTitle=cursor.getString(titleIndex);
+        currentTitle = cursor.getString(titleIndex);
         titleEditText.setText(currentTitle);
 
-        currentNotes=cursor.getString(notesIndex);
+        currentNotes = cursor.getString(notesIndex);
         notesEditText.setText(currentNotes);
     }
 
@@ -49,16 +49,16 @@ public class TodoListEditEntryActivity extends Activity {
     public void apply(View view) {
         ContentValues values = new ContentValues();
 
-        String newTitle=titleEditText.getText().toString();
+        String newTitle = titleEditText.getText().toString();
         if (!newTitle.equals(currentTitle))
-            values.put(TodoListProvider.Schema.Entries.TITLE,newTitle);
+            values.put(TodoListProvider.Schema.Entries.TITLE, newTitle);
 
-        String newNotes=notesEditText.getText().toString();
+        String newNotes = notesEditText.getText().toString();
         if (!newNotes.equals(currentNotes))
-            values.put(TodoListProvider.Schema.Entries.NOTES,newNotes);
+            values.put(TodoListProvider.Schema.Entries.NOTES, newNotes);
 
         if (values.size() > 0) {
-            getContentResolver().update(entryUri,values,null,null);
+            getContentResolver().update(entryUri, values, null, null);
             Toast.makeText(this, getString(R.string.entry_updated), Toast.LENGTH_SHORT).show();
         }
         finish();

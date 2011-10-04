@@ -402,7 +402,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                 values.put(Schema.Entries.PENDING_DELETE, 1);
 
                 count = dbHelper.getWritableDatabase().update(Schema.Entries.TABLE_NAME,
-                                                values, whereBuilder.build(), whereArgs);
+                        values, whereBuilder.build(), whereArgs);
                 break;
 
             // If the incoming pattern is invalid, throws an exception.
@@ -520,11 +520,11 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         } catch (JSONException e) {
             Log.e(TAG, "Invalid response: " + e.getMessage());
             showSyncErrorNotification("TodoList Sync Error", "Invalid Response", e.getMessage());
-        } finally{
+        } finally {
             ContentValues pendingTxValue = new ContentValues();
-            pendingTxValue.put(Schema.Entries.PENDING_TX,0);
+            pendingTxValue.put(Schema.Entries.PENDING_TX, 0);
             if (getWritableDatabase().update(Schema.Entries.TABLE_NAME,
-                    pendingTxValue,Schema.Entries.PENDING_TX+"=1", null) > 0)
+                    pendingTxValue, Schema.Entries.PENDING_TX + "=1", null) > 0)
                 getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
         }
     }
@@ -534,7 +534,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
 
         entryValues.put(TodoListProvider.Schema.Entries.ID, entry.getInt(TodoListRestClient.ENTRY_ID));
         entryValues.put(TodoListProvider.Schema.Entries.COMPLETE,
-                            entry.getBoolean(TodoListRestClient.ENTRY_COMPLETE)?1:0);
+                entry.getBoolean(TodoListRestClient.ENTRY_COMPLETE) ? 1 : 0);
         String title = entry.optString(TodoListRestClient.ENTRY_TITLE);
         if (!title.isEmpty())
             entryValues.put(TodoListProvider.Schema.Entries.TITLE, title);
@@ -552,7 +552,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
     }
 
     private boolean performSyncUpdate(TodoListRestClient client)
-                throws IOException, URISyntaxException, JSONException {
+            throws IOException, URISyntaxException, JSONException {
         boolean notify = false;
 
         // Perform an update sync
@@ -564,11 +564,11 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
             String idWhere = Schema.Entries.ID + " = ?";
 
             SQLiteStatement entryCount = db.compileStatement(
-                    "SELECT COUNT(*) FROM "+Schema.Entries.TABLE_NAME + " WHERE "+idWhere);
+                    "SELECT COUNT(*) FROM " + Schema.Entries.TABLE_NAME + " WHERE " + idWhere);
             db.beginTransaction();
             try {
                 for (JSONObject entry : entries) {
-                    long id =  entry.getLong(TodoListRestClient.ENTRY_ID);
+                    long id = entry.getLong(TodoListRestClient.ENTRY_ID);
                     String[] whereArgs = {Long.toString(id)};
                     if (entry.getBoolean(TodoListRestClient.ENTRY_DELETED)) {
                         // If the entry is deleted, remove it from the local database
@@ -578,17 +578,17 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                             notify = true;
                     } else {
                         ContentValues values = entryObjectValues(entry);
-                        entryCount.bindLong(1,id);
-                        if (entryCount.simpleQueryForLong() > 0){
+                        entryCount.bindLong(1, id);
+                        if (entryCount.simpleQueryForLong() > 0) {
 
                             String where = idWhere
-                                + " AND " + WHERE_CURRENT_ENTRIES
-                                + " AND " + Schema.Entries.MODIFIED
-                                    + " != "+values.getAsLong(Schema.Entries.MODIFIED);
-                            if ( db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs) > 0 )
+                                    + " AND " + WHERE_CURRENT_ENTRIES
+                                    + " AND " + Schema.Entries.MODIFIED
+                                    + " != " + values.getAsLong(Schema.Entries.MODIFIED);
+                            if (db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs) > 0)
                                 notify = true;
                         } else {
-                            db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE,values);
+                            db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE, values);
                             notify = true;
                         }
                     }
@@ -664,7 +664,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
 
         ContentValues values = new ContentValues();
         values.put(Schema.Entries.PENDING_UPDATE, 1);
-        values.put(Schema.Entries.PENDING_TX,1);
+        values.put(Schema.Entries.PENDING_TX, 1);
 
         db.beginTransaction();
         try {

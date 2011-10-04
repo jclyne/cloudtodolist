@@ -77,8 +77,8 @@ public class HttpRestClient {
         }
     }
 
-     @SuppressWarnings({"UnusedDeclaration"})
-     public class Response {
+    @SuppressWarnings({"UnusedDeclaration"})
+    public class Response {
         private final int statusCode;
         private final String content;
         private final ContentType contentType;
@@ -203,10 +203,10 @@ public class HttpRestClient {
             request.setHeader(ACCEPT_TYPE_HEADER, acceptContentMimeType);
 
         String acceptEncodingMimeType = acceptEncoding.toMime();
-        if ( acceptEncodingMimeType != null )
+        if (acceptEncodingMimeType != null)
             request.setHeader(ACCEPT_ENCODING_HEADER, acceptEncodingMimeType);
 
-        request.setURI(new URI(scheme,authority,path,query,fragment));
+        request.setURI(new URI(scheme, authority, path, query, fragment));
 
         HttpResponse response = client.execute(request);
 
@@ -215,12 +215,12 @@ public class HttpRestClient {
         HttpEntity entity = response.getEntity();
 
         ContentType contentType = ContentType.UNSUPPORTED;
-        if ( entity.getContentType() != null ){
+        if (entity.getContentType() != null) {
             contentType = ContentType.fromMime(entity.getContentType().getValue());
         }
 
         ContentEncoding contentEncoding = ContentEncoding.NONE;
-        if ( entity.getContentEncoding() != null ) {
+        if (entity.getContentEncoding() != null) {
             contentEncoding = ContentEncoding.fromMime(entity.getContentEncoding().getValue());
         }
 

@@ -2,9 +2,7 @@ package com.oci.example.todolist.client;
 
 
 import android.content.ContentValues;
-import android.os.Bundle;
 import android.util.Log;
-import com.oci.example.todolist.provider.TodoListProvider;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,7 +28,6 @@ public final class TodoListRestClient {
     public static final String ENTRY_MODIFIED = "modified";
     public static final String ENTRY_LIST_TIMESTAMP = "timestamp";
     public static final String ENTRY_LIST_ENTRIES = "entries";
-
 
 
     public class Response {
@@ -68,11 +65,11 @@ public final class TodoListRestClient {
         private final List<JSONObject> entryList = new ArrayList<JSONObject>();
 
         public EntryListResponse(HttpRestClient.Response response, JSONObject entryList)
-                  throws JSONException {
+                throws JSONException {
             super(response);
             this.timestamp = entryList.getDouble(ENTRY_LIST_TIMESTAMP);
             JSONArray entryArray = entryList.getJSONArray(ENTRY_LIST_ENTRIES);
-            for (int idx=0;idx < entryArray.length();idx++)
+            for (int idx = 0; idx < entryArray.length(); idx++)
                 this.entryList.add(entryArray.getJSONObject(idx));
         }
 
@@ -163,17 +160,18 @@ public final class TodoListRestClient {
         return getEntries(null);
 
     }
+
     public EntryListResponse getEntries(Double modified)
             throws IOException, URISyntaxException, JSONException {
 
-        String queryString =null;
+        String queryString = null;
         if (modified != null)
-            queryString=String.format("%s=%f",ENTRY_MODIFIED,modified);
+            queryString = String.format("%s=%f", ENTRY_MODIFIED, modified);
 
-        HttpRestClient.Response response = client.Get(ENTRIES_PATH,queryString,HttpRestClient.ContentType.JSON);
+        HttpRestClient.Response response = client.Get(ENTRIES_PATH, queryString, HttpRestClient.ContentType.JSON);
         if (response.succeeded()) {
             EntryListResponse resp = new EntryListResponse(response, new JSONObject(response.getContent()));
-            Log.i(TAG, "getEntries retrieved " + resp.getEntryList().size()  + " entries");
+            Log.i(TAG, "getEntries retrieved " + resp.getEntryList().size() + " entries");
             return resp;
         } else {
             Log.e(TAG, "getEntries failed: " + response.getStatusCode() + "- " + response.getContent());

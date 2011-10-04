@@ -10,7 +10,10 @@ import android.support.v4.widget.CursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.ImageView;
+import android.widget.TextView;
 import com.oci.example.todolist.provider.TodoListProvider;
 
 public class TodoListCursorAdapter extends CursorAdapter {
@@ -34,8 +37,8 @@ public class TodoListCursorAdapter extends CursorAdapter {
         final boolean complete = cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.COMPLETE)) == 1;
         final String title = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE));
         final boolean dirty = (
-                ( cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_UPDATE))  > 0)
-                || ( cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_DELETE))  > 0 ) );
+                (cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_UPDATE)) > 0)
+                        || (cursor.getInt(cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_DELETE)) > 0));
 
         final CheckBox completeCheckBox = (CheckBox) view.findViewById(R.id.entry_complete);
         final TextView titleTextView = (TextView) view.findViewById(R.id.entry_title);
@@ -47,11 +50,11 @@ public class TodoListCursorAdapter extends CursorAdapter {
         if (completeCheckBox.isChecked() != complete)
             completeCheckBox.setChecked(complete);
 
-        prepareEntryText(titleTextView,complete);
+        prepareEntryText(titleTextView, complete);
 
         completeCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                prepareEntryText(titleTextView,checked);
+                prepareEntryText(titleTextView, checked);
             }
         });
 
@@ -72,7 +75,7 @@ public class TodoListCursorAdapter extends CursorAdapter {
 
         titleTextView.setText(title);
         statusImageView.setImageDrawable(
-                    context.getResources().getDrawable(dirty ? R.drawable.ic_dirty : R.drawable.ic_synced));
+                context.getResources().getDrawable(dirty ? R.drawable.ic_dirty : R.drawable.ic_synced));
 
     }
 
@@ -81,7 +84,7 @@ public class TodoListCursorAdapter extends CursorAdapter {
             textView.setTextAppearance(context, R.style.todolist_entry_text_complete);
             textView.setPaintFlags(textView.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         } else {
-            textView.setTextAppearance(context,R.style.todolist_entry_text);
+            textView.setTextAppearance(context, R.style.todolist_entry_text);
             textView.setPaintFlags(textView.getPaintFlags() & ~Paint.STRIKE_THRU_TEXT_FLAG);
 
         }

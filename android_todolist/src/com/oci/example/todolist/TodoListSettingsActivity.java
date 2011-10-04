@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class TodoListSettingsActivity extends PreferenceActivity
-                implements SharedPreferences.OnSharedPreferenceChangeListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = "TodoListSettings";
 
@@ -23,9 +23,9 @@ public class TodoListSettingsActivity extends PreferenceActivity
         if (key.equals("server_address")) {
             // When the server address is changed, we need to delete all the entries in the
             TodoListSyncHelper.requestRefresh(this);
-        } else if (key.equals("sync_interval")){
+        } else if (key.equals("sync_interval")) {
             TodoListSyncHelper.scheduleSync(this);
-        }  else if (key.equals("offline_mode")){
+        } else if (key.equals("offline_mode")) {
             boolean enabled = prefs.getBoolean(key, false);
             Log.i(TAG, "Offline mode " + (enabled ? "enabled" : "disabled"));
             if (!enabled)
