@@ -1,0 +1,4 @@
+cron:
+- description: hourly archive cleanup
+  url: /todolist/tasks/clean_archive
+  schedule: every 1 hours

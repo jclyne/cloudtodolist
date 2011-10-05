@@ -1,0 +1,61 @@
+/** Add css rules here for your application. */
+
+body {
+    background-color: #d3d3d3;
+}
+
+.mainPanel {
+    width: 100%;
+}
+
+.todoListPanel {
+    width: 40em;
+}
+
+.todoListHeader {
+    font-size: xx-large;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 10px;
+
+}
+
+.todoList{
+    margin-top: 10px;
+    margin-bottom: 5px;
+    width: 100%;
+    border-spacing: 2px;
+    border-width: 3px;
+    border-color: #2f4f4f;
+    border-style: ridge
+}
+
+.todoListColumn {
+
+}
+
+.todoListText {
+    color: #2f4f4f;
+
+}
+
+.todoListTextComplete {
+    text-decoration: line-through;
+}
+
+.entryDateText {
+    font-size: smaller;
+}
+
+.newEntry {
+    width: 100%;
+    color: #000000;
+    font-family: sans-serif
+}
+
+.newEntryHelpText {
+    text-align: right;
+    font-style: italic;
+    color: graytext;
+}
+

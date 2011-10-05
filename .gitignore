@@ -1,0 +1,6 @@
+out/
+*/static/*
+*/gen/
+*.pyc
+jar/
+*.db

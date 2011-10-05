@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Google App Engine SDK">
+    <CLASSES>
+      <root url="file://C:/Program Files/Google/google_appengine" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
