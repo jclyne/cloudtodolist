@@ -21,15 +21,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a48de36-16e4-49c5-b7b4-b1e8f9695f60" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/provider/TodoListSchema.java" />
+      <change type="DELETED" beforePath="C:\Users\jclyne\Projects\cloudtodolist\android_todolist_tests\todolist_android_client_tests.iml" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_android_client/res/menu/todolist_menu.xml" afterPath="$PROJECT_DIR$/todolist_android_client/res/menu/todolist_menu.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListActivity.java" afterPath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListCursorAdapter.java" afterPath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListCursorAdapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListEditEntryActivity.java" afterPath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListEditEntryActivity.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListSyncService.java" afterPath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListSyncService.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/provider/TodoListProvider.java" afterPath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/provider/TodoListProvider.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/todolist_android_client_tests/src/com/oci/example/todolist/provider/TodoListProviderTest.java" afterPath="$PROJECT_DIR$/todolist_android_client_tests/src/com/oci/example/todolist/provider/TodoListProviderTest.java" />
     </list>
     <ignored path="todolist.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -114,28 +107,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TodoListActivity.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="TodoListActivity.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="336" column="61" selection-start="13120" selection-end="13120" vertical-scroll-proportion="-10.32">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TodoListProvider.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/provider/TodoListProvider.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="552" column="19" selection-start="21595" selection-end="21595" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TodoListSyncService.java" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListSyncService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="133" column="77" selection-start="5256" selection-end="5256" vertical-scroll-proportion="0.32718122">
+            <state line="219" column="75" selection-start="8756" selection-end="8756" vertical-scroll-proportion="0.7147651">
               <folding />
             </state>
           </provider>
@@ -312,26 +287,6 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist_server" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist_client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
       <pane id="Scope" />
@@ -369,7 +324,7 @@
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
     <property name="options.lastSelected" value="Errors" />
-    <property name="project.structure.side.proportion" value="0.1445905" />
+    <property name="project.structure.side.proportion" value="0.10183299" />
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="options.searchVisible" value="true" />
     <property name="dynamic.classpath" value="false" />
@@ -751,7 +706,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32918552" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Web" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32350597" sideWeight="0.9909502" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32350597" sideWeight="0.0" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27171314" sideWeight="0.5585875" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.27729085" sideWeight="0.6741573" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39325842" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4414125" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
@@ -850,11 +805,6 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntryList.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="6" selection-start="144" selection-end="144" vertical-scroll-proportion="0.11409396" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java">
       <provider selected="true" editor-type-id="text-editor">
         <state line="35" column="13" selection-start="1489" selection-end="1489" vertical-scroll-proportion="0.25671142">
@@ -945,23 +895,30 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListActivity.java">
+    <entry file="file://$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListSyncService.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="336" column="61" selection-start="13120" selection-end="13120" vertical-scroll-proportion="-10.32">
+        <state line="133" column="77" selection-start="5256" selection-end="5256" vertical-scroll-proportion="0.32718122">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/provider/TodoListProvider.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="552" column="19" selection-start="21595" selection-end="21595" vertical-scroll-proportion="0.0">
+        <state line="552" column="19" selection-start="21595" selection-end="21595" vertical-scroll-proportion="-9.32247">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListSyncService.java">
+    <entry file="file://$PROJECT_DIR$/README">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="133" column="77" selection-start="5256" selection-end="5256" vertical-scroll-proportion="0.32718122">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="219" column="75" selection-start="8756" selection-end="8756" vertical-scroll-proportion="0.7147651">
           <folding />
         </state>
       </provider>
@@ -1025,8 +982,7 @@
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.1445905" />
-                <option value="0.5" />
+                <option value="0.10183299" />
               </list>
             </option>
           </splitter-proportions>
