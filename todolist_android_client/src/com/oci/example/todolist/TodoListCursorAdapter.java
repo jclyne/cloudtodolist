@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.oci.example.todolist.provider.TodoListProvider;
+import com.oci.example.todolist.provider.TodoListSchema;
 
 /**
  * Cursor adapter that handles data from a todolist content provider
@@ -63,11 +63,11 @@ public class TodoListCursorAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
 
         // Get the Indexes for the columns of interest.
-        final int idIdx = cursor.getColumnIndex(TodoListProvider.Schema.Entries._ID);
-        final int titleIdx = cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE);
-        final int completeIdx = cursor.getColumnIndex(TodoListProvider.Schema.Entries.COMPLETE);
-        final int pendingUpdateIdx = cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_UPDATE);
-        final int pendingDeleteIdx = cursor.getColumnIndex(TodoListProvider.Schema.Entries.PENDING_DELETE);
+        final int idIdx = cursor.getColumnIndex(TodoListSchema.Entries._ID);
+        final int titleIdx = cursor.getColumnIndex(TodoListSchema.Entries.TITLE);
+        final int completeIdx = cursor.getColumnIndex(TodoListSchema.Entries.COMPLETE);
+        final int pendingUpdateIdx = cursor.getColumnIndex(TodoListSchema.Entries.PENDING_UPDATE);
+        final int pendingDeleteIdx = cursor.getColumnIndex(TodoListSchema.Entries.PENDING_DELETE);
 
         // Set the values that are to be displayed in the view
         final int id = cursor.getInt(idIdx);
@@ -111,11 +111,11 @@ public class TodoListCursorAdapter extends CursorAdapter {
                 // Build the entry URI from the retrieved tag
                 final Uri entryUri =
                         ContentUris.withAppendedId(
-                                TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, tag);
+                                TodoListSchema.Entries.CONTENT_ID_URI_BASE, tag);
 
                 // Set the complete flag according to the
                 ContentValues values = new ContentValues();
-                values.put(TodoListProvider.Schema.Entries.COMPLETE, (completeCheckBox.isChecked() ? 1 : 0));
+                values.put(TodoListSchema.Entries.COMPLETE, (completeCheckBox.isChecked() ? 1 : 0));
 
                 //Update the entry
                 TodoListCursorAdapter.this.context.getContentResolver().update(entryUri, values, null, null);

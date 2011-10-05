@@ -12,8 +12,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
-import android.provider.BaseColumns;
-import android.text.TextUtils;
 import android.util.Log;
 import com.oci.example.todolist.R;
 import com.oci.example.todolist.TodoListActivity;
@@ -38,130 +36,71 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
     // Used for debugging and logging
     private static final String TAG = "TodoListProvider";
 
-    /**
-     * Defines a contract between the Schema content provider and its clients. A contract defines the
-     * information that a client needs to access the provider as one or more data tables. A contract
-     * is a public, non-extendable (final) class that contains constants defining column names and
-     * URIs. A well-written client depends only on the constants in the contract.
-     */
-    public static final class Schema {
-        public static final String AUTHORITY = "com.oci.provider.todolist";
-        private static final String SCHEME = "content://";
-        private static final String PATH_TODOLIST = "todolist/";
 
-
-        private Schema() {
-        }
-
-        public static final class Entries implements BaseColumns {
-
-            /**
-             * Table Name
-             */
-            private static final String TABLE_NAME = "entries";
-
-
-            // This class cannot be instantiated
-            private Entries() {
-            }
-
-            /*
-             * URI definitions
-             */
-
-            // Path Definitions
-            public static final String PATH_TODOLIST_ENTRIES = PATH_TODOLIST + "entries";
-            public static final String PATH_TODOLIST_ENTRY_ID = PATH_TODOLIST + "entries/";
-            private static final int TODOLIST_ENTRY_ID_PATH_POSITION = 2;
-
-            public static final Uri CONTENT_URI
-                    = Uri.parse(SCHEME + AUTHORITY + "/" + PATH_TODOLIST_ENTRIES);
-
-            public static final Uri CONTENT_ID_URI_BASE
-                    = Uri.parse(SCHEME + AUTHORITY + "/" + PATH_TODOLIST_ENTRY_ID);
-
-
-            /*
-             * MIME type definitions
-             */
-            public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.oci.todolist.entries";
-            public static final String CONTENT_ITEM_TYPE = "vnd.android.cursor.item/vnd.oci.todolist.entry";
-
-            /**
-             * Default Sort Order
-             */
-            public static final String DEFAULT_SORT_ORDER = "created ASC";
-
-            /*
-             * Public definitions
-             */
-            public static final String ID = "ID";
-            public static final String TITLE = "title";
-            public static final String NOTES = "notes";
-            public static final String COMPLETE = "complete";
-            public static final String CREATED = "created";
-            public static final String MODIFIED = "modified";
-            public static final String PENDING_UPDATE = "pending_update";
-            public static final String PENDING_DELETE = "pending_delete";
-            public static final String PENDING_TX = "pending_tx";
-        }
-    }
-
-
-    /**
-     * The database that the provider uses as its underlying data store
-     */
+    // Name of the underlying sqlite database
     private static final String DATABASE_NAME = "todolist.db";
 
-    /**
-     * The database version
-     */
+    // Current version of the underlying sqlite database
     private static final int DATABASE_VERSION = 1;
 
-
-    /*
-    * Constants used by the Uri matcher to choose an action based on the pattern
-    * of the incoming URI
-    */
+    /**
+     * A UriMatcher Definitions
+     * The Uri matcher allows the handlers to identify what data is to affected
+     */
+    // Constants used by the Uri matcher to identify URI matches
     private static final int ENTRIES = 1;
     private static final int ENTRY_ID = 2;
 
-    /**
-     * A UriMatcher instance
-     */
+    // Reference to a URI matcher
     private static final UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-    // Handle to a new DatabaseHelper.
-    private DatabaseHelper dbHelper;
-
+    // Add both the CONTENT_URI and CONTENT_ID_URI uri's to the matcher
     static {
-        // Add the URIs to the matcher
-        uriMatcher.addURI(Schema.AUTHORITY, Schema.Entries.PATH_TODOLIST_ENTRIES, ENTRIES);
-        uriMatcher.addURI(Schema.AUTHORITY, Schema.Entries.PATH_TODOLIST_ENTRY_ID + "#", ENTRY_ID);
+        uriMatcher.addURI(TodoListSchema.AUTHORITY, TodoListSchema.Entries.PATH_TODOLIST_ENTRIES, ENTRIES);
+        uriMatcher.addURI(TodoListSchema.AUTHORITY, TodoListSchema.Entries.PATH_TODOLIST_ENTRY_ID + "#", ENTRY_ID);
     }
 
+    /**
+     * A helper class to manage database creation and version management.
+     * <p/>
+     * NOTE: this will defer opening and upgrading the database until first use,
+     * to avoid blocking application startup with long-running database upgrades. Best
+     * practice is to access the provider in a background task, or to use a Loader
+     */
     class DatabaseHelper extends SQLiteOpenHelper {
 
+        /**
+         * Constructor - tells the base class the name of
+         * database and current version
+         *
+         * @param context context of the provider
+         */
         DatabaseHelper(Context context) {
 
             // calls the super constructor, requesting the default cursor factory.
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
-
+        /**
+         * Called when the database is created for the first time. This will create
+         * the TodoList table as defined in the schema. This will also initialize
+         * the lastSyncTime to 0 ( the beginning of time)
+         *
+         * @param db instance of a writable database
+         */
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + Schema.Entries.TABLE_NAME + " ("
-                    + Schema.Entries._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + Schema.Entries.ID + " INTEGER KEY UNIQUE DEFAULT NULL,"
-                    + Schema.Entries.TITLE + " TEXT,"
-                    + Schema.Entries.NOTES + " TEXT,"
-                    + Schema.Entries.COMPLETE + " INTEGER,"
-                    + Schema.Entries.CREATED + " LONG,"
-                    + Schema.Entries.MODIFIED + " LONG,"
-                    + Schema.Entries.PENDING_TX + " INTEGER DEFAULT 0,"
-                    + Schema.Entries.PENDING_UPDATE + " INTEGER KEY DEFAULT 0,"
-                    + Schema.Entries.PENDING_DELETE + " INTEGER KEY DEFAULT 0"
+            db.execSQL("CREATE TABLE " + TodoListSchema.Entries.TABLE_NAME + " ("
+                    + TodoListSchema.Entries._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + TodoListSchema.Entries.ID + " INTEGER KEY UNIQUE DEFAULT NULL,"
+                    + TodoListSchema.Entries.TITLE + " TEXT,"
+                    + TodoListSchema.Entries.NOTES + " TEXT,"
+                    + TodoListSchema.Entries.COMPLETE + " INTEGER,"
+                    + TodoListSchema.Entries.CREATED + " LONG,"
+                    + TodoListSchema.Entries.MODIFIED + " LONG,"
+                    + TodoListSchema.Entries.PENDING_TX + " INTEGER DEFAULT 0,"
+                    + TodoListSchema.Entries.PENDING_UPDATE + " INTEGER KEY DEFAULT 0,"
+                    + TodoListSchema.Entries.PENDING_DELETE + " INTEGER KEY DEFAULT 0"
                     + ");");
 
             lastSyncTime = 0;
@@ -169,6 +108,14 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         }
 
 
+        /**
+         * Called when the database needs to be upgraded. This will drop the table, wiping all
+         * the data. This is acceptable as a sync will result in a full refresh.
+         *
+         * @param db         instance of a writable database
+         * @param oldVersion old version
+         * @param newVersion new version
+         */
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
@@ -177,15 +124,19 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                     + newVersion + ", which will destroy all old data");
 
             // Kills the table and existing data
-            db.execSQL("DROP TABLE IF EXISTS " + Schema.Entries.TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + TodoListSchema.Entries.TABLE_NAME);
 
             // Recreates the database with a new version
             onCreate(db);
         }
     }
 
+    // DatabaseHelper reference
+    private DatabaseHelper dbHelper;
+
     /**
-     * This is for unit tests
+     * This is for unit tests, returns direct access to a the database to
+     * prepopulate data for tests
      *
      * @return A writable SQLite database object for the data being managed by the provider
      */
@@ -193,54 +144,82 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         return dbHelper.getWritableDatabase();
     }
 
-    String getEntriesTableName() {
-        return Schema.Entries.TABLE_NAME;
-    }
+    /**
+     * Static WHERE clauses
+     */
+    private static final String WHERE_DIRTY_ENTRIES = " (" + TodoListSchema.Entries.PENDING_DELETE + " > 0"
+            + " OR " + TodoListSchema.Entries.PENDING_UPDATE + " > 0) ";
 
-    private static final String WHERE_DIRTY_ENTRIES = " (" + Schema.Entries.PENDING_DELETE + " > 0"
-            + " OR " + Schema.Entries.PENDING_UPDATE + " > 0) ";
+    private static final String WHERE_CURRENT_ENTRIES = " (" + TodoListSchema.Entries.PENDING_DELETE + " = 0"
+            + " AND " + TodoListSchema.Entries.PENDING_UPDATE + " = 0) ";
 
-    private static final String WHERE_CURRENT_ENTRIES = " (" + Schema.Entries.PENDING_DELETE + " = 0"
-            + " AND " + Schema.Entries.PENDING_UPDATE + " = 0) ";
+    private static final String WHERE_NON_DELETED_ENTRIES = TodoListSchema.Entries.PENDING_DELETE + " = 0";
 
-    private static final String WHERE_NON_DELETED_ENTRIES = Schema.Entries.PENDING_DELETE + " = 0";
-
+    // Reference to the system wide Notification Manager to notify the user of Sync results
     private NotificationManager notificationManager;
+    // Filename that persists the lastSyncTime for updates
     private static String LAST_SYNC_TIME_FILENAME = "lastSyncTime";
+    // Current lastSyncTimeValue
     private double lastSyncTime = 0;
 
+    /**
+     * This method is called for all registered content providers on the application main thread at
+     * application launch time. It must not perform lengthy operations, or application startup
+     * will be delayed.
+     *
+     * @return if the provider was successfully loaded, false otherwise
+     */
     @Override
     public boolean onCreate() {
         // Creates a new helper object. Note that the database itself isn't opened until
         // something tries to access it, and it's only created if it doesn't already exist.
         dbHelper = new DatabaseHelper(getContext());
 
-        Context ctxt = getContext();
-        notificationManager = (NotificationManager) ctxt.getSystemService(Context.NOTIFICATION_SERVICE);
+        // Get a reference to the notification manager
+        notificationManager = (NotificationManager) getContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
+        // Initialize the last sync time for its persisted file
         initLastSyncTime();
+
         // Assumes that any failures will be reported by a thrown exception.
         return true;
     }
 
+    /**
+     * This handles requests for the MIME type of the data at the given URI
+     *
+     * @param uri Uri to query
+     * @return a MIME type string, or null if there is no type
+     */
     @Override
     public String getType(Uri uri) {
-        /**
-         * Return the MIME type based on the incoming URI pattern
-         */
+
+        // Return the MIME type based on the incoming URI pattern
         switch (uriMatcher.match(uri)) {
 
             case ENTRIES:
-                return Schema.Entries.CONTENT_TYPE;
+                return TodoListSchema.Entries.CONTENT_TYPE;
 
             case ENTRY_ID:
-                return Schema.Entries.CONTENT_ITEM_TYPE;
+                return TodoListSchema.Entries.CONTENT_ITEM_TYPE;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
     }
 
+    /**
+     * Handles query requests from clients
+     *
+     * @param uri       Uri to query
+     * @param what      list of columns to put into the cursor. If null all columns are included.
+     * @param where     selection criteria to apply when filtering rows. If null then all rows are included
+     * @param whereArgs any included '?'s in where will be replaced by the values from whereArgs,
+     *                  in order that they appear in the selection. The values will be bound as Strings.
+     * @param sortOrder sort order for the rows in the cursor. If null then the the
+     *                  TodoListSchema.DEFAULT_SORT_ORDER will be used
+     * @return a cursor or null
+     */
     @Override
     public Cursor query(Uri uri, String[] what, String where, String[] whereArgs, String sortOrder) {
 
@@ -249,15 +228,24 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         switch (uriMatcher.match(uri)) {
 
             case ENTRY_ID:
-                qb.appendWhere(Schema.Entries._ID + "=" +
-                        uri.getPathSegments().get(Schema.Entries.TODOLIST_ENTRY_ID_PATH_POSITION) + " AND ");
+                /**
+                 *  When an ENTRY_ID resource is specified, a filter to include that entry id  is
+                 *  added to the where clause
+                 */
+                qb.appendWhere(TodoListSchema.Entries._ID + "=" +
+                        uri.getPathSegments().get(TodoListSchema.Entries.TODOLIST_ENTRY_ID_PATH_POSITION) + " AND ");
+                // fall through
             case ENTRIES:
-                qb.appendWhere(Schema.Entries.PENDING_DELETE + "=" + 0);
-                qb.setTables(Schema.Entries.TABLE_NAME);
-                if (TextUtils.isEmpty(sortOrder)) {
-                    orderBy = Schema.Entries.DEFAULT_SORT_ORDER;
-                } else {
+                /**
+                 * For all requests, entries that have the PENDING_DELETE flag are not returned in the
+                 * query and treated as if they have been deleted.
+                 */
+                qb.appendWhere(TodoListSchema.Entries.PENDING_DELETE + "=" + 0);
+                qb.setTables(TodoListSchema.Entries.TABLE_NAME);
+                if (sortOrder != null) {
                     orderBy = sortOrder;
+                } else {
+                    orderBy = TodoListSchema.Entries.DEFAULT_SORT_ORDER;
                 }
                 break;
 
@@ -266,14 +254,22 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
-
+        // Perform the query
         Cursor cur = qb.query(dbHelper.getReadableDatabase(), what, where, whereArgs, null, null, orderBy);
+
+        // This is required register the cursor, with the resolver, for notifications on the specified URI.
         cur.setNotificationUri(getContext().getContentResolver(), uri);
 
         return cur;
     }
 
-
+    /**
+     * Handles requests to insert a new row
+     *
+     * @param uri  Uri of the insertion request.
+     * @param contentValues set of column_name/value pairs to add to the database
+     * @return Uri for the newly inserted item
+     */
     @Override
     public Uri insert(Uri uri, ContentValues contentValues) {
 
@@ -283,32 +279,40 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
             values.putAll(contentValues);
 
         long now = System.currentTimeMillis();
-        long id;
+        long newId;
 
         switch (uriMatcher.match(uri)) {
             case ENTRIES:
-                //values.put(Schema.Entries.ID, null);
-                values.put(Schema.Entries.PENDING_UPDATE, 2);
-                values.put(Schema.Entries.PENDING_DELETE, 0);
+                /**
+                 * Initialize the PENDING_UPDATE to 2. This indicates that
+                 * the entry needs to synced upstream. This is a tri-state flag
+                 * used to indicate that the sync operation has been staged and
+                 * completed.
+                 */
+                values.put(TodoListSchema.Entries.PENDING_UPDATE, 2);
+                values.put(TodoListSchema.Entries.PENDING_DELETE, 0);
 
-                if (!values.containsKey(Schema.Entries.CREATED))
-                    values.put(Schema.Entries.CREATED, now);
+                // Initialize values, that are omitted, to defaults
+                if (!values.containsKey(TodoListSchema.Entries.CREATED))
+                    values.put(TodoListSchema.Entries.CREATED, now);
 
-                if (!values.containsKey(Schema.Entries.MODIFIED))
-                    values.put(Schema.Entries.MODIFIED, now);
+                if (!values.containsKey(TodoListSchema.Entries.MODIFIED))
+                    values.put(TodoListSchema.Entries.MODIFIED, now);
 
-                if (!values.containsKey(Schema.Entries.TITLE))
-                    values.put(Schema.Entries.TITLE,
+                if (!values.containsKey(TodoListSchema.Entries.TITLE))
+                    values.put(TodoListSchema.Entries.TITLE,
                             Resources.getSystem()
                                     .getString(android.R.string.untitled));
 
-                if (!values.containsKey(Schema.Entries.NOTES))
-                    values.put(Schema.Entries.NOTES, "");
+                if (!values.containsKey(TodoListSchema.Entries.NOTES))
+                    values.put(TodoListSchema.Entries.NOTES, "");
 
-                if (!values.containsKey(Schema.Entries.COMPLETE))
-                    values.put(Schema.Entries.COMPLETE, 0);
+                if (!values.containsKey(TodoListSchema.Entries.COMPLETE))
+                    values.put(TodoListSchema.Entries.COMPLETE, 0);
 
-                id = dbHelper.getWritableDatabase().insert(Schema.Entries.TABLE_NAME, null, values);
+                // Perform the insert
+                newId = dbHelper.getWritableDatabase()
+                            .insert(TodoListSchema.Entries.TABLE_NAME, null, values);
 
                 break;
 
@@ -316,21 +320,32 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
 
+        // If the insert succeeded, the newly inserted row will be assigned an ID.
+        //  If it is zero, it failed.
+        if (newId == 0)
+            throw new IllegalArgumentException("Failed to insert row into " + uri);
 
-        if (id > 0) {
-            Uri entryUri = ContentUris.withAppendedId(Schema.Entries.CONTENT_ID_URI_BASE, id);
-            getContext().getContentResolver().notifyChange(entryUri, null);
+        // Notify changes on the newly created entry URI
+        Uri entryUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, newId);
+        getContext().getContentResolver().notifyChange(entryUri, null);
+
+        // Request a lazy sync to sync this change upstream
+        try{
             TodoListSyncHelper.requestLazySync(getContext());
-            return entryUri;
+        } catch (UnsupportedOperationException e) {
+            // This will happen when running unit tests, just ignore
         }
-
-
-        throw new IllegalArgumentException("Failed to insert row into " + uri);
+        return entryUri;
     }
 
+    /**
+     * Helper class for building 'where' clause strings
+     */
     @SuppressWarnings({"UnusedDeclaration"})
     private class WhereStringBuilder {
+        // Base where clause
         String where;
+        // string to append to the base
         String append;
 
         WhereStringBuilder() {
@@ -384,7 +399,15 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         }
     }
 
-
+    /**
+     * Handles requests to delete one or more rows
+     *
+     * @param uri  Uri to query
+     * @param where     selection criteria to apply when deleting rows. If null then all rows are deleted
+     * @param whereArgs any included '?'s in where will be replaced by the values from whereArgs,
+     *                  in order that they appear in the selection. The values will be bound as Strings.
+     * @return number of rows deleted
+     */
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
 
@@ -395,12 +418,24 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         switch (uriMatcher.match(uri)) {
 
             case ENTRY_ID:
-                whereBuilder.appendAnd(Schema.Entries._ID + " = " + getEntryIdFromUri(uri));
+                /**
+                 *  When an ENTRY_ID resource is specified, a filter to include that entry id  is
+                 *  added to the where clause
+                 */
+                whereBuilder.appendAnd(TodoListSchema.Entries._ID + " = " + getEntryIdFromUri(uri));
+                //fall through
             case ENTRIES:
+                // Append where clause to include all PENDING_DELETE = 0 rows
                 whereBuilder.appendAnd(WHERE_NON_DELETED_ENTRIES);
-                values.put(Schema.Entries.PENDING_DELETE, 1);
 
-                count = dbHelper.getWritableDatabase().update(Schema.Entries.TABLE_NAME,
+                /**
+                 * The delete doesn't immediately delete, it set the  PENDING_DELETE flag
+                 * to 1. This will trigger an upstream sync of the deleted item. Once it is
+                 * delete upstream, it will be deleted completely from the database.
+                 */
+                values.put(TodoListSchema.Entries.PENDING_DELETE, 1);
+
+                count = dbHelper.getWritableDatabase().update(TodoListSchema.Entries.TABLE_NAME,
                         values, whereBuilder.build(), whereArgs);
                 break;
 
@@ -410,19 +445,30 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         }
 
         if (count > 0) {
+            // If any rows where affected, notify listeners and request a lazy sync
             getContext().getContentResolver().notifyChange(uri, null);
-            TodoListSyncHelper.requestLazySync(getContext());
+            try{
+                TodoListSyncHelper.requestLazySync(getContext());
+            } catch (UnsupportedOperationException e) {
+                // This will happen when running unit tests, just ignore
+            }
         }
-
         return count;
     }
 
-
+    /**
+     * Handles requests to update one or more rows
+     * @param uri Uri to query
+     * @param contentValues bundle mapping column names to new column values
+     * @param where     selection criteria to apply when updating rows. If null then all rows are updated
+     * @param whereArgs any included '?'s in where will be replaced by the values from whereArgs,
+     *                  in order that they appear in the selection. The values will be bound as Strings.
+     * @return number of rows updated
+     */
     @Override
     public int update(Uri uri, ContentValues contentValues, String where, String[] whereArgs) {
 
         // Initialize a new ContentValues object to whatever was passed in
-
         ContentValues values = new ContentValues();
         if (contentValues != null)
             values.putAll(contentValues);
@@ -432,17 +478,24 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         switch (uriMatcher.match(uri)) {
 
             case ENTRY_ID:
-                wherebuilder.appendAnd(Schema.Entries._ID + " = " + getEntryIdFromUri(uri));
+                /**
+                 *  When an ENTRY_ID resource is specified, a filter to include that entry id  is
+                 *  added to the where clause
+                 */
+                wherebuilder.appendAnd(TodoListSchema.Entries._ID + " = " + getEntryIdFromUri(uri));
+                // fall through
             case ENTRIES:
+                // Append where clause to include all PENDING_DELETE = 0 rows
                 wherebuilder.appendAnd(WHERE_NON_DELETED_ENTRIES);
 
                 // Set the Modified times to NOW if not set
-                values.put(Schema.Entries.MODIFIED, System.currentTimeMillis());
-                // Mark the entry as pending a POST
-                values.put(Schema.Entries.PENDING_UPDATE, 2);
+                values.put(TodoListSchema.Entries.MODIFIED, System.currentTimeMillis());
+                // Mark the entry as pending an update
+                values.put(TodoListSchema.Entries.PENDING_UPDATE, 2);
 
+                // Perform the update
                 SQLiteDatabase db = dbHelper.getWritableDatabase();
-                count = db.update(Schema.Entries.TABLE_NAME, values, wherebuilder.build(), whereArgs);
+                count = db.update(TodoListSchema.Entries.TABLE_NAME, values, wherebuilder.build(), whereArgs);
                 break;
 
             default:
@@ -451,13 +504,26 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
 
 
         if (count > 0) {
+            // If any rows where affected, notify listeners and request a lazy sync
             getContext().getContentResolver().notifyChange(uri, null);
-            TodoListSyncHelper.requestLazySync(getContext());
+            try{
+                TodoListSyncHelper.requestLazySync(getContext());
+            } catch (UnsupportedOperationException e) {
+                // This will happen when running unit tests, just ignore
+            }
         }
 
         return count;
     }
 
+    /**
+     * Handles requests to perform a batch of operation
+     * This implementation will perform the operations in a transaction. In the event
+     * of any operation failing, the transation will be rolled back
+     *
+     * @param operations operations to apply
+     * @return list of results of the operations
+     */
     @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) {
 
@@ -484,14 +550,15 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         return results.toArray(new ContentProviderResult[results.size()]);
     }
 
-
+    // Todo: implement a sync status return code
     @Override
     synchronized public void onPerformSync(HttpRestClient httpRestClient, boolean refresh) {
+
         TodoListRestClient client = new TodoListRestClient(httpRestClient);
         boolean notify;
         try {
             if (refresh) {
-                dbHelper.getWritableDatabase().delete(Schema.Entries.TABLE_NAME, null, null);
+                dbHelper.getWritableDatabase().delete(TodoListSchema.Entries.TABLE_NAME, null, null);
                 lastSyncTime = 0;
             } else {
                 performUpstreamSync(client);
@@ -504,7 +571,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
             }
 
             if (notify) {
-                getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
+                getContext().getContentResolver().notifyChange(TodoListSchema.Entries.CONTENT_URI, null);
                 showUpdateNotification("TodoList Updated", "TodoList Updated", "New Entries");
             }
         } catch (IOException e) {
@@ -521,29 +588,29 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
             showSyncErrorNotification("TodoList Sync Error", "Invalid Response", e.getMessage());
         } finally {
             ContentValues pendingTxValue = new ContentValues();
-            pendingTxValue.put(Schema.Entries.PENDING_TX, 0);
-            if (getWritableDatabase().update(Schema.Entries.TABLE_NAME,
-                    pendingTxValue, Schema.Entries.PENDING_TX + "=1", null) > 0)
-                getContext().getContentResolver().notifyChange(Schema.Entries.CONTENT_URI, null);
+            pendingTxValue.put(TodoListSchema.Entries.PENDING_TX, 0);
+            if (getWritableDatabase().update(TodoListSchema.Entries.TABLE_NAME,
+                    pendingTxValue, TodoListSchema.Entries.PENDING_TX + "=1", null) > 0)
+                getContext().getContentResolver().notifyChange(TodoListSchema.Entries.CONTENT_URI, null);
         }
     }
 
     private static ContentValues entryObjectValues(JSONObject entry) throws JSONException {
         ContentValues entryValues = new ContentValues();
 
-        entryValues.put(TodoListProvider.Schema.Entries.ID, entry.getInt(TodoListRestClient.ENTRY_ID));
-        entryValues.put(TodoListProvider.Schema.Entries.COMPLETE,
+        entryValues.put(TodoListSchema.Entries.ID, entry.getInt(TodoListRestClient.ENTRY_ID));
+        entryValues.put(TodoListSchema.Entries.COMPLETE,
                 entry.getBoolean(TodoListRestClient.ENTRY_COMPLETE) ? 1 : 0);
         String title = entry.optString(TodoListRestClient.ENTRY_TITLE);
         if (!title.isEmpty())
-            entryValues.put(TodoListProvider.Schema.Entries.TITLE, title);
+            entryValues.put(TodoListSchema.Entries.TITLE, title);
         String notes = entry.optString(TodoListRestClient.ENTRY_NOTES);
         if (!notes.isEmpty())
-            entryValues.put(TodoListProvider.Schema.Entries.NOTES, notes);
+            entryValues.put(TodoListSchema.Entries.NOTES, notes);
 
-        entryValues.put(TodoListProvider.Schema.Entries.CREATED,
+        entryValues.put(TodoListSchema.Entries.CREATED,
                 (long) (entry.getDouble(TodoListRestClient.ENTRY_CREATED) * 1000));
-        entryValues.put(TodoListProvider.Schema.Entries.MODIFIED,
+        entryValues.put(TodoListSchema.Entries.MODIFIED,
                 (long) (entry.getDouble(TodoListRestClient.ENTRY_MODIFIED) * 1000));
 
         return entryValues;
@@ -560,10 +627,10 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
         if (statusCode == TodoListRestClient.Response.SUCCESS_OK) {
             List<JSONObject> entries = response.getEntryList();
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            String idWhere = Schema.Entries.ID + " = ?";
+            String idWhere = TodoListSchema.Entries.ID + " = ?";
 
             SQLiteStatement entryCount = db.compileStatement(
-                    "SELECT COUNT(*) FROM " + Schema.Entries.TABLE_NAME + " WHERE " + idWhere);
+                    "SELECT COUNT(*) FROM " + TodoListSchema.Entries.TABLE_NAME + " WHERE " + idWhere);
             db.beginTransaction();
             try {
                 for (JSONObject entry : entries) {
@@ -573,7 +640,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                         // If the entry is deleted, remove it from the local database
                         //  regardless of whether or not it is dirty. If its been deleted,
                         //  our local changes are irrelevant.
-                        if (db.delete(Schema.Entries.TABLE_NAME, idWhere, whereArgs) > 0)
+                        if (db.delete(TodoListSchema.Entries.TABLE_NAME, idWhere, whereArgs) > 0)
                             notify = true;
                     } else {
                         ContentValues values = entryObjectValues(entry);
@@ -582,12 +649,12 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
 
                             String where = idWhere
                                     + " AND " + WHERE_CURRENT_ENTRIES
-                                    + " AND " + Schema.Entries.MODIFIED
-                                    + " != " + values.getAsLong(Schema.Entries.MODIFIED);
-                            if (db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs) > 0)
+                                    + " AND " + TodoListSchema.Entries.MODIFIED
+                                    + " != " + values.getAsLong(TodoListSchema.Entries.MODIFIED);
+                            if (db.update(TodoListSchema.Entries.TABLE_NAME, values, where, whereArgs) > 0)
                                 notify = true;
                         } else {
-                            db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE, values);
+                            db.insert(TodoListSchema.Entries.TABLE_NAME, TodoListSchema.Entries.TITLE, values);
                             notify = true;
                         }
                     }
@@ -616,31 +683,31 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
             List<JSONObject> entries = response.getEntryList();
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            String tempTableName = Schema.Entries.TABLE_NAME + "_refresh";
+            String tempTableName = TodoListSchema.Entries.TABLE_NAME + "_refresh";
 
             db.beginTransaction();
             try {
                 // Create a Temporary Table to store all the dirty entries
                 db.execSQL("CREATE TEMP TABLE " + tempTableName
-                        + " AS SELECT * from " + Schema.Entries.TABLE_NAME
+                        + " AS SELECT * from " + TodoListSchema.Entries.TABLE_NAME
                         + " WHERE " + WHERE_DIRTY_ENTRIES);
 
                 // Replace the current table with the entries from the refresh
-                db.delete(Schema.Entries.TABLE_NAME, null, null);
+                db.delete(TodoListSchema.Entries.TABLE_NAME, null, null);
                 for (JSONObject entry : entries)
-                    db.insert(Schema.Entries.TABLE_NAME, Schema.Entries.TITLE, entryObjectValues(entry));
+                    db.insert(TodoListSchema.Entries.TABLE_NAME, TodoListSchema.Entries.TITLE, entryObjectValues(entry));
 
                 // Now add back the Temporary items as an UPDATE. This insures that deleted
                 //  dirty items are deleted                           KEY
 
                 Cursor cur = db.query(tempTableName, null, null, null, null, null, null);
-                String where = Schema.Entries.ID + "= ?";
+                String where = TodoListSchema.Entries.ID + "= ?";
                 for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-                    String[] whereArgs = {cur.getString(cur.getColumnIndex(Schema.Entries.ID))};
+                    String[] whereArgs = {cur.getString(cur.getColumnIndex(TodoListSchema.Entries.ID))};
                     ContentValues values = new ContentValues();
                     for (String column : cur.getColumnNames())
                         values.put(column, cur.getString(cur.getColumnIndex(column)));
-                    db.update(Schema.Entries.TABLE_NAME, values, where, whereArgs);
+                    db.update(TodoListSchema.Entries.TABLE_NAME, values, where, whereArgs);
                 }
 
                 lastSyncTime = response.getTimestamp();
@@ -659,49 +726,49 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
 
     public void performUpstreamSync(TodoListRestClient client) throws IOException {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
-        String tempTableName = Schema.Entries.TABLE_NAME + "_upsync";
+        String tempTableName = TodoListSchema.Entries.TABLE_NAME + "_upsync";
 
         ContentValues values = new ContentValues();
-        values.put(Schema.Entries.PENDING_UPDATE, 1);
-        values.put(Schema.Entries.PENDING_TX, 1);
+        values.put(TodoListSchema.Entries.PENDING_UPDATE, 1);
+        values.put(TodoListSchema.Entries.PENDING_TX, 1);
 
         db.beginTransaction();
         try {
             // Create a Temporary Table to store all the syncable items
             db.execSQL("CREATE TEMP TABLE " + tempTableName
-                    + " AS SELECT * from " + Schema.Entries.TABLE_NAME
+                    + " AS SELECT * from " + TodoListSchema.Entries.TABLE_NAME
                     + " WHERE " + WHERE_DIRTY_ENTRIES + ";");
 
             // Update the pending flags to indicate that the entry
             //  is currently being processed
-            db.update(Schema.Entries.TABLE_NAME, values, WHERE_DIRTY_ENTRIES, null);
+            db.update(TodoListSchema.Entries.TABLE_NAME, values, WHERE_DIRTY_ENTRIES, null);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
 
         try {
-            String idWhere = Schema.Entries._ID + " = ?";
+            String idWhere = TodoListSchema.Entries._ID + " = ?";
             // Walk through the temporary table of syncable items and perform
             //  the pending action
-            Cursor cur = db.query(tempTableName, null, null, null, null, null, Schema.Entries.DEFAULT_SORT_ORDER);
+            Cursor cur = db.query(tempTableName, null, null, null, null, null, TodoListSchema.Entries.DEFAULT_SORT_ORDER);
             for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-                String[] whereArgs = {Integer.toString(cur.getInt(cur.getColumnIndex(Schema.Entries._ID)))};
-                int id = cur.getInt(cur.getColumnIndex(Schema.Entries.ID));
+                String[] whereArgs = {Integer.toString(cur.getInt(cur.getColumnIndex(TodoListSchema.Entries._ID)))};
+                int id = cur.getInt(cur.getColumnIndex(TodoListSchema.Entries.ID));
 
 
                 try {
-                    if (cur.getInt(cur.getColumnIndex(Schema.Entries.PENDING_DELETE)) > 0) {
+                    if (cur.getInt(cur.getColumnIndex(TodoListSchema.Entries.PENDING_DELETE)) > 0) {
                         // Attempt to delete the item via the client, if it succeeds, delete it locally
                         TodoListRestClient.Response response = client.deleteEntry(id);
                         if (response.getResponse().getStatusCode() == TodoListRestClient.Response.SUCCESS_OK) {
-                            db.delete(Schema.Entries.TABLE_NAME, idWhere, whereArgs);
+                            db.delete(TodoListSchema.Entries.TABLE_NAME, idWhere, whereArgs);
                         }
-                    } else if (cur.getInt(cur.getColumnIndex(Schema.Entries.PENDING_UPDATE)) > 0) {
+                    } else if (cur.getInt(cur.getColumnIndex(TodoListSchema.Entries.PENDING_UPDATE)) > 0) {
                         values.clear();
-                        values.put(Schema.Entries.TITLE, cur.getString(cur.getColumnIndex(Schema.Entries.TITLE)));
-                        values.put(Schema.Entries.NOTES, cur.getString(cur.getColumnIndex(Schema.Entries.NOTES)));
-                        values.put(Schema.Entries.COMPLETE, cur.getInt(cur.getColumnIndex(Schema.Entries.COMPLETE)));
+                        values.put(TodoListSchema.Entries.TITLE, cur.getString(cur.getColumnIndex(TodoListSchema.Entries.TITLE)));
+                        values.put(TodoListSchema.Entries.NOTES, cur.getString(cur.getColumnIndex(TodoListSchema.Entries.NOTES)));
+                        values.put(TodoListSchema.Entries.COMPLETE, cur.getInt(cur.getColumnIndex(TodoListSchema.Entries.COMPLETE)));
 
                         // If the entry was updated, check if it has a valid ID. If it
                         //  is zero, the entry need to be inserted, otherwise update
@@ -716,24 +783,24 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                         if (statusCode == TodoListRestClient.Response.SUCCESS_OK
                                 || statusCode == TodoListRestClient.Response.SUCCESS_ADDED) {
                             values = entryObjectValues(response.getEntryObject());
-                            values.remove(Schema.Entries.TITLE);
-                            values.remove(Schema.Entries.NOTES);
-                            values.remove(Schema.Entries.COMPLETE);
+                            values.remove(TodoListSchema.Entries.TITLE);
+                            values.remove(TodoListSchema.Entries.NOTES);
+                            values.remove(TodoListSchema.Entries.COMPLETE);
                             db.beginTransaction();
                             try {
                                 long pendingTx = DatabaseUtils.longForQuery(db,
-                                        "SELECT " + Schema.Entries.PENDING_UPDATE
-                                                + " FROM " + Schema.Entries.TABLE_NAME
+                                        "SELECT " + TodoListSchema.Entries.PENDING_UPDATE
+                                                + " FROM " + TodoListSchema.Entries.TABLE_NAME
                                                 + " WHERE " + idWhere, whereArgs);
-                                values.put(Schema.Entries.PENDING_UPDATE, pendingTx - 1);
-                                db.update(Schema.Entries.TABLE_NAME, values, idWhere, whereArgs);
+                                values.put(TodoListSchema.Entries.PENDING_UPDATE, pendingTx - 1);
+                                db.update(TodoListSchema.Entries.TABLE_NAME, values, idWhere, whereArgs);
 
                                 // Notify the content observers that the status of the entry
                                 //  has changed. Specifically, it is now synced.
                                 getContext().getContentResolver().notifyChange(
                                         ContentUris.withAppendedId(
-                                                Schema.Entries.CONTENT_ID_URI_BASE,
-                                                values.getAsInteger(Schema.Entries.ID)),
+                                                TodoListSchema.Entries.CONTENT_ID_URI_BASE,
+                                                values.getAsInteger(TodoListSchema.Entries.ID)),
                                         null);
 
                                 db.setTransactionSuccessful();
@@ -754,7 +821,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
     }
 
     private static int getEntryIdFromUri(Uri uri) {
-        return Integer.parseInt(uri.getPathSegments().get(Schema.Entries.TODOLIST_ENTRY_ID_PATH_POSITION));
+        return Integer.parseInt(uri.getPathSegments().get(TodoListSchema.Entries.TODOLIST_ENTRY_ID_PATH_POSITION));
     }
 
     private void initLastSyncTime() {

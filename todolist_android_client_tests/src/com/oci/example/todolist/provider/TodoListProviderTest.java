@@ -46,12 +46,12 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         public ContentValues toContentValues() {
 
             ContentValues values = new ContentValues();
-            values.put(TodoListProvider.Schema.Entries.ID, id);
-            values.put(TodoListProvider.Schema.Entries.TITLE, title);
-            values.put(TodoListProvider.Schema.Entries.NOTES, notes);
-            values.put(TodoListProvider.Schema.Entries.COMPLETE, complete);
-            values.put(TodoListProvider.Schema.Entries.CREATED, createTime);
-            values.put(TodoListProvider.Schema.Entries.MODIFIED, modifyTime);
+            values.put(TodoListSchema.Entries.ID, id);
+            values.put(TodoListSchema.Entries.TITLE, title);
+            values.put(TodoListSchema.Entries.NOTES, notes);
+            values.put(TodoListSchema.Entries.COMPLETE, complete);
+            values.put(TodoListSchema.Entries.CREATED, createTime);
+            values.put(TodoListSchema.Entries.MODIFIED, modifyTime);
 
             return values;
         }
@@ -79,7 +79,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
 
     public TodoListProviderTest() {
-        super(TodoListProvider.class, TodoListProvider.Schema.AUTHORITY);
+        super(TodoListProvider.class, TodoListSchema.AUTHORITY);
     }
 
     @Override
@@ -88,7 +88,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         mockResolver = getMockContentResolver();
         db = getProvider().getWritableDatabase();
-        tableName = getProvider().getEntriesTableName();
+        tableName = TodoListSchema.Entries.TABLE_NAME;
 
     }
 
@@ -108,16 +108,16 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
     public void testGetType() {
         // Tests the MIME type for the notes table URI.
-        String mimeType = mockResolver.getType(TodoListProvider.Schema.Entries.CONTENT_URI);
-        assertEquals(TodoListProvider.Schema.Entries.CONTENT_TYPE, mimeType);
+        String mimeType = mockResolver.getType(TodoListSchema.Entries.CONTENT_URI);
+        assertEquals(TodoListSchema.Entries.CONTENT_TYPE, mimeType);
 
         // Gets the note ID URI MIME type.
-        Uri entryIdUri = ContentUris.withAppendedId(TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, 1);
+        Uri entryIdUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, 1);
         mimeType = mockResolver.getType(entryIdUri);
-        assertEquals(TodoListProvider.Schema.Entries.CONTENT_ITEM_TYPE, mimeType);
+        assertEquals(TodoListSchema.Entries.CONTENT_ITEM_TYPE, mimeType);
 
         // Tests an invalid URI. This should throw an IllegalArgumentException.
-        Uri invalidUri = Uri.withAppendedPath(TodoListProvider.Schema.Entries.CONTENT_URI, "dummy");
+        Uri invalidUri = Uri.withAppendedPath(TodoListSchema.Entries.CONTENT_URI, "dummy");
         mockResolver.getType(invalidUri);
     }
 
@@ -125,7 +125,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testQueryEntriesEmpty() {
 
         Cursor cursor = mockResolver.query(
-                TodoListProvider.Schema.Entries.CONTENT_URI,  // the URI for the main data table
+                TodoListSchema.Entries.CONTENT_URI,  // the URI for the main data table
                 null,                       // no projection, get all columns
                 null,                       // no selection criteria, get all records
                 null,                       // no selection arguments
@@ -140,7 +140,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         insertData();
 
         Cursor cursor = mockResolver.query(
-                TodoListProvider.Schema.Entries.CONTENT_URI,  // the URI for the main data table
+                TodoListSchema.Entries.CONTENT_URI,  // the URI for the main data table
                 null,                       // no projection, get all columns
                 null,                       // no selection criteria, get all records
                 null,                       // no selection arguments
@@ -154,15 +154,15 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testQueryEntriesWithProjection() {
 
         final String[] what = {
-                TodoListProvider.Schema.Entries.TITLE,
-                TodoListProvider.Schema.Entries.NOTES,
-                TodoListProvider.Schema.Entries.COMPLETE
+                TodoListSchema.Entries.TITLE,
+                TodoListSchema.Entries.NOTES,
+                TodoListSchema.Entries.COMPLETE
         };
 
         insertData();
 
         Cursor cursor = mockResolver.query(
-                TodoListProvider.Schema.Entries.CONTENT_URI,  // the URI for the main data table
+                TodoListSchema.Entries.CONTENT_URI,  // the URI for the main data table
                 what,            // get the title, note, and mod date columns
                 null,                       // no selection columns, get all the records
                 null,                       // no selection criteria
@@ -178,24 +178,24 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testQueryEntriesWithProjectionAndSelectionColumns() {
 
         final String[] what = {
-                TodoListProvider.Schema.Entries.TITLE,
-                TodoListProvider.Schema.Entries.NOTES,
-                TodoListProvider.Schema.Entries.COMPLETE
+                TodoListSchema.Entries.TITLE,
+                TodoListSchema.Entries.NOTES,
+                TodoListSchema.Entries.COMPLETE
         };
 
-        final String TITLE_SELECTION = TodoListProvider.Schema.Entries.TITLE + " = " + "?";
+        final String TITLE_SELECTION = TodoListSchema.Entries.TITLE + " = " + "?";
 
         String where = TITLE_SELECTION;
         final String[] whereArgs = {"Entry0", "Entry1", "Entry5"};
         for (int i = 1; i < whereArgs.length; i++)
             where += " OR " + TITLE_SELECTION;
 
-        final String sort = TodoListProvider.Schema.Entries.TITLE + " ASC";
+        final String sort = TodoListSchema.Entries.TITLE + " ASC";
 
         insertData();
 
         Cursor cursor = mockResolver.query(
-                TodoListProvider.Schema.Entries.CONTENT_URI, // the URI for the main data table
+                TodoListSchema.Entries.CONTENT_URI, // the URI for the main data table
                 what,           // get the title, note, and mod date columns
                 where,         // select on the title column
                 whereArgs,            // select titles "Entry0", "Entry1", or "Entry5"
@@ -214,7 +214,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
 
     public void testQueryEntryEmpty() {
-        Uri noteIdUri = ContentUris.withAppendedId(TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, 1);
+        Uri noteIdUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, 1);
 
         Cursor cursor = mockResolver.query(
                 noteIdUri, // URI pointing to a single record
@@ -229,16 +229,16 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
 
     public void testQueryEntry() {
-        final String where = TodoListProvider.Schema.Entries.TITLE + " = " + "?";
+        final String where = TodoListSchema.Entries.TITLE + " = " + "?";
         final String[] whereArgs = {"Entry1"};
-        final String sort = TodoListProvider.Schema.Entries.TITLE + " ASC";
-        final String[] what = {TodoListProvider.Schema.Entries._ID};
+        final String sort = TodoListSchema.Entries.TITLE + " ASC";
+        final String[] what = {TodoListSchema.Entries._ID};
 
         insertData();
 
         // Queries the table using the URI for the full table.
         Cursor cursor = mockResolver.query(
-                TodoListProvider.Schema.Entries.CONTENT_URI, // the base URI for the table
+                TodoListSchema.Entries.CONTENT_URI, // the base URI for the table
                 what,        // returns the ID and title columns of rows
                 where,         // select based on the title column
                 whereArgs,            // select title of "Entry1"
@@ -249,7 +249,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertTrue(cursor.moveToFirst());
 
         int entryId = cursor.getInt(0);
-        Uri entryIdUri = ContentUris.withAppendedId(TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, entryId);
+        Uri entryIdUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId);
 
 
         cursor = mockResolver.query(entryIdUri, // the URI for a single note
@@ -271,10 +271,10 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         ContentValues values = entry.toContentValues();
 
-        mockResolver.insert(TodoListProvider.Schema.Entries.CONTENT_URI, values);
+        mockResolver.insert(TodoListSchema.Entries.CONTENT_URI, values);
 
         Cursor cursor = mockResolver.query(
-                TodoListProvider.Schema.Entries.CONTENT_URI, // the main table URI
+                TodoListSchema.Entries.CONTENT_URI, // the main table URI
                 null,                      // no projection, return all the columns
                 null,                      // no selection criteria, return all the rows in the model
                 null,                      // no selection arguments
@@ -284,11 +284,11 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertEquals(1, cursor.getCount());
         assertTrue(cursor.moveToFirst());
 
-        int titleIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE);
-        int notesIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES);
-        int completeIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.COMPLETE);
-        int createTimeIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.CREATED);
-        int modifyTimeIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.MODIFIED);
+        int titleIndex = cursor.getColumnIndex(TodoListSchema.Entries.TITLE);
+        int notesIndex = cursor.getColumnIndex(TodoListSchema.Entries.NOTES);
+        int completeIndex = cursor.getColumnIndex(TodoListSchema.Entries.COMPLETE);
+        int createTimeIndex = cursor.getColumnIndex(TodoListSchema.Entries.CREATED);
+        int modifyTimeIndex = cursor.getColumnIndex(TodoListSchema.Entries.MODIFIED);
 
         assertEquals(entry.title, cursor.getString(titleIndex));
         assertEquals(entry.notes, cursor.getString(notesIndex));
@@ -304,13 +304,13 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         ContentValues values = entry.toContentValues();
 
-        Uri entryUri = mockResolver.insert(TodoListProvider.Schema.Entries.CONTENT_URI, values);
-        values.put(TodoListProvider.Schema.Entries._ID, (int) ContentUris.parseId(entryUri));
+        Uri entryUri = mockResolver.insert(TodoListSchema.Entries.CONTENT_URI, values);
+        values.put(TodoListSchema.Entries._ID, (int) ContentUris.parseId(entryUri));
 
         // Tries to insert this record into the table. This should fail and drop into the
         // catch block. If it succeeds, issue a failure message.
         try {
-            mockResolver.insert(TodoListProvider.Schema.Entries.CONTENT_URI, values);
+            mockResolver.insert(TodoListSchema.Entries.CONTENT_URI, values);
             fail("Expected insert failure for existing record but insert succeeded.");
         } catch (Exception e) {
             // succeeded, so do nothing.
@@ -320,7 +320,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testDeleteEmpty(){
 
         int rowsDeleted = mockResolver.delete(
-            TodoListProvider.Schema.Entries.CONTENT_URI, // the base URI of the table
+            TodoListSchema.Entries.CONTENT_URI, // the base URI of the table
             null,                        // all columns
             null                        //
         );
@@ -330,13 +330,13 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
     public void testDelete(){
 
-        final String where = TodoListProvider.Schema.Entries.TITLE + " = " + "?";
+        final String where = TodoListSchema.Entries.TITLE + " = " + "?";
         final String[] whereArgs = { "Entry0" };
 
         insertData();
 
         Cursor cursor = mockResolver.query(
-            TodoListProvider.Schema.Entries.CONTENT_URI, // the base URI of the table
+            TodoListSchema.Entries.CONTENT_URI, // the base URI of the table
             null,                      // no projection, return all columns
             where,         // select based on the title column
             whereArgs,            // select title = "Entry0"
@@ -347,7 +347,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertTrue(cursor.moveToFirst());
 
         int rowsDeleted = mockResolver.delete(
-            TodoListProvider.Schema.Entries.CONTENT_URI, // the base URI of the table
+            TodoListSchema.Entries.CONTENT_URI, // the base URI of the table
             where,         // same selection column, "title"
             whereArgs             // same selection arguments, title = "Entry0"
         );
@@ -355,7 +355,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertEquals(1, rowsDeleted);
 
         cursor = mockResolver.query(
-            TodoListProvider.Schema.Entries.CONTENT_URI, // the base URI of the table
+            TodoListSchema.Entries.CONTENT_URI, // the base URI of the table
             null,                      // no projection, return all columns
             where,         // select based on the title column
             whereArgs,            // select title = "Entry0"
@@ -365,7 +365,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertEquals(0, cursor.getCount());
 
         rowsDeleted = mockResolver.delete(
-            TodoListProvider.Schema.Entries.CONTENT_URI, // the base URI of the table
+            TodoListSchema.Entries.CONTENT_URI, // the base URI of the table
             where,         // same selection column, "title"
             whereArgs             // same selection arguments, title = "Entry0"
         );
@@ -378,10 +378,10 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         ContentValues values = new ContentValues();
         String newNote = "Testing an update with this string";
-        values.put(TodoListProvider.Schema.Entries.NOTES, newNote);
+        values.put(TodoListSchema.Entries.NOTES, newNote);
 
         int rowsUpdated = mockResolver.update(
-            TodoListProvider.Schema.Entries.CONTENT_URI,  // the URI of the data table
+            TodoListSchema.Entries.CONTENT_URI,  // the URI of the data table
             values,                     // a map of the updates to do (column title and value)
             null,                       // select based on the title column
             null                        // select "title = Entry1"
@@ -391,18 +391,18 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     }
     public void testUpdates() {
 
-        final String[] what = { TodoListProvider.Schema.Entries.NOTES};
-        final String  where = TodoListProvider.Schema.Entries.TITLE + " = " + "?";
+        final String[] what = { TodoListSchema.Entries.NOTES};
+        final String  where = TodoListSchema.Entries.TITLE + " = " + "?";
         final String[] whereArgs = { "Entry1" };
 
         ContentValues values = new ContentValues();
         String newNote = "Testing an update with this string";
-        values.put(TodoListProvider.Schema.Entries.NOTES, newNote);
+        values.put(TodoListSchema.Entries.NOTES, newNote);
 
         insertData();
 
         int rowsUpdated = mockResolver.update(
-            TodoListProvider.Schema.Entries.CONTENT_URI,   // The URI of the data table
+            TodoListSchema.Entries.CONTENT_URI,   // The URI of the data table
             values,                      // the same map of updates
             where,            // same selection, based on the title column
             whereArgs                // same selection argument, to select "title = Entry1"
@@ -411,7 +411,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         assertEquals(1, rowsUpdated);
 
         Cursor cursor = mockResolver.query(
-                TodoListProvider.Schema.Entries.CONTENT_URI, // the base URI for the table
+                TodoListSchema.Entries.CONTENT_URI, // the base URI for the table
                 what,        // returns the entry notes
                 where,         // select based on the title column
                 whereArgs,            // select title of "Entry1"
@@ -420,7 +420,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         assertEquals(1, cursor.getCount());
         assertTrue(cursor.moveToFirst());
-        int notesIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES);
+        int notesIndex = cursor.getColumnIndex(TodoListSchema.Entries.NOTES);
         assertEquals(newNote, cursor.getString(notesIndex));
 
     }
@@ -428,9 +428,9 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testBatchDeleteAndInsert() {
 
         // Delete Entry0
-        final String where = TodoListProvider.Schema.Entries.TITLE + " = " + "?";
+        final String where = TodoListSchema.Entries.TITLE + " = " + "?";
         final String[] whereArgs = { "Entry0" };
-        final String[] what = {TodoListProvider.Schema.Entries._ID};
+        final String[] what = {TodoListSchema.Entries._ID};
 
         // Insert Entry30
         EntryData newEntry = new EntryData(30,"Entry30", "This is Entry30", false);
@@ -442,14 +442,14 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
 
         operations.add(
                 ContentProviderOperation.newDelete(
-                        TodoListProvider.Schema.Entries.CONTENT_URI)
+                        TodoListSchema.Entries.CONTENT_URI)
                         .withSelection(where, whereArgs)
                         .build()
         );
 
         operations.add(
                 ContentProviderOperation.newInsert(
-                        TodoListProvider.Schema.Entries.CONTENT_URI)
+                        TodoListSchema.Entries.CONTENT_URI)
                         .withValues(newEntry.toContentValues())
                         .build()
         );
@@ -457,7 +457,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         insertData();
 
         try {
-            ContentProviderResult[] results =  mockResolver.applyBatch(TodoListProvider.Schema.AUTHORITY, operations);
+            ContentProviderResult[] results =  mockResolver.applyBatch(TodoListSchema.AUTHORITY, operations);
             assertEquals(1, (int)results[0].count);
             assertEquals(1, mockResolver.query(results[1].uri,what, null,null,null).getCount());
 
@@ -471,7 +471,7 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
     public void testBatchDeleteAndInsertInvalidUri() {
 
         // Delete Entry0
-        final String where = TodoListProvider.Schema.Entries.TITLE + " = " + "?";
+        final String where = TodoListSchema.Entries.TITLE + " = " + "?";
         final String[] whereArgs = { "Entry0" };
 
          // Insert Entry30
@@ -483,13 +483,13 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
 
         operations.add(
-                ContentProviderOperation.newDelete(TodoListProvider.Schema.Entries.CONTENT_URI)
+                ContentProviderOperation.newDelete(TodoListSchema.Entries.CONTENT_URI)
                         .withSelection(where, whereArgs)
                         .build()
         );
 
         operations.add(
-                ContentProviderOperation.newInsert(Uri.withAppendedPath(TodoListProvider.Schema.Entries.CONTENT_URI, "dummy"))
+                ContentProviderOperation.newInsert(Uri.withAppendedPath(TodoListSchema.Entries.CONTENT_URI, "dummy"))
                         .withValues(newEntry.toContentValues())
                         .build()
         );
@@ -497,9 +497,9 @@ public class TodoListProviderTest extends ProviderTestCase2<TodoListProvider> {
         insertData();
 
         try {
-            ContentProviderResult[] results =  mockResolver.applyBatch(TodoListProvider.Schema.AUTHORITY, operations);
+            ContentProviderResult[] results =  mockResolver.applyBatch(TodoListSchema.AUTHORITY, operations);
             assertEquals(0, results.length);
-            assertEquals(1, mockResolver.query(TodoListProvider.Schema.Entries.CONTENT_URI,
+            assertEquals(1, mockResolver.query(TodoListSchema.Entries.CONTENT_URI,
                                 null,where,whereArgs,null).getCount());
 
         } catch (RemoteException e) {

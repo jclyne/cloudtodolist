@@ -19,26 +19,42 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
-import com.oci.example.todolist.provider.TodoListProvider;
+import com.oci.example.todolist.provider.TodoListSchema;
 
+/**
+ * Main activity for the TodoList application.
+ * It provides a ListView to display the todolist items and handles context
+ * menus on the items
+ */
 public class TodoListActivity extends FragmentActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+    // Log Tag
     private static final String TAG = "TodoListActivity";
 
+    // Reference to the system wide ConnectivityManager
     private static ConnectivityManager connManager;
+    // Reference to the system wide SharedPreferences
     private static SharedPreferences prefs;
+
+    // Loader ID of the Loader for the TodoList Cursor
     private static final int TODOLIST_CURSOR_LOADER = 1;
-    private static final int TODOLIST_PENDING_TX_LOADER = 2;
+
+    // Dialog ID for the Notes Dialog
     private static final int NOTES_DIALOG = 1;
 
+    // Reference to the new entry EditText view
     private EditText newEntryBox;
+    // Reference to TodoListCursorAdapter
     private TodoListCursorAdapter todoListAdapter;
+    // Reference to an intenal broadcast receiver to handle connectivity events
     private BroadcastReceiver broadcastReceiver;
 
 
     /**
-     * Called when the activity is first created.
+     * Called when the activity is starting
+     *
+     * @param savedInstanceState bundle of saved instance state data
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -46,31 +62,43 @@ public class TodoListActivity extends FragmentActivity
 
         Log.d(TAG, "Created" + " (" + Thread.currentThread().getName() + ")");
 
+        // Initialize the ConnectivityManager reference
         connManager = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        // Initialize the PreferenceManager reference
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
+        // Inflate the layout xml
         setContentView(R.layout.todolist_layout);
+
+        // Set the window title
         setWindowTitle();
 
+        // Hide the soft input keyboard initially
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-        // This adapter is initially created with a null cursor. The  TODOLIST_CURSOR_LOADER we defined
-        //  will take care of swapping in loaded cursors in the LoaderCallbacks. This will take care of
-        //  making sure that the "requery" is not on the UI thread, and that it will not requery when the
-        //  the activity is paused.
+        /**
+         * This adapter is initially created with a null cursor. The  TODOLIST_CURSOR_LOADER we defined
+         * will take care of swapping in loaded cursors in the LoaderCallbacks. This will take care of
+         * making sure that the "requery" is not on the UI thread, and that it will not requery when the
+         * the activity is paused.
+         */
         todoListAdapter = new TodoListCursorAdapter(this, null);
 
         // Now associate the adapter with the list view
         final ListView todoListView = (ListView) findViewById(R.id.todo_list);
         todoListView.setAdapter(todoListAdapter);
 
-        // Register the listview as having a context menu. This sets the long-clickable attribute
-        // and will call this activity's onCreateContextMenu
+        /**
+         * Register the listview as having a context menu. This sets the long-clickable attribute
+         * and will call this activity's onCreateContextMenu
+         */
         registerForContextMenu(todoListView);
 
-        // Register the TODOLIST_CURSOR_LOADER. The LoaderCallbacks will handle creation of
-        //  the CursorLoader as well as setting the proper cursor in the todoListAdapter,
-        //  based on the activity and data state.
+        /**
+         * Register the TODOLIST_CURSOR_LOADER. The LoaderCallbacks will handle creation of
+         * the CursorLoader as well as setting the proper cursor in the todoListAdapter,
+         * based on the activity and data state.
+         */
         getSupportLoaderManager().initLoader(TODOLIST_CURSOR_LOADER, null,
                 new LoaderManager.LoaderCallbacks<Cursor>() {
 
@@ -80,50 +108,36 @@ public class TodoListActivity extends FragmentActivity
                         // creating a Cursor for the data being displayed.
                         Log.d(TAG, "TodoList Cursor Loader Initialized");
                         return new CursorLoader(getBaseContext(),
-                                TodoListProvider.Schema.Entries.CONTENT_URI,
+                                TodoListSchema.Entries.CONTENT_URI,
                                 null, null, null, null);
                     }
 
                     @Override
                     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-                        // Swap the new cursor in.  (The framework will take care of closing the
-                        // old cursor once we return.)
+                        /**
+                         * Swap the new cursor in.  (The framework will take care of closing the
+                         * old cursor once we return.)
+                         */
                         Log.d(TAG, "TodoList Cursor Loader Finished" + " (" + cursor.getCount() + ")");
                         todoListAdapter.swapCursor(cursor);
                     }
 
                     @Override
                     public void onLoaderReset(Loader<Cursor> cursorLoader) {
-                        // This is called when the last Cursor provided to onLoadFinished()
-                        // above is about to be closed.  We need to make sure we are no
-                        // longer using it.
+                        /**
+                         * This is called when the last Cursor provided to onLoadFinished()
+                         * above is about to be closed.  We need to make sure we are no
+                         * longer using it.
+                         */
                         Log.d(TAG, "TodoList Cursor Loader Reset");
                         todoListAdapter.swapCursor(null);
                     }
                 });
 
-
-        getSupportLoaderManager().initLoader(TODOLIST_PENDING_TX_LOADER, null,
-                new LoaderManager.LoaderCallbacks<Cursor>() {
-
-                    @Override
-                    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-                        return new CursorLoader(getBaseContext(),
-                                TodoListProvider.Schema.Entries.CONTENT_URI,
-                                new String[]{TodoListProvider.Schema.Entries.PENDING_TX},
-                                TodoListProvider.Schema.Entries.PENDING_TX + "=1", null, null);
-                    }
-
-                    @Override
-                    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-                        Log.i(TAG, "Pending TX Loader is Finished loading: " + cursor.getCount());
-                    }
-
-                    @Override
-                    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-                    }
-                });
-
+        /**
+         * Add a listener to the new entry to handle an enter key. This
+         * will call the onNewEntryHandler and clear the textbox
+         */
         newEntryBox = (EditText) findViewById(R.id.new_entry);
         newEntryBox.setOnKeyListener(new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -137,6 +151,10 @@ public class TodoListActivity extends FragmentActivity
             }
         });
 
+        /**
+         * Add a FocusChange listener that will simply clear the edit text box
+         * when it loses focus
+         */
         newEntryBox.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             public void onFocusChange(View view, boolean hasFocus) {
                 if (hasFocus) {
@@ -145,9 +163,10 @@ public class TodoListActivity extends FragmentActivity
             }
         });
 
-
+        // Register this class as an SharedPreferencesChange listener
         prefs.registerOnSharedPreferenceChangeListener(this);
 
+        // Build a BroadcastReceiver that will update the window title based on connectivity events
         IntentFilter broadcastFilter = new IntentFilter();
         broadcastFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
         broadcastFilter.addAction(ConnectivityManager.ACTION_BACKGROUND_DATA_SETTING_CHANGED);
@@ -157,101 +176,166 @@ public class TodoListActivity extends FragmentActivity
                 setWindowTitle();
             }
         };
-
         registerReceiver(broadcastReceiver, broadcastFilter);
 
+        // Finally, request an intial sync
         TodoListSyncHelper.requestSync(this);
     }
 
+    /**
+     * Called when the activity is being destroyed
+     */
     @Override
     protected void onDestroy() {
+        // Make sure to unregister the broadcast receiver
         unregisterReceiver(broadcastReceiver);
         super.onDestroy();
     }
 
+    /**
+     * Called when a shared preference is changed, added, or removed.
+     *
+     * @param prefs  SharedPreferences that received the change.
+     * @param key  key of the preference that was changed, added, or removed.
+     */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+        // Update the window title if the offline_mode setting is changed
         if (key.equals("offline_mode")) {
             setWindowTitle();
         }
     }
 
+    /**
+     * Called to initialize the contents of the activity's standard options menu
+     *
+     * @param menu options menu to update
+     * @return true for the menu to be displayed, false otherwise
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+        // Inflate the menu defined in the xml
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.todolist_menu, menu);
         return true;
     }
 
+    /**
+     *  Called right before the menu is shown
+     *
+     * @param menu menu as last shown or first initialized by onCreateOptionsMenu().
+     * @return true for the menu to be displayed, false otherwise
+     */
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        // Disable the refresh menu option if in offline mode
         menu.getItem(0).setEnabled(!prefs.getBoolean("offline_mode", false));
 
         return true;
     }
 
+    /**
+     * Called when a context menu for the view is about to be shown
+     *
+     * @param menu  context menu that is being built
+     * @param view  view for which the context menu is being built
+     * @param menuInfo  Extra information about the item for which the context menu should be shown.
+     * This should be an AdapterView.AdapterContextMenuInfo because we registered context menus with the
+     * TodoList ListView
+     */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, view, menuInfo);
 
+        // Inflate the menu from the xml
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.entry_menu, menu);
 
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-        Uri entryUri = ContentUris.withAppendedId(TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, info.id);
-        final String[] what = {TodoListProvider.Schema.Entries.NOTES};
+
+        /**
+         * Disable the NOTES menu option if there are not notes to display, so do a lookup
+         * and check
+         */
+        Uri entryUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, info.id);
+        final String[] what = {TodoListSchema.Entries.NOTES};
         Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
         cursor.moveToFirst();
-        String notes = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES));
+        String notes = cursor.getString(cursor.getColumnIndex(TodoListSchema.Entries.NOTES));
 
         menu.getItem(0).setEnabled((notes != null && !notes.isEmpty()));
     }
 
-
+    /**
+     *  Called whenever an item in the options menu is selected
+     *
+     * @param item item selected
+     * @return  false to allow normal menu processing to proceed, true if it was handled
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_refresh:
+                // request a sync and how a quitck toast indicating the refresh started
                 Toast.makeText(this, R.string.sync_initiated, Toast.LENGTH_SHORT).show();
                 TodoListSyncHelper.requestSync(this);
                 return true;
 
             case R.id.menu_clear_selected:
+                // call the onClearCompleted handler to delete completed entries
                 onClearCompleted();
                 return true;
 
-            case R.id.menu_settings:
+            case R.id.menu_preferences:
+                // issue an intent for the preferences activity
                 Intent intent = new Intent();
                 intent.setClass(this, TodoListPreferencesActivity.class);
                 startActivity(intent);
                 return true;
         }
 
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
-
+    /**
+     *  Called whenever an item in the context menu is selected
+     *
+     * @param item item selected
+     * @return  false to allow normal menu processing to proceed, true if it was handled
+     */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         switch (item.getItemId()) {
             case R.id.menu_notes_item:
+                // call the onShowNotes handler to display the item's notes
                 onShowNotes(info.id);
                 return true;
 
             case R.id.menu_edit_item:
+                // call the onEditEntry handler to edit the specified entry
                 onEditEntry(info.id);
                 return true;
+
             case R.id.menu_delete_item:
+                // call the onEditEntry handler to edit the specified entry
                 onDeleteEntry(info.id);
                 return true;
-            default:
-                return super.onContextItemSelected(item);
         }
+
+        return false;
     }
 
+    /**
+     *  Called as a result to showDialog
+     *
+     * @param id id of the dialog to display
+     * @param args extra args
+     * @return the newly created dialog
+     * TODO: This is depracted, implement with DialogFragment
+     */
     @Override
     protected Dialog onCreateDialog(int id, Bundle args) {
         switch (id) {
@@ -263,30 +347,33 @@ public class TodoListActivity extends FragmentActivity
         }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
-    public void onShowNotes(long entryId) {
+    /**
+     * Handles a request to shows the Notes dialog
+     *
+     * @param entryId id of the entry to display
+     */
+    void onShowNotes(long entryId) {
         Bundle args = new Bundle();
         args.putLong("entryId", entryId);
         showDialog(NOTES_DIALOG, args);
     }
 
-    public void onNewEntry(String title) {
+    /**
+     * Handles a new entry request from the newEntry EditTextBox
+     *
+     * @param title  title of the newly created entry
+     */
+    void onNewEntry(String title) {
+
+        // Make sure the title isn't empty
         if (title.length() == 0)
             return;
 
         ContentValues values = new ContentValues();
-        values.put(TodoListProvider.Schema.Entries.TITLE, title);
+        values.put(TodoListSchema.Entries.TITLE, title);
         try {
-            getContentResolver().insert(TodoListProvider.Schema.Entries.CONTENT_URI, values);
+            // Add the entry and show a Toast indicating it succeeded
+            getContentResolver().insert(TodoListSchema.Entries.CONTENT_URI, values);
             Toast.makeText(this, getString(R.string.entry_added), Toast.LENGTH_SHORT).show();
 
         } catch (IllegalArgumentException e) {
@@ -296,35 +383,56 @@ public class TodoListActivity extends FragmentActivity
 
     }
 
-    public void onEditEntry(long entryId) {
+    /**
+     * Handles a request to edit an entry
+     *
+     * @param entryId id of the entry to edit
+     */
+    void onEditEntry(long entryId) {
 
+        // Build and issue an ACTION_EDIT intent for the URI of the entry
         startActivity(new Intent(
                 Intent.ACTION_EDIT,
-                ContentUris.withAppendedId(TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, entryId)));
+                ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId)));
     }
 
-    public void onDeleteEntry(long entryId) {
+    /**
+     * Handles a request to delete an entry
+     *
+     * @param entryId  id of the entry to delete
+     */
+    void onDeleteEntry(long entryId) {
+        // Build the entry URI and delete it
         final Uri entryUri =
                 ContentUris.withAppendedId(
-                        TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, entryId);
+                        TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId);
         int rowsDeleted = getContentResolver().delete(entryUri, null, null);
 
+        // Show a toast if an entry was deleted
         if (rowsDeleted > 0)
             Toast.makeText(this, getString(R.string.entry_deleted), Toast.LENGTH_SHORT).show();
     }
 
-
-    public void onClearCompleted() {
-        final String where = TodoListProvider.Schema.Entries.COMPLETE + " = ?";
+    /**
+     * Handles a clear complete reaquest
+     */
+    void onClearCompleted() {
+        // Build a where clause to filter for completed entries
+        final String where = TodoListSchema.Entries.COMPLETE + " = ?";
         final String[] whereArgs = {Integer.toString(1)};
+        // Issue the delete
         int rowsDeleted = getContentResolver().delete(
-                TodoListProvider.Schema.Entries.CONTENT_URI, where, whereArgs);
+                TodoListSchema.Entries.CONTENT_URI, where, whereArgs);
 
+        // Show a toast with the number of entires deleted
         String msg = getResources().getQuantityString(R.plurals.clearedEntriesDeleted, rowsDeleted, rowsDeleted);
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
     }
 
-
+    /**
+     *  Sets the window title based on the state of the background data connection
+     *  or manual offline_mode
+     */
     private void setWindowTitle() {
 
         String title = getString(R.string.app_name);
@@ -342,19 +450,31 @@ public class TodoListActivity extends FragmentActivity
         setTitle(title);
     }
 
+    /**
+     * Builds a notes dialog
+     *
+     * @param entryId id of the entry to display
+     * @return the newly create dialog
+     */
     private Dialog buildNotesDialog(long entryId) {
-        Uri entryUri = ContentUris.withAppendedId(TodoListProvider.Schema.Entries.CONTENT_ID_URI_BASE, entryId);
-        final String[] what = {TodoListProvider.Schema.Entries.NOTES,
-                TodoListProvider.Schema.Entries.TITLE};
+        // Build the URI for the specified entry
+        Uri entryUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId);
 
+        // Build a what clause to get the entiry's title and notes
+        final String[] what = {TodoListSchema.Entries.NOTES,TodoListSchema.Entries.TITLE};
+
+        // Query for the values
         Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
         cursor.moveToFirst();
-        String title = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE));
-        String notes = cursor.getString(cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES));
+
+        // Get the values from the cursor
+        String title = cursor.getString(cursor.getColumnIndex(TodoListSchema.Entries.TITLE));
+        String notes = cursor.getString(cursor.getColumnIndex(TodoListSchema.Entries.NOTES));
         if (notes == null || notes.isEmpty()) {
             notes = getString(R.string.empty_notes);
         }
 
+        // Bind the values with the alert dialog with a "Done" button
         AlertDialog notesDialog = new AlertDialog.Builder(this)
                 .setTitle(title)
                 .setMessage(notes)
@@ -365,6 +485,7 @@ public class TodoListActivity extends FragmentActivity
                 })
                 .create();
 
+        // Create a handler for the "Done" button
         notesDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             public void onDismiss(DialogInterface dialogInterface) {
                 removeDialog(NOTES_DIALOG);

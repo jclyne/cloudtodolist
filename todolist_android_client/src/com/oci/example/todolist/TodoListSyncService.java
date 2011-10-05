@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import com.oci.example.todolist.client.HttpRestClient;
 import com.oci.example.todolist.provider.TodoListProvider;
+import com.oci.example.todolist.provider.TodoListSchema;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -78,7 +79,7 @@ public class TodoListSyncService extends IntentService {
 
         // Initialize the TodoListProvider reference
         provider = (TodoListProvider) getContentResolver()
-                .acquireContentProviderClient(TodoListProvider.Schema.AUTHORITY)
+                .acquireContentProviderClient(TodoListSchema.AUTHORITY)
                 .getLocalContentProvider();
 
         Log.d(TAG, "Service Created" + " (" + Thread.currentThread().getName() + ")");
@@ -130,7 +131,7 @@ public class TodoListSyncService extends IntentService {
         String action = intent.getAction();
         Log.d(TAG, "onHandleIntent: Action = " + action + " (" + Thread.currentThread().getName() + ")");
         if (action.equals(ACTION_TODOLIST_SYNC)) {
-
+            // Todo: Implement sync result and retry/quit/exponential backoff
             if (doOnPerformSync())
                 provider.onPerformSync(client, false);
             TodoListSyncHelper.scheduleSync(getBaseContext());

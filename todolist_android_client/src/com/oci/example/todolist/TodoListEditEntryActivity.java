@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-import com.oci.example.todolist.provider.TodoListProvider;
+import com.oci.example.todolist.provider.TodoListSchema;
 
 /**
  * Activity that provides an interface to edit a TodoList entry
@@ -46,19 +46,19 @@ public class TodoListEditEntryActivity extends Activity {
         entryUri = getIntent().getData();
 
         // Get the current title and notes strings to pre-populate
-        final String[] what = {TodoListProvider.Schema.Entries.TITLE,
-                                TodoListProvider.Schema.Entries.NOTES};
+        final String[] what = {TodoListSchema.Entries.TITLE,
+                TodoListSchema.Entries.NOTES};
 
         Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);
-        final int titleIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.TITLE);
-        final int notesIndex = cursor.getColumnIndex(TodoListProvider.Schema.Entries.NOTES);
+        final int titleIndex = cursor.getColumnIndex(TodoListSchema.Entries.TITLE);
+        final int notesIndex = cursor.getColumnIndex(TodoListSchema.Entries.NOTES);
         cursor.moveToFirst();
 
         currentTitle = cursor.getString(titleIndex);
         currentNotes = cursor.getString(notesIndex);
 
         // Restore any saved state
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             titleEditText.setText(savedInstanceState.getString("title"));
             notesEditText.setText(savedInstanceState.getString("notes"));
         } else {
@@ -72,13 +72,12 @@ public class TodoListEditEntryActivity extends Activity {
      * that the state can be restored in onCreate
      *
      * @param outState bundle in which to place saved state.
-
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("title",titleEditText.getText().toString());
-        outState.putString("notes",notesEditText.getText().toString());
+        outState.putString("title", titleEditText.getText().toString());
+        outState.putString("notes", notesEditText.getText().toString());
     }
 
     /**
@@ -94,11 +93,11 @@ public class TodoListEditEntryActivity extends Activity {
 
         String newTitle = titleEditText.getText().toString();
         if (!newTitle.equals(currentTitle))
-            values.put(TodoListProvider.Schema.Entries.TITLE, newTitle);
+            values.put(TodoListSchema.Entries.TITLE, newTitle);
 
         String newNotes = notesEditText.getText().toString();
         if (!newNotes.equals(currentNotes))
-            values.put(TodoListProvider.Schema.Entries.NOTES, newNotes);
+            values.put(TodoListSchema.Entries.NOTES, newNotes);
 
         if (values.size() > 0) {
             getContentResolver().update(entryUri, values, null, null);
