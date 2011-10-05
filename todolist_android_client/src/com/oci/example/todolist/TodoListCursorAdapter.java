@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.support.v4.widget.CursorAdapter;
+import android.text.StaticLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,12 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.oci.example.todolist.provider.TodoListSchema;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * Cursor adapter that handles data from a todolist content provider
@@ -65,7 +72,9 @@ public class TodoListCursorAdapter extends CursorAdapter {
         // Get the Indexes for the columns of interest.
         final int idIdx = cursor.getColumnIndex(TodoListSchema.Entries._ID);
         final int titleIdx = cursor.getColumnIndex(TodoListSchema.Entries.TITLE);
+        final int notesIdx = cursor.getColumnIndex(TodoListSchema.Entries.NOTES);
         final int completeIdx = cursor.getColumnIndex(TodoListSchema.Entries.COMPLETE);
+        final int modifiedIdx = cursor.getColumnIndex(TodoListSchema.Entries.MODIFIED);
         final int pendingUpdateIdx = cursor.getColumnIndex(TodoListSchema.Entries.PENDING_UPDATE);
         final int pendingDeleteIdx = cursor.getColumnIndex(TodoListSchema.Entries.PENDING_DELETE);
 
@@ -73,12 +82,16 @@ public class TodoListCursorAdapter extends CursorAdapter {
         final int id = cursor.getInt(idIdx);
         final boolean complete = cursor.getInt(completeIdx) == 1;
         final String title = cursor.getString(titleIdx);
+        final String notes = cursor.getString(notesIdx);
+        final long modifiedTs= Math.round(cursor.getDouble(modifiedIdx));
         final boolean dirty = ((cursor.getInt(pendingUpdateIdx) > 0)
                 || (cursor.getInt(pendingDeleteIdx) > 0));
 
         // Get references to the view's components to display the data
         final CheckBox completeCheckBox = (CheckBox) view.findViewById(R.id.entry_complete);
         final TextView titleTextView = (TextView) view.findViewById(R.id.entry_title);
+        final TextView notesTextView = (TextView) view.findViewById(R.id.entry_notes);
+        final TextView modifiedTextView = (TextView) view.findViewById(R.id.entry_modified);
         final ImageView statusImageView = (ImageView) view.findViewById(R.id.entry_status);
 
 
@@ -125,6 +138,27 @@ public class TodoListCursorAdapter extends CursorAdapter {
         // Set the entryTextView with the style specific to the complete flag
         prepareEntryText(titleTextView, complete);
         titleTextView.setText(title);
+
+        // Set the Notes summary
+        notesTextView.setText(notes);
+
+        // Set the modified time
+        Calendar now = new GregorianCalendar();
+        Calendar modified = new GregorianCalendar();
+        modified.setTimeInMillis(modifiedTs);
+        DateFormat df;
+
+        if ( now.get(Calendar.YEAR) != modified.get(Calendar.YEAR)  ) {
+            // Not in the same year
+            df = DateFormat.getDateInstance();
+        } else if ( now.get(Calendar.DAY_OF_YEAR) != modified.get(Calendar.DAY_OF_YEAR) ) {
+            // Not on the same day
+            df = new SimpleDateFormat("MMM d");
+        } else {
+            // Within same day
+            df = new SimpleDateFormat("h:mma");
+        }
+        modifiedTextView.setText(df.format(modified.getTime()));
 
         // Draw an image that indicates whether or not the entry is dirty
         statusImageView.setImageDrawable(

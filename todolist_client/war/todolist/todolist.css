@@ -35,11 +35,12 @@ body {
 }
 
 .todoListText {
-    color: #2f4f4f;
+    color: #000000;
 
 }
 
 .todoListTextComplete {
+    color: #A9A9A9;
     text-decoration: line-through;
 }
 

@@ -92,7 +92,7 @@ public class TodoList implements EntryPoint {
                 new Column<TodoListEntry, String>(new ClickableTextCell()) {
                     @Override
                     public String getValue(TodoListEntry entry) {
-                        return entry.getTitle();
+                        return entry.getTitle()+" - "+entry.getNotes();
                     }
 
                     @Override
