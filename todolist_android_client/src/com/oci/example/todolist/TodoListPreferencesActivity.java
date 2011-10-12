@@ -41,10 +41,15 @@ public class TodoListPreferencesActivity extends PreferenceActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 
-        // On sync_interval change, reschedule a periodic sync
-        if (key.equals("sync_interval")) {
+        if (key.equals(getString(R.string.setting_server_address))) {
+            // If the server address changes, request a full refresh
+            TodoListSyncHelper.requestFullSync(this);
+        }
+        else if (key.equals(getString(R.string.setting_sync_interval))) {
+            // On sync_interval change, reschedule a periodic sync
             TodoListSyncHelper.scheduleSync(this);
-        } else if (key.equals("offline_mode")) {
+
+        } else if (key.equals(getString(R.string.setting_offline_mode))) {
             /**
              * If offline mode is turned off, schedule an immediate sync.
              * This setting does not affect scheduled syncs, the sync service

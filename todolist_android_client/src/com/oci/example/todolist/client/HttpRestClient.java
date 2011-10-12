@@ -52,19 +52,20 @@ public class HttpRestClient {
      * requested format. This is obviously service dependent.
      *
      * <p>If different content types are made available from the api,
-     * the client should favor binary -> JSON -> XML, in that order.
+     * the client should favor binary -> JSON -> XML -> HTML, in that order.
      * A binary type is rare and less flexible, but can be very efficient
      * for certain types of data. For a general purpose format, JSON is
      * more efficient to parse and less verbose than XML</p>
      */
     public static enum ContentType {
-        UNSUPPORTED, BINARY, JSON, XML;
+        UNSUPPORTED, BINARY, JSON, XML, HTML;
 
 
         // Mime string definitions for each supported type
         public static final String MIME_TYPE_BINARY = "application/octet-stream";
         public static final String MIME_TYPE_JSON = "application/json";
         public static final String MIME_TYPE_XML = "application/xml";
+        public static final String MIME_TYPE_HTML = "application/html";
 
         /**
          *
@@ -78,6 +79,8 @@ public class HttpRestClient {
                     return MIME_TYPE_JSON;
                 case XML:
                     return MIME_TYPE_XML;
+                case HTML:
+                    return MIME_TYPE_HTML;
                 default:
                     return null;
             }
@@ -93,6 +96,7 @@ public class HttpRestClient {
             if (mimeType.equals(MIME_TYPE_BINARY)) return BINARY;
             if (mimeType.equals(MIME_TYPE_JSON)) return JSON;
             if (mimeType.equals(MIME_TYPE_XML)) return XML;
+            if (mimeType.equals(MIME_TYPE_HTML)) return HTML;
             return UNSUPPORTED;
         }
     }
@@ -502,10 +506,6 @@ public class HttpRestClient {
             contentType = ContentType.fromMime(entity.getContentType().getValue());
         }
 
-        if (contentType == ContentType.UNSUPPORTED)
-            throw new ClientProtocolException("Invalid Content Type '"
-                                                +entity.getContentType()
-                                                    +"'received in response");
 
         // Parse the Content Encoding returned in the entity, throwing an
         //  exception if the response contains an unsupported type
@@ -514,10 +514,6 @@ public class HttpRestClient {
             contentEncoding = ContentEncoding.fromMime(entity.getContentEncoding().getValue());
         }
 
-        if (contentEncoding == ContentEncoding.UNSUPPORTED)
-            throw new ClientProtocolException("Invalid Content Encoding '"
-                                                +entity.getContentType()
-                                                    +"'received in response");
 
         // If the status code indicates success, convert the entity body into
         //  a string and build the response object
@@ -565,11 +561,14 @@ public class HttpRestClient {
                                     new GZIPInputStream(instream)));
                 break;
 
-            default:
             case NONE:
                 reader = new BufferedReader(
                             new InputStreamReader(instream));
                 break;
+
+            default:
+                throw new ClientProtocolException(
+                        "Invalid Content Encoding '"+encoding.toMime()+"'received in response");
         }
 
         try {

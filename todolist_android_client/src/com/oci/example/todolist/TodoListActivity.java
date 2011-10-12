@@ -201,7 +201,7 @@ public class TodoListActivity extends FragmentActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
         // Update the window title if the offline_mode setting is changed
-        if (key.equals("offline_mode")) {
+        if (key.equals(getString(R.string.setting_offline_mode))) {
             setWindowTitle();
         }
     }
@@ -231,7 +231,7 @@ public class TodoListActivity extends FragmentActivity
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
         // Disable the refresh menu option if in offline mode
-        menu.getItem(0).setEnabled(!prefs.getBoolean("offline_mode", false));
+        menu.getItem(0).setEnabled(!prefs.getBoolean(getString(R.string.setting_offline_mode), false));
 
         return true;
     }
@@ -437,7 +437,7 @@ public class TodoListActivity extends FragmentActivity
 
         String title = getString(R.string.app_name);
         NetworkInfo netInfo = connManager.getActiveNetworkInfo();
-        if (prefs.getBoolean("offline_mode", false)) {
+        if (prefs.getBoolean(getString(R.string.setting_offline_mode), false)) {
             title += " - Offline Mode";
         } else if (!connManager.getBackgroundDataSetting()) {
             title += " - Background data disabled";

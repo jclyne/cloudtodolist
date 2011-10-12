@@ -1,6 +1,9 @@
 package com.oci.example.todolist;
 
 import android.app.IntentService;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,6 +12,7 @@ import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import com.oci.example.todolist.client.HttpRestClient;
+import com.oci.example.todolist.provider.RestDataProvider;
 import com.oci.example.todolist.provider.TodoListProvider;
 import com.oci.example.todolist.provider.TodoListSchema;
 import org.apache.http.client.HttpClient;
@@ -28,12 +32,18 @@ public class TodoListSyncService extends IntentService {
     private static final String TAG = "TodoListSyncService";
 
     // Definitions of the supported intents
-    private static final String INTENT_BASE = "com.oci.example.todolist";
-    public static final String ACTION_TODOLIST_SYNC = INTENT_BASE + ".SYNC";
-    public static final String ACTION_TODOLIST_REFRESH = INTENT_BASE + ".REFRESH";
+    private static final String INTENT_BASE = "com.oci.example.todolist.";
+    public static final String ACTION_TODOLIST_SYNC = INTENT_BASE + "SYNC";
+    public static final String ACTION_TODOLIST_FULL_SYNC = INTENT_BASE + "FULL_SYNC";
+
+    // ID of the sync result notification message
+    private static final int SYNC_RESULT_NOTIFICATION_ID = 1;
 
     // Reference to the system wide ConnectivityManager
     private ConnectivityManager connManager;
+
+    // Reference to the system wide Notification Manager to notify the user of Sync results
+    private NotificationManager notificationManager;
 
     // Reference to the application SharedPreferences
     private SharedPreferences prefs;
@@ -46,8 +56,9 @@ public class TodoListSyncService extends IntentService {
 
     // Socket timeout setting configured in the REST client
     @SuppressWarnings({"FieldCanBeLocal"})
-    private final int SOCKET_TIMEOUT = 1000;
-
+    private final int SOCKET_TIMEOUT = 5000;
+    @SuppressWarnings({"FieldCanBeLocal"})
+    private final int NETWORK_ERROR_RETRY = 30000;
 
     /**
      * Default constructor
@@ -66,6 +77,9 @@ public class TodoListSyncService extends IntentService {
         // Initialize the ConnectivityManager reference
         connManager = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
+        // Get a reference to the notification manager
+        notificationManager = (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
         // Initialize the PreferenceManager reference
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
@@ -74,7 +88,11 @@ public class TodoListSyncService extends IntentService {
         httpClient.getParams().setParameter("http.socket.timeout", SOCKET_TIMEOUT);
 
         // Build a new rest client with the http client
-        client = new HttpRestClient(httpClient, getString(R.string.app_host_name), true);
+        client = new HttpRestClient(httpClient
+                    , prefs.getString(
+                        getString(R.string.setting_server_address),getString(R.string.app_host_name) )
+                      , prefs.getBoolean(getString(R.string.setting_https),false)
+        );
 
 
         // Initialize the TodoListProvider reference
@@ -130,32 +148,86 @@ public class TodoListSyncService extends IntentService {
 
         String action = intent.getAction();
         Log.d(TAG, "onHandleIntent: Action = " + action + " (" + Thread.currentThread().getName() + ")");
-        if (action.equals(ACTION_TODOLIST_SYNC)) {
-            // Todo: Implement sync result and retry/quit/exponential backoff
-            if (doOnPerformSync())
-                provider.onPerformSync(client, false);
-            TodoListSyncHelper.scheduleSync(getBaseContext());
 
-        } else if (action.equals(ACTION_TODOLIST_REFRESH)) {
+        if (isOnline() && isSyncEnabled()) {
+            RestDataProvider.SyncResult res;
+            boolean fullSync=action.equals(ACTION_TODOLIST_FULL_SYNC);
 
-            if (doOnPerformSync())
-                provider.onPerformSync(client, true);
-            TodoListSyncHelper.scheduleSync(getBaseContext());
+            res = provider.onPerformSync(client, fullSync);
+            if (res.fullSyncRequested)  {
+                res = provider.onPerformSync(client, fullSync);
+            }
+
+            if (res.updated()){
+                showSyncResultNotification(res);
+            }
+
+            if ( res.networkError())
+                TodoListSyncHelper.scheduleSync(getBaseContext(),NETWORK_ERROR_RETRY);
+            else if ( ! res.serverError())
+                /**
+                 * On a server error, don't schedule another sync. This is not likely to go away
+                 * so just wait until an explicit refresh is requested
+                 */
+                TodoListSyncHelper.scheduleSync(getBaseContext());
         }
     }
 
     /**
      * Determines whether or not we are currently online and should call the
-     * provider's onPerformSync. This will look at the 'offline_mode' preference,
-     * the Background Data Settings, and the state of the active network.
+     * provider's onPerformSync. This will look at the state of the active network.
      *
      * @return flag indicating whether to do an onPerformSync
      */
-    private boolean doOnPerformSync() {
+    private boolean isOnline() {
         final NetworkInfo netInfo = connManager.getActiveNetworkInfo();
-        return !prefs.getBoolean("offline_mode", false) &&
-                connManager.getBackgroundDataSetting() &&
-                netInfo != null &&
-                netInfo.isConnected();
+        return netInfo != null && netInfo.isConnected();
+    }
+
+
+    /**
+     * Determines whether or not sync is enabled  and should call the
+     * provider's onPerformSync.  This is determined by looking
+     * at the application offline mode setting and also at the connectivity manager
+     * background data setting.
+     *
+     * @return flag indicating whether sync is enabled
+     */
+    private boolean isSyncEnabled() {
+        return !prefs.getBoolean(getString(R.string.setting_offline_mode), false)
+                && connManager.getBackgroundDataSetting() ;
+    }
+
+    /**
+     * Show a system notification to indicate to the user that the TodoList was updated
+     *
+     * @param syncResult result of the previously successful sync operation
+     */
+    private void showSyncResultNotification(RestDataProvider.SyncResult syncResult) {
+
+        // Create a new notification, using system defaults
+        Notification notification = new Notification(
+                                        R.drawable.icon,
+                                        getString(R.string.sync_update_ticker),
+                                        System.currentTimeMillis());
+
+        notification.defaults |= Notification.DEFAULT_ALL;
+
+        // Build a pendingIntent that displays the todolist activity
+        PendingIntent todoListActivityIntent =
+                PendingIntent.getActivity(
+                        getBaseContext(), 0, new Intent(getBaseContext(), TodoListActivity.class), 0);
+
+        // Set the latest event info, this display info regarding the very latest event being notified on
+        notification.setLatestEventInfo(
+                    getBaseContext(),
+                    getResources().getQuantityString(R.plurals.sync_update_title, (int)syncResult.numEntries),
+                    getString(R.string.sync_update_text),
+                    todoListActivityIntent);
+
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
+
+        // issue the notification
+        notificationManager.notify(SYNC_RESULT_NOTIFICATION_ID, notification);
     }
 }

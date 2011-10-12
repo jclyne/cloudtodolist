@@ -2,9 +2,16 @@
   <dictionary name="jclyne">
     <words>
       <w>ctxt</w>
+      <w>datastore</w>
       <w>inflater</w>
       <w>prefs</w>
+      <w>prepopulate</w>
+      <w>sqlite</w>
+      <w>syncable</w>
       <w>todolist</w>
+      <w>unsynced</w>
+      <w>upsync</w>
+      <w>wherebuilder</w>
     </words>
   </dictionary>
 </component>

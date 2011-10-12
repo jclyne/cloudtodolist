@@ -19,6 +19,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
+import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
@@ -92,7 +93,10 @@ public class TodoList implements EntryPoint {
                 new Column<TodoListEntry, String>(new ClickableTextCell()) {
                     @Override
                     public String getValue(TodoListEntry entry) {
-                        return entry.getTitle()+" - "+entry.getNotes();
+                        String res = entry.getTitle();
+                        if (entry.getNotes() != null)
+                            res+=" - "+entry.getNotes();
+                        return res;
                     }
 
                     @Override
@@ -203,14 +207,15 @@ public class TodoList implements EntryPoint {
 
         // Add it to the root panel.
         RootPanel.get("todoList").add(mainPanel);
-
     }
 
     private void refreshTodoListDisplay() {
         List<TodoListEntry> data = new ArrayList<TodoListEntry>(todolistEntryMap.values());
         Collections.sort(data, new TodoListEntry.CompareCreated());
+        todoList.setPageSize(data.size());
         todoListDataProvider.setList(data);
         todoListDataProvider.refresh();
+
     }
 
     private void showEntryInfoDialogBox(final TodoListEntry entry) {

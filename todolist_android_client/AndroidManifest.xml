@@ -42,7 +42,7 @@
 
             <intent-filter>
                 <action android:name="com.oci.example.todolist.SYNC"/>
-                <action android:name="com.oci.example.todolist.REFRESH"/>
+                <action android:name="com.oci.example.todolist.FULL_SYNC"/>
             </intent-filter>
 
         </service>

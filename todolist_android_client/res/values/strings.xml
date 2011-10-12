@@ -22,15 +22,23 @@
     <string name="apply_button">Apply</string>
     <string name="cancel_button">Cancel</string>
     <string name="empty_notes"><i>None</i></string>
-    <string name="setting_server_address">Server Address</string>
-    <string name="setting_server_address_summary">Address of Todo List Cloud Service</string>
+    <string name="sync_update_ticker">Todo List Updated </string>
+    <string name="sync_update_text">Tap to view</string>
+    <string name="setting_server_address">server_address</string>
     <string name="setting_server_address_title">Server Address</string>
-    <string name="setting_sync_interval">Sync Frequency</string>
+    <string name="setting_server_address_summary">Address of Todo List Cloud Service</string>
+    <string name="setting_sync_interval">sync_frequency</string>
+    <string name="setting_sync_interval_title">Sync Frequency</string>
     <string name="setting_sync_interval_summary">Frequency to sync todo list entries</string>
     <string name="setting_sync_interval_dialog_title">Sync Frequence</string>
     <string name="setting_sync_interval_default_value">900000</string>
-    <string name="setting_offline_mode">Offline Mode</string>
+    <string name="setting_offline_mode">offline_mode</string>
+    <string name="setting_offline_mode_title">Offline Mode</string>
     <string name="setting_offline_mode_summary_on">Enabled, not syncing with cloud</string>
     <string name="setting_offline_mode_summary_off">Disabled, syncing with cloud</string>
+    <string name="setting_https">https</string>
+    <string name="setting_https_title">Use Https</string>
+    <string name="setting_https_summary_on">Enabled, network communication is encrypted</string>
+    <string name="setting_https_summary_off">Disabled, network communication is in the clear</string>
 
 </resources>

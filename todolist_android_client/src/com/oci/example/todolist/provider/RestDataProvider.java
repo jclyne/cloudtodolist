@@ -12,6 +12,42 @@ import com.oci.example.todolist.client.HttpRestClient;
 public interface RestDataProvider {
 
     /**
+     * Represents a sync operation result. This is the main
+     * vehicle for the RestServiceProvider to communicate the state
+     * and result of a sync operation.
+     */
+    class SyncResult {
+        public boolean fullSyncRequested=false;
+        public long numDeletes=0;
+        public long numInserts=0;
+        public long numUpdates=0;
+        public long numEntries=0;
+
+        public long numUpstreamDeletes=0;
+        public long numUpstreamInserts=0;
+        public long numUpstreamUpdates=0;
+
+        public long numResponseExceptions=0;
+        public long numRequestExceptions=0;
+        public long numIoExceptions=0;
+
+        public boolean updated(){
+            return numDeletes > 0
+                    || numInserts > 0
+                    || numUpdates > 0;
+        }
+        public boolean networkError(){
+            return  numIoExceptions > 0;
+        }
+
+        public boolean serverError(){
+            return  numResponseExceptions > 0;
+        }
+
+
+    }
+
+    /**
      * Requests that the REST content provider perform a sync operation with the
      * REST webservice. The provider should use the supplied HttpRestClient to perform
      * the sync. There is no return value as it is completely up to the Content Provider
@@ -32,6 +68,6 @@ public interface RestDataProvider {
      * @param refresh flag that indicates whether a full refresh is desired as apposed to an
      * updated. This is client specific as there may be no differentiation.
      */
-    public void onPerformSync(HttpRestClient client, boolean refresh);
+    public SyncResult onPerformSync(HttpRestClient client, boolean refresh);
 
 }

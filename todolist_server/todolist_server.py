@@ -426,9 +426,7 @@ class EntryHandler(webapp.RequestHandler):
 
         entry = TodolistEntry.mark_deleted(id)
         if entry:
-            send_update(entry.to_dict())
-        else:
-            self.error(410)
+            send_update(encode_json(entry.to_dict()))
 
 
 class CleanArchiveHandler(webapp.RequestHandler):

@@ -23,7 +23,7 @@ public class TodoListSyncHelper {
     private static Intent syncIntent = new Intent(TodoListSyncService.ACTION_TODOLIST_SYNC);
 
     // Intent to request a refresh from the sync service
-    private static Intent refreshIntent = new Intent(TodoListSyncService.ACTION_TODOLIST_REFRESH);
+    private static Intent fullSyncIntent = new Intent(TodoListSyncService.ACTION_TODOLIST_FULL_SYNC);
 
     // Lazy interval for lazy sync requests
     private static final int LAZY_INTERVAL = 5000; // hardcoded to 5 seconds
@@ -51,8 +51,8 @@ public class TodoListSyncHelper {
      *
      * @param ctxt current application context
      */
-    public static void requestRefresh(Context ctxt) {
-        ctxt.startService(refreshIntent);
+    public static void requestFullSync(Context ctxt) {
+        ctxt.startService(fullSyncIntent);
     }
 
     /**
@@ -64,9 +64,22 @@ public class TodoListSyncHelper {
     public static void scheduleSync(Context ctxt) {
         Resources res = ctxt.getResources();
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctxt);
-        int syncInterval = Integer.parseInt(prefs.getString("sync_interval",
-                res.getString(R.string.setting_sync_interval_default_value)));
+        int syncInterval = Integer.parseInt(
+                prefs.getString(res.getString(R.string.setting_sync_interval),
+                                res.getString(R.string.setting_sync_interval_default_value))
+        );
 
+        scheduleSyncAlarm(ctxt, syncIntent, syncInterval);
+    }
+
+    /**
+     * Requests that a sync be scheduled for the interval specified
+     * by the syncInterval parameter
+     *
+     * @param ctxt current application context
+     * @param syncInterval interval to delay scheduling the sync
+     */
+    public static void scheduleSync(Context ctxt,int syncInterval) {
         scheduleSyncAlarm(ctxt, syncIntent, syncInterval);
     }
 
