@@ -25,15 +25,15 @@ handlers:
   script: todolist_server.py
 
 - url: /todolist
-  static_dir: static/todolist/
+  static_dir: todolist/static/
 
 - url: /
-  static_files: static/todolist.html
-  upload: static/todolist.html
+  script: todolist_server.py
+  login: required
 
 - url: /favicon.ico
-  static_files: static/favicon.ico
-  upload: static/favicon.ico
+  static_files: todolist/static/favicon.ico
+  upload: todolist/static/favicon.ico
 
 
 inbound_services:

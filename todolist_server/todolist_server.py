@@ -101,6 +101,8 @@ from time import time
 import logging
 
 from google.appengine.api import channel
+from google.appengine.ext.webapp import template
+from google.appengine.api import users
 from google.appengine.api.datastore import Key
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -120,11 +122,18 @@ __email__ = "jeffclyne@mindless.com"
 __status__ = "released"
 
 
+# Specify the base path for the templates directory
+templates="todolist/templates/"
 
 # Make duration to archive deleted entries. The deleted
 #  entries are necessary for Gets on the entrylist with a
 #  modified time
 archive_duration = 86400.0 # 24 hours
+
+# Global timestamp that can be referenced anywhere in the package and is
+#  updated by the update_timestamp method decorator
+now = time()
+
 
 class TodolistEntry(db.Model):
     """
@@ -137,6 +146,7 @@ class TodolistEntry(db.Model):
     title = db.StringProperty(required=True)
     notes = db.StringProperty(multiline=True)
     complete = db.BooleanProperty(required=True, default=False)
+    user_id = db.StringProperty(required=True)
     created = db.FloatProperty(required=True)
     modified = db.FloatProperty(required=True)
     deleted = db.BooleanProperty(required=True, default=False)
@@ -149,9 +159,14 @@ class TodolistEntry(db.Model):
         in the 'id' field. This is done atomically in a transaction to guarantee that
         the 'id' field is never 0.
         """
+        user = users.get_current_user()
+        if not user:
+            return None
+
         entry = TodolistEntry(
             id=0,
             title=title,
+            user_id=user.user_id(),
             created=now,
             modified=now)
         if notes: entry.notes = notes
@@ -173,9 +188,15 @@ class TodolistEntry(db.Model):
         the modified time.
         """
 
+
+
         def update_tx():
+            user = users.get_current_user()
             entry = db.get(Key.from_path(cls.__name__, int(id)))
             if not entry or entry.deleted:
+                return None
+
+            if not user or entry.user_id != user.user_id():
                 return None
 
             entry.modified = now
@@ -197,9 +218,13 @@ class TodolistEntry(db.Model):
         """
 
         def mark_deleted_tx():
+            user = users.get_current_user()
             entry = db.get(Key.from_path(cls.__name__, int(id)))
             if not entry or entry.deleted:
                 return  None
+
+            if not user or entry.user_id != user.user_id():
+                return None
 
             entry.modified = now
             entry.deleted = True
@@ -223,9 +248,7 @@ class TodolistEntry(db.Model):
                 "deleted": self.deleted}
 
 
-# Global timestamp that can be referenced anywhere in the package and is
-#  updated by the update_timestamp method decorator
-now = time()
+
 
 def update_timestamp(method):
     """  Method wrapper that will update a global timestamp to the current time
@@ -245,6 +268,28 @@ def update_timestamp(method):
 def encode_json(data):
     """  Encodes the specfied data structure into JSON"""
     return json.dumps(data, indent=2)
+
+
+class MainPageHandler(webapp.RequestHandler):
+    """ Servlet to handle the / URL"""
+
+    def get(self):
+
+        user = users.get_current_user()
+
+        if user:
+            template_values = {
+                'username': user.nickname(),
+                'url_logout': users.create_logout_url("/"),
+            }
+
+            self.response.out.write(
+                template.render(templates+"todolist.html",
+                                template_values)
+            )
+        else:
+            self.redirect(users.create_login_url("/"))
+
 
 
 class EntryListHandler(webapp.RequestHandler):
@@ -272,10 +317,12 @@ class EntryListHandler(webapp.RequestHandler):
             400(bad request) - invalid query string  specified
         """
 
+        user = users.get_current_user()
         ids = self.request.get_all("id")
         modified = self.request.get("modified", None)
 
         query = TodolistEntry.all()
+        query.filter("user_id = ",user.user_id())
 
         if modified:
             modified = float(modified)
@@ -372,8 +419,9 @@ class EntryHandler(webapp.RequestHandler):
             200(ok) - ok, body includes the todolist_entry
             410(gone) - entry with specified id does not exist
         """
+        user = users.get_current_user()
         entry = db.get(Key.from_path("TodolistEntry", int(id)))
-        if entry and not entry.deleted:
+        if (entry and not entry.deleted) and (user and entry.user_id == user.user_id()):
             self.response.headers['Content-type'] = 'application/json'
             body = encode_json(entry.to_dict())
             self.response.out.write(body)
@@ -524,7 +572,8 @@ class ChannelDisconnectHandler(webapp.RequestHandler):
 def main():
     logging.getLogger().setLevel(logging.INFO)
 
-    app = webapp.WSGIApplication([('/todolist/entries', EntryListHandler),
+    app = webapp.WSGIApplication([('/', MainPageHandler),
+                                  ('/todolist/entries', EntryListHandler),
                                   ('/todolist/entries/(\d+)', EntryHandler),
                                   ('/todolist/tasks/clean_archive', CleanArchiveHandler),
                                   ('/todolist/update_channel', ChannelHandler),

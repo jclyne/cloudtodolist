@@ -2,13 +2,23 @@
 <head>
 
     <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+
+    <link type="text/css" rel="stylesheet" href="todolist.css">
+
     <title>Todo List</title>
 
+
     <!-- This script is required bootstrap stuff.   -->
-    <script type="text/javascript" language="javascript" src="todolist/todolist.nocache.js"></script>
+    <script type="text/javascript" language="javascript" src="/todolist/todolist.nocache.js"></script>
 </head>
 
 <body>
+
+<div style="background-color: gray;">
+    <p style="text-align:right;color: white; font-family: sans-serif; padding:5px;padding-right:20px " >
+        {{ username }}   -   <a href="{{ url_logout }}">Log out</a>
+    </p>
+</div>
 
 <div id="todoList"></div>
 

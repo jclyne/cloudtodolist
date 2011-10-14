@@ -23,5 +23,11 @@ indexes:
 
 - kind: TodolistEntry
   properties:
+  - name: deleted
+  - name: user_id
+  - name: created
+
+- kind: TodolistEntry
+  properties:
   - name: id
   - name: modified
