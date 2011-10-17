@@ -2,6 +2,12 @@
 <PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <ListPreference
+            android:key="@string/setting_google_account"
+            android:title="@string/setting_google_account_title"
+            android:summary="@string/setting_google_account_summary"
+            android:dialogTitle="@string/setting_google_account_dialog_title"/>
+
     <CheckBoxPreference
             android:key="@string/setting_offline_mode"
             android:title="@string/setting_offline_mode_title"

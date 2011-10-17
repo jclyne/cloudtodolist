@@ -1,7 +1,10 @@
 package com.oci.example.todolist;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -27,6 +30,20 @@ public class TodoListPreferencesActivity extends PreferenceActivity
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
 
+        // Fill the list of accounts from the account manager
+        ListPreference accountPref = (ListPreference) findPreference(getString(R.string.setting_google_account));
+        Account[] accounts = AccountManager.get(getBaseContext())
+                                     .getAccountsByType(getString(R.string.setting_account_type));
+        if (accounts.length > 0){
+            CharSequence[] entries = new CharSequence[accounts.length];
+            int idx=0;
+            for (Account account: accounts)
+                entries[idx++] = account.name;
+
+            accountPref.setEntries(entries);
+            accountPref.setEntryValues(entries);
+        }
+
         // Register the change listener
         PreferenceManager.getDefaultSharedPreferences(this)
                          .registerOnSharedPreferenceChangeListener(this);
@@ -41,7 +58,8 @@ public class TodoListPreferencesActivity extends PreferenceActivity
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 
-        if (key.equals(getString(R.string.setting_server_address))) {
+        if (key.equals(getString(R.string.setting_google_account))
+           ||key.equals(getString(R.string.setting_server_address)) ) {
             // If the server address changes, request a full refresh
             TodoListSyncHelper.requestFullSync(this);
         }

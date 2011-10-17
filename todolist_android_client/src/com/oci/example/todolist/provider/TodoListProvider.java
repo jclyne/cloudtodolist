@@ -1,6 +1,7 @@
 package com.oci.example.todolist.provider;
 
 
+import android.accounts.Account;
 import android.content.*;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -604,12 +605,13 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
      * Handles requests to sync the content provider with an HttpRestClient.
      *
      * @param httpRestClient - client object to perform upstream sync with
+     * @param account - optional account to use to validate requests to the rest service
      * @param fullSync       - indicates whether a fullSync is being requested, a full sync clears all
      *                       the local data and retrieves all the current data from the service
      * @return SyncResult object indicating the status and result of the sync operation
      */
     @Override
-    synchronized public SyncResult onPerformSync(HttpRestClient httpRestClient, boolean fullSync) {
+    synchronized public SyncResult onPerformSync(HttpRestClient httpRestClient, Account account, boolean fullSync) {
 
         // Wrap the HttpRest client in a TodoListRest client which wraps the service API
         TodoListRestClient client = new TodoListRestClient(httpRestClient);

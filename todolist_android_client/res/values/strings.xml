@@ -24,6 +24,11 @@
     <string name="empty_notes"><i>None</i></string>
     <string name="sync_update_ticker">Todo List Updated </string>
     <string name="sync_update_text">Tap to view</string>
+    <string name="setting_account_type">com.google</string>
+    <string name="setting_google_account">account</string>
+    <string name="setting_google_account_title">Google Account</string>
+    <string name="setting_google_account_summary">Select account to connect with</string>
+    <string name="setting_google_account_dialog_title">Google Accounts</string>
     <string name="setting_server_address">server_address</string>
     <string name="setting_server_address_title">Server Address</string>
     <string name="setting_server_address_summary">Address of Todo List Cloud Service</string>
@@ -40,5 +45,6 @@
     <string name="setting_https_title">Use Https</string>
     <string name="setting_https_summary_on">Enabled, network communication is encrypted</string>
     <string name="setting_https_summary_off">Disabled, network communication is in the clear</string>
+
 
 </resources>

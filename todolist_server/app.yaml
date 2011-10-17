@@ -7,9 +7,11 @@ api_version: 1
 handlers:
 - url: /todolist/entries
   script: todolist_server.py
+  login: required
 
 - url: /todolist/entries/\d+
   script: todolist_server.py
+  login: required
 
 - url: /todolist/tasks/.*
   script: todolist_server.py

@@ -1,5 +1,6 @@
 package com.oci.example.todolist;
 
+import android.accounts.*;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -9,6 +10,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import com.oci.example.todolist.client.HttpRestClient;
@@ -17,6 +20,8 @@ import com.oci.example.todolist.provider.TodoListProvider;
 import com.oci.example.todolist.provider.TodoListSchema;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.IOException;
 
 /**
  * Service that handles sync and refresh request intents and handles
@@ -51,6 +56,9 @@ public class TodoListSyncService extends IntentService {
     // Reference to the content provider to sync
     private TodoListProvider provider;
 
+    // References the auth token for the selected account to sync against
+    String authToken;
+
     // HttpRest client to provide to the provider for sync
     private HttpRestClient client;
 
@@ -83,15 +91,16 @@ public class TodoListSyncService extends IntentService {
         // Initialize the PreferenceManager reference
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
+
         // Build a new http client
         HttpClient httpClient = new DefaultHttpClient();
         httpClient.getParams().setParameter("http.socket.timeout", SOCKET_TIMEOUT);
 
         // Build a new rest client with the http client
         client = new HttpRestClient(httpClient
-                    , prefs.getString(
-                        getString(R.string.setting_server_address),getString(R.string.app_host_name) )
-                      , prefs.getBoolean(getString(R.string.setting_https),false)
+                , prefs.getString(
+                getString(R.string.setting_server_address), getString(R.string.app_host_name))
+                , prefs.getBoolean(getString(R.string.setting_https), false)
         );
 
 
@@ -106,11 +115,11 @@ public class TodoListSyncService extends IntentService {
     /**
      * Called by the system every time a client explicitly starts the service
      *
-     * @param intent intent supplied to startService
-     * @param flags additional data about this start request.
-     * @param startId  unique integer representing this specific request to start.
+     * @param intent  intent supplied to startService
+     * @param flags   additional data about this start request.
+     * @param startId unique integer representing this specific request to start.
      * @return indicates what semantics the system should use for the service's
-     * current started state. should be values from START_CONTINUATION_MASK
+     *         current started state. should be values from START_CONTINUATION_MASK
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -135,13 +144,13 @@ public class TodoListSyncService extends IntentService {
      * long time, it will hold up other requests to the same IntentService, but it will
      * not hold up anything else. When all requests have been handled,
      * the IntentService stops itself
-     *
+     * <p/>
      * This implementation will call onPerformSync on the TodoListProvider if we are
      * currently online. This handles an ACTION_TODOLIST_SYNC and ACTION_TODOLIST_REFRESH
      * intents. It will also schedule another periodic sync regardless of the whether
      * onPerformSync was called or succeeded/failed.
      *
-     * @param intent  intent supplied to startService
+     * @param intent intent supplied to startService
      */
     @Override
     protected void onHandleIntent(Intent intent) {
@@ -151,26 +160,60 @@ public class TodoListSyncService extends IntentService {
 
         if (isOnline() && isSyncEnabled()) {
             RestDataProvider.SyncResult res;
-            boolean fullSync=action.equals(ACTION_TODOLIST_FULL_SYNC);
+            boolean fullSync = action.equals(ACTION_TODOLIST_FULL_SYNC);
 
-            res = provider.onPerformSync(client, fullSync);
-            if (res.fullSyncRequested)  {
-                res = provider.onPerformSync(client, fullSync);
+            // Get the currently configured preferred account to use to sync against
+            Account account = getPreferredAccount();
+
+            res = provider.onPerformSync(client, account, fullSync);
+            if (res.fullSyncRequested) {
+                res = provider.onPerformSync(client, account, fullSync);
             }
 
-            if (res.updated()){
+            if (res.updated()) {
                 showSyncResultNotification(res);
             }
 
-            if ( res.networkError())
-                TodoListSyncHelper.scheduleSync(getBaseContext(),NETWORK_ERROR_RETRY);
-            else if ( ! res.serverError())
-                /**
-                 * On a server error, don't schedule another sync. This is not likely to go away
-                 * so just wait until an explicit refresh is requested
-                 */
+            if (res.networkError())
+                TodoListSyncHelper.scheduleSync(getBaseContext(), NETWORK_ERROR_RETRY);
+            else if (!res.serverError())
+            /**
+             * On a server error, don't schedule another sync. This is not likely to go away
+             * so just wait until an explicit refresh is requested
+             */
                 TodoListSyncHelper.scheduleSync(getBaseContext());
         }
+    }
+
+    private Account getPreferredAccount() {
+        AccountManager accountManager = AccountManager.get(getApplicationContext());
+        Account account = null;
+        Account[] accounts = accountManager.getAccountsByType(getString(R.string.setting_account_type));
+
+        if (accounts.length == 0) {
+            // no accounts error
+            return null;
+        }
+
+        String accountName = prefs.getString(getString(R.string.setting_google_account), null);
+        if (accountName != null) {
+            for (Account acc : accounts) {
+                if (acc.name.equals(accountName)) {
+                    account = acc;
+                    break;
+                }
+            }
+
+            if (account == null) {
+                // account no longer exists
+                return null;
+            }
+
+        } else {
+            account = accounts[0];
+        }
+
+        return account;
     }
 
     /**
@@ -195,7 +238,7 @@ public class TodoListSyncService extends IntentService {
      */
     private boolean isSyncEnabled() {
         return !prefs.getBoolean(getString(R.string.setting_offline_mode), false)
-                && connManager.getBackgroundDataSetting() ;
+                && connManager.getBackgroundDataSetting();
     }
 
     /**
@@ -207,9 +250,9 @@ public class TodoListSyncService extends IntentService {
 
         // Create a new notification, using system defaults
         Notification notification = new Notification(
-                                        R.drawable.icon,
-                                        getString(R.string.sync_update_ticker),
-                                        System.currentTimeMillis());
+                R.drawable.icon,
+                getString(R.string.sync_update_ticker),
+                System.currentTimeMillis());
 
         notification.defaults |= Notification.DEFAULT_ALL;
 
@@ -220,10 +263,10 @@ public class TodoListSyncService extends IntentService {
 
         // Set the latest event info, this display info regarding the very latest event being notified on
         notification.setLatestEventInfo(
-                    getBaseContext(),
-                    getResources().getQuantityString(R.plurals.sync_update_title, (int)syncResult.numEntries),
-                    getString(R.string.sync_update_text),
-                    todoListActivityIntent);
+                getBaseContext(),
+                getResources().getQuantityString(R.plurals.sync_update_title, (int) syncResult.numEntries),
+                getString(R.string.sync_update_text),
+                todoListActivityIntent);
 
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
 

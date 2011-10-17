@@ -1,6 +1,7 @@
 package com.oci.example.todolist.provider;
 
 
+import android.accounts.Account;
 import com.oci.example.todolist.client.HttpRestClient;
 
 /**
@@ -68,6 +69,6 @@ public interface RestDataProvider {
      * @param refresh flag that indicates whether a full refresh is desired as apposed to an
      * updated. This is client specific as there may be no differentiation.
      */
-    public SyncResult onPerformSync(HttpRestClient client, boolean refresh);
+    public SyncResult onPerformSync(HttpRestClient client, Account account, boolean refresh);
 
 }

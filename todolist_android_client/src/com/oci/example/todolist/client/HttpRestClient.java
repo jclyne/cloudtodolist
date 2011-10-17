@@ -206,6 +206,13 @@ public class HttpRestClient {
     }
 
     /**
+     * @return apache HttpClient wrapped by this class
+     */
+    protected HttpClient getHttpClient() {
+        return client;
+    }
+
+    /**
      * Performs and HTTP get operation on the specified path relative to the
      * client's authority.
      *
