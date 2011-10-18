@@ -1,4 +1,4 @@
-package com.oci.example.todolist.provider;
+package com.oci.example.todolist.client;
 
 
 import android.content.ContentValues;
@@ -207,10 +207,14 @@ public final class TodoListRestClient {
         public EntryListResponse(HttpRestClient.Response response, JSONObject entryList)
                 throws JSONException {
             super(response);
-            this.timestamp = entryList.getDouble(ENTRY_LIST_TIMESTAMP);
-            JSONArray entryArray = entryList.getJSONArray(ENTRY_LIST_ENTRIES);
-            for (int idx = 0; idx < entryArray.length(); idx++)
-                this.entryList.add(entryArray.getJSONObject(idx));
+            if (entryList != null) {
+                this.timestamp = entryList.getDouble(ENTRY_LIST_TIMESTAMP);
+                JSONArray entryArray = entryList.getJSONArray(ENTRY_LIST_ENTRIES);
+                for (int idx = 0; idx < entryArray.length(); idx++)
+                    this.entryList.add(entryArray.getJSONObject(idx));
+            } else {
+                this.timestamp=0;
+            }
         }
 
         /**

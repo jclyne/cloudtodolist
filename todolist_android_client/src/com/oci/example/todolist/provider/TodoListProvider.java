@@ -13,7 +13,9 @@ import android.database.sqlite.SQLiteStatement;
 import android.net.Uri;
 import android.util.Log;
 import com.oci.example.todolist.TodoListSyncHelper;
+import com.oci.example.todolist.client.GaeAuthenticator;
 import com.oci.example.todolist.client.HttpRestClient;
+import com.oci.example.todolist.client.TodoListRestClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -614,6 +616,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
     synchronized public SyncResult onPerformSync(HttpRestClient httpRestClient, Account account, boolean fullSync) {
 
         // Wrap the HttpRest client in a TodoListRest client which wraps the service API
+        httpRestClient.setAuthenticator(new GaeAuthenticator(getContext(), account));
         TodoListRestClient client = new TodoListRestClient(httpRestClient);
 
         // Initialize an empty result object

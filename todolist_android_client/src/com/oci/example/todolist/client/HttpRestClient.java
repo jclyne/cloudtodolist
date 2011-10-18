@@ -45,6 +45,9 @@ public class HttpRestClient {
     // Authority (hostname) of the service URI (xyxyxy.appspot.com)
     private final String authority;
 
+    // Reference to an authenticator to handle authentication operations
+    private HttpRestAuthenticator authenticator = null;
+
     /**
      * Enumerated type that defines the supported mime types for the
      * accepted ContentType. REST apis will commonly honor the 'Accept'
@@ -210,6 +213,15 @@ public class HttpRestClient {
      */
     protected HttpClient getHttpClient() {
         return client;
+    }
+
+    /**
+     * Sets the authenticator handler
+     *
+     * @param authenticator HttpRestAuthenticator to handle authentication operations
+     */
+    public void setAuthenticator(HttpRestAuthenticator authenticator) {
+        this.authenticator = authenticator;
     }
 
     /**
@@ -485,6 +497,10 @@ public class HttpRestClient {
                                     ContentEncoding acceptEncoding)
             throws IOException, URISyntaxException {
 
+        // Validate the user authentication info
+        if (authenticator != null)
+            authenticator.login(getHttpClient(),scheme,authority);
+
         // Set the request's 'Accept' header to the desired ContentType
         String acceptContentMimeType = acceptType.toMime();
         if (acceptContentMimeType != null)
@@ -497,6 +513,10 @@ public class HttpRestClient {
 
         // Build the URI from the specified components
         request.setURI(new URI(scheme, authority, path, query, fragment));
+
+        // add authentication info to the request
+        if (authenticator != null)
+            authenticator.addAuthenticationInfo(request);
 
         // Execute the request and block for response
         HttpResponse response = client.execute(request);
