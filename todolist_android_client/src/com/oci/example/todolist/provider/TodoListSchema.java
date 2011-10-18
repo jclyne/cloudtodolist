@@ -37,24 +37,24 @@ public final class TodoListSchema {
         }
 
         /**
-         *  Uri Path Definitions for this table.
-         *  These URI components are package local and should not be used by the
-         *  client to access the data. They can be used by the provider to build
-         *  a URI filter or to validate the URI in request handlers
+         * Uri Path Definitions for this table.
+         * These URI components are package local and should not be used by the
+         * client to access the data. They can be used by the provider to build
+         * a URI filter or to validate the URI in request handlers
          */
         static final String PATH_TODOLIST_ENTRIES = PATH_TODOLIST + "entries";
         static final String PATH_TODOLIST_ENTRY_ID = PATH_TODOLIST + "entries/";
         static final int TODOLIST_ENTRY_ID_PATH_POSITION = 2;
 
         /**
-         *  URI Definitions
-         *  The data should be reference by these URIs when using the content resolver. This
-         *  is the normal way that the provider data should be accessed.
-         *
-         *  The CONTENT_URI references the complete table while the CONTENT_ID_URI references
-         *  individual rows. The CONTENT_ID_URI should be built for the specific row, referenced
-         *  by entry id with:
-         *    ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId);
+         * URI Definitions
+         * The data should be reference by these URIs when using the content resolver. This
+         * is the normal way that the provider data should be accessed.
+         * <p/>
+         * The CONTENT_URI references the complete table while the CONTENT_ID_URI references
+         * individual rows. The CONTENT_ID_URI should be built for the specific row, referenced
+         * by entry id with:
+         * ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId);
          */
         //
         public static final Uri CONTENT_URI

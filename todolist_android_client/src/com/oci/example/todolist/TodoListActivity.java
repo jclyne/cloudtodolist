@@ -195,8 +195,8 @@ public class TodoListActivity extends FragmentActivity
     /**
      * Called when a shared preference is changed, added, or removed.
      *
-     * @param prefs  SharedPreferences that received the change.
-     * @param key  key of the preference that was changed, added, or removed.
+     * @param prefs SharedPreferences that received the change.
+     * @param key   key of the preference that was changed, added, or removed.
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
@@ -222,7 +222,7 @@ public class TodoListActivity extends FragmentActivity
     }
 
     /**
-     *  Called right before the menu is shown
+     * Called right before the menu is shown
      *
      * @param menu menu as last shown or first initialized by onCreateOptionsMenu().
      * @return true for the menu to be displayed, false otherwise
@@ -239,11 +239,11 @@ public class TodoListActivity extends FragmentActivity
     /**
      * Called when a context menu for the view is about to be shown
      *
-     * @param menu  context menu that is being built
-     * @param view  view for which the context menu is being built
-     * @param menuInfo  Extra information about the item for which the context menu should be shown.
-     * This should be an AdapterView.AdapterContextMenuInfo because we registered context menus with the
-     * TodoList ListView
+     * @param menu     context menu that is being built
+     * @param view     view for which the context menu is being built
+     * @param menuInfo Extra information about the item for which the context menu should be shown.
+     *                 This should be an AdapterView.AdapterContextMenuInfo because we registered context menus with the
+     *                 TodoList ListView
      */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View view, ContextMenu.ContextMenuInfo menuInfo) {
@@ -269,10 +269,10 @@ public class TodoListActivity extends FragmentActivity
     }
 
     /**
-     *  Called whenever an item in the options menu is selected
+     * Called whenever an item in the options menu is selected
      *
      * @param item item selected
-     * @return  false to allow normal menu processing to proceed, true if it was handled
+     * @return false to allow normal menu processing to proceed, true if it was handled
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -300,10 +300,10 @@ public class TodoListActivity extends FragmentActivity
     }
 
     /**
-     *  Called whenever an item in the context menu is selected
+     * Called whenever an item in the context menu is selected
      *
      * @param item item selected
-     * @return  false to allow normal menu processing to proceed, true if it was handled
+     * @return false to allow normal menu processing to proceed, true if it was handled
      */
     @Override
     public boolean onContextItemSelected(MenuItem item) {
@@ -329,12 +329,12 @@ public class TodoListActivity extends FragmentActivity
     }
 
     /**
-     *  Called as a result to showDialog
+     * Called as a result to showDialog
      *
-     * @param id id of the dialog to display
+     * @param id   id of the dialog to display
      * @param args extra args
      * @return the newly created dialog
-     * TODO: This is depracted, implement with DialogFragment
+     *         TODO: This is depracted, implement with DialogFragment
      */
     @Override
     protected Dialog onCreateDialog(int id, Bundle args) {
@@ -361,7 +361,7 @@ public class TodoListActivity extends FragmentActivity
     /**
      * Handles a new entry request from the newEntry EditTextBox
      *
-     * @param title  title of the newly created entry
+     * @param title title of the newly created entry
      */
     void onNewEntry(String title) {
 
@@ -399,7 +399,7 @@ public class TodoListActivity extends FragmentActivity
     /**
      * Handles a request to delete an entry
      *
-     * @param entryId  id of the entry to delete
+     * @param entryId id of the entry to delete
      */
     void onDeleteEntry(long entryId) {
         // Build the entry URI and delete it
@@ -430,8 +430,8 @@ public class TodoListActivity extends FragmentActivity
     }
 
     /**
-     *  Sets the window title based on the state of the background data connection
-     *  or manual offline_mode
+     * Sets the window title based on the state of the background data connection
+     * or manual offline_mode
      */
     private void setWindowTitle() {
 
@@ -461,7 +461,7 @@ public class TodoListActivity extends FragmentActivity
         Uri entryUri = ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, entryId);
 
         // Build a what clause to get the entiry's title and notes
-        final String[] what = {TodoListSchema.Entries.NOTES,TodoListSchema.Entries.TITLE};
+        final String[] what = {TodoListSchema.Entries.NOTES, TodoListSchema.Entries.TITLE};
 
         // Query for the values
         Cursor cursor = getContentResolver().query(entryUri, what, null, null, null);

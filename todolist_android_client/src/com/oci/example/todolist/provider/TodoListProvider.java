@@ -16,6 +16,8 @@ import com.oci.example.todolist.TodoListSyncHelper;
 import com.oci.example.todolist.client.GaeAuthenticator;
 import com.oci.example.todolist.client.HttpRestClient;
 import com.oci.example.todolist.client.TodoListRestClient;
+import org.apache.http.auth.AuthenticationException;
+import org.apache.http.auth.InvalidCredentialsException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -544,21 +546,20 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
 
         return results.toArray(new ContentProviderResult[results.size()]);
     }
-    
-    private void notifyContentResolverOfChange(Uri uri){
-        getContext().getContentResolver().notifyChange(uri , null);    
+
+    private void notifyContentResolverOfChange(Uri uri) {
+        getContext().getContentResolver().notifyChange(uri, null);
     }
-    
-    private void notifyContentResolverOfChange(){
-        notifyContentResolverOfChange(TodoListSchema.Entries.CONTENT_URI);    
+
+    private void notifyContentResolverOfChange() {
+        notifyContentResolverOfChange(TodoListSchema.Entries.CONTENT_URI);
     }
-    
-    private void notifyContentResolverOfChange(int id){
+
+    private void notifyContentResolverOfChange(int id) {
         notifyContentResolverOfChange(
-                ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, id));   
+                ContentUris.withAppendedId(TodoListSchema.Entries.CONTENT_ID_URI_BASE, id));
     }
-    
-    
+
 
     /**
      * Clears out the local data store and resets the last sync time.
@@ -607,7 +608,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
      * Handles requests to sync the content provider with an HttpRestClient.
      *
      * @param httpRestClient - client object to perform upstream sync with
-     * @param account - optional account to use to validate requests to the rest service
+     * @param account        - optional account to use to validate requests to the rest service
      * @param fullSync       - indicates whether a fullSync is being requested, a full sync clears all
      *                       the local data and retrieves all the current data from the service
      * @return SyncResult object indicating the status and result of the sync operation
@@ -615,12 +616,31 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
     @Override
     synchronized public SyncResult onPerformSync(HttpRestClient httpRestClient, Account account, boolean fullSync) {
 
-        // Wrap the HttpRest client in a TodoListRest client which wraps the service API
-        httpRestClient.setAuthenticator(new GaeAuthenticator(getContext(), account));
-        TodoListRestClient client = new TodoListRestClient(httpRestClient);
-
         // Initialize an empty result object
         SyncResult result = new SyncResult();
+
+        // Wrap the HttpRest client in a TodoListRest client which wraps the service API
+        if (account != null)
+            try {
+                httpRestClient.setAuthenticator(new GaeAuthenticator(getContext(), account));
+            } catch (AuthenticationException e) {
+                Log.e(TAG, "onPerformSync, Authentication Error: " + e.getMessage());
+                result.numAuthenticationErrors++;
+                if (e instanceof InvalidCredentialsException) {
+                    result.invalidCredentials = true;
+                }
+            }  catch (IOException e) {
+                Log.e(TAG, "onPerformSync, Network Error: " + e.getMessage());
+                result.numIoExceptions += 1;
+
+            } catch (URISyntaxException e) {
+                Log.e(TAG, "onPerformSync, Invalid request: " + e.getMessage());
+                result.numRequestExceptions += 1;
+
+            }
+
+        TodoListRestClient client = new TodoListRestClient(httpRestClient);
+
 
         /**
          * If a full sync is requested, clear the local datastore, otherwise, start an
@@ -632,7 +652,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
             performUpstreamSync(client, result);
         }
 
-        if (! (result.serverError() || result.networkError() ) ){
+        if (!(result.serverError() || result.networkError())) {
             if (lastSyncTime > 0) {
                 performIncrementalSync(client, result);
             } else {
@@ -681,8 +701,8 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                             //  our local changes are irrelevant.
                             long deletes = db.delete(TodoListSchema.Entries.TABLE_NAME, idWhere, whereArgs);
                             if (deletes > 0) {
-                                result.numDeletes+=deletes;
-                                result.numEntries+=1;
+                                result.numDeletes += deletes;
+                                result.numEntries += 1;
                                 notifyContentResolverOfChange();
                             }
                         } else {
@@ -699,16 +719,16 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                                         + " AND " + WHERE_CURRENT_ENTRIES
                                         + " AND " + TodoListSchema.Entries.MODIFIED
                                         + " != " + values.getAsLong(TodoListSchema.Entries.MODIFIED);
-                                long updates= db.update(TodoListSchema.Entries.TABLE_NAME, values, where, whereArgs);
-                                if ( updates > 0) {
+                                long updates = db.update(TodoListSchema.Entries.TABLE_NAME, values, where, whereArgs);
+                                if (updates > 0) {
                                     result.numUpdates += updates;
-                                    result.numDeletes +=1;
+                                    result.numDeletes += 1;
                                     notifyContentResolverOfChange();
                                 }
                             } else {
                                 db.insert(TodoListSchema.Entries.TABLE_NAME, TodoListSchema.Entries.TITLE, values);
-                                result.numInserts+=1;
-                                result.numEntries+=1;
+                                result.numInserts += 1;
+                                result.numEntries += 1;
                                 notifyContentResolverOfChange();
                             }
                         }
@@ -724,19 +744,26 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                 //  window. In this case, we need to do a refresh.
                 result.fullSyncRequested = true;
             } else
-                result.numRequestExceptions=1;
+                result.numRequestExceptions = 1;
 
         } catch (IOException e) {
             Log.e(TAG, "performIncrementalSync, Network Error: " + e.getMessage());
-            result.numIoExceptions+=1;
+            result.numIoExceptions += 1;
 
         } catch (URISyntaxException e) {
             Log.e(TAG, "performIncrementalSync, Invalid request: " + e.getMessage());
-            result.numRequestExceptions+=1;
+            result.numRequestExceptions += 1;
 
         } catch (JSONException e) {
             Log.e(TAG, "performIncrementalSync, Invalid response: " + e.getMessage());
             result.numResponseExceptions += 1;
+
+        } catch (AuthenticationException e) {
+            Log.e(TAG, "performIncrementalSync, Authentication Error: " + e.getMessage());
+            result.numAuthenticationErrors++;
+            if (e instanceof InvalidCredentialsException) {
+                result.invalidCredentials = true;
+            }
         }
     }
 
@@ -751,7 +778,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
      * @param client - todolist api client object
      * @param result - result of the full sync operation
      */
-    private void performFullSync(TodoListRestClient client, SyncResult result){
+    private void performFullSync(TodoListRestClient client, SyncResult result) {
 
         try {
             TodoListRestClient.EntryListResponse response = client.getEntries();
@@ -772,8 +799,8 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                     db.delete(TodoListSchema.Entries.TABLE_NAME, null, null);
                     for (JSONObject entry : entries)
                         db.insert(TodoListSchema.Entries.TABLE_NAME,
-                                   TodoListSchema.Entries.TITLE,
-                                   entryObjectValues(entry));
+                                TodoListSchema.Entries.TITLE,
+                                entryObjectValues(entry));
 
                     // Now add back the Temporary items as an UPDATE. This insures that deleted
                     //  dirty items are deleted and unsynced changes are maintained
@@ -800,20 +827,26 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                 }
 
                 notifyContentResolverOfChange();
-            }
-            else
-                result.numRequestExceptions=1;
+            } else
+                result.numRequestExceptions = 1;
         } catch (IOException e) {
             Log.e(TAG, "performFullSync, Network Error: " + e.getMessage());
-            result.numIoExceptions+=1;
+            result.numIoExceptions += 1;
 
         } catch (URISyntaxException e) {
             Log.e(TAG, "performFullSync, Invalid request: " + e.getMessage());
-            result.numRequestExceptions+=1;
+            result.numRequestExceptions += 1;
 
         } catch (JSONException e) {
             Log.e(TAG, "performFullSync, Invalid response: " + e.getMessage());
-            result.numResponseExceptions+=1;
+            result.numResponseExceptions += 1;
+
+        } catch (AuthenticationException e) {
+            Log.e(TAG, "performFullSync, Authentication Error: " + e.getMessage());
+            result.numAuthenticationErrors++;
+            if (e instanceof InvalidCredentialsException) {
+                result.invalidCredentials = true;
+            }
         }
     }
 
@@ -825,7 +858,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
      *
      * @return name of the temporary staging table
      */
-    private String stageUpstreamSync(){
+    private String stageUpstreamSync() {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String tempTableName = TodoListSchema.Entries.TABLE_NAME + "_upsync";
 
@@ -860,7 +893,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
      *
      * @param tempTableName name of an existing temporary staging table
      */
-    private void endUpstreamSync(String tempTableName){
+    private void endUpstreamSync(String tempTableName) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         db.execSQL("DROP TABLE " + tempTableName + ";");
 
@@ -878,7 +911,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
      * @param client - todolist api client object
      * @param result - result of the upstream sync operation
      */
-    void performUpstreamSync(TodoListRestClient client, SyncResult result){
+    void performUpstreamSync(TodoListRestClient client, SyncResult result) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         String tempTableName = stageUpstreamSync();
 
@@ -887,7 +920,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
             // Walk through the temporary staging table and perform the pending action
             Cursor cur = db.query(tempTableName, null, null, null, null, null, TodoListSchema.Entries.DEFAULT_SORT_ORDER);
             for (cur.moveToFirst(); !cur.isAfterLast(); cur.moveToNext()) {
-                int rowId =  cur.getInt(cur.getColumnIndex(TodoListSchema.Entries._ID));
+                int rowId = cur.getInt(cur.getColumnIndex(TodoListSchema.Entries._ID));
                 String[] whereArgs = {Integer.toString(rowId)};
                 int id = cur.getInt(cur.getColumnIndex(TodoListSchema.Entries.ID));
 
@@ -898,11 +931,10 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                         TodoListRestClient.Response response = client.deleteEntry(id);
                         if (response.getResponse().getStatusCode() == TodoListRestClient.Response.SUCCESS_OK) {
                             db.delete(TodoListSchema.Entries.TABLE_NAME, idWhere, whereArgs);
-                            result.numUpstreamDeletes+=1;
+                            result.numUpstreamDeletes += 1;
                             notifyContentResolverOfChange(rowId);
-                        }
-                        else
-                            result.numRequestExceptions=1;
+                        } else
+                            result.numRequestExceptions = 1;
                     } else if (cur.getInt(cur.getColumnIndex(TodoListSchema.Entries.PENDING_UPDATE)) > 0) {
                         ContentValues values = new ContentValues();
                         values.put(TodoListSchema.Entries.TITLE,
@@ -925,11 +957,11 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                         //  decrement the PENDING_TX flag
                         int statusCode = response.getResponse().getStatusCode();
                         if (statusCode == TodoListRestClient.Response.SUCCESS_OK)
-                            result.numUpstreamUpdates+=1;
+                            result.numUpstreamUpdates += 1;
                         else if (statusCode == TodoListRestClient.Response.SUCCESS_ADDED)
-                            result.numUpstreamInserts+=1;
+                            result.numUpstreamInserts += 1;
                         else {
-                            result.numRequestExceptions=1;
+                            result.numRequestExceptions = 1;
                             continue;
                         }
 
@@ -954,21 +986,30 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                     }
                 } catch (JSONException e) {
                     Log.e(TAG, "performUpstreamSync, Invalid response: " + e.getMessage());
-                    result.numResponseExceptions += 1;
+                    result.numResponseExceptions++;
+
                 } catch (URISyntaxException e) {
                     Log.e(TAG, "performUpstreamSync, Invalid request: " + e.getMessage());
-                    result.numRequestExceptions += 1;
+                    result.numRequestExceptions++;
+
+                } catch (AuthenticationException e) {
+                    Log.e(TAG, "performUpstreamSync, Authentication Error: " + e.getMessage());
+                    result.numAuthenticationErrors++;
+                    if (e instanceof InvalidCredentialsException) {
+                        result.invalidCredentials = true;
+                    }
                 }
             }
         } catch (IOException e) {
             Log.e(TAG, "performUpstreamSync, Network error: " + e.getMessage());
-            result.numIoExceptions+=1;
-        }finally {
+            result.numIoExceptions += 1;
+        } finally {
             endUpstreamSync(tempTableName);
         }
     }
 
-    /** Parses the entry ID from the specified URI
+    /**
+     * Parses the entry ID from the specified URI
      *
      * @param uri - uri to parse
      * @return entry id specified in the uri

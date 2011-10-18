@@ -19,7 +19,7 @@ public class TodoListSyncScheduler extends BroadcastReceiver {
     /**
      * Called when the BroadcastReceiver is receiving an Intent broadcast.
      *
-     * @param ctxt current application context
+     * @param ctxt   current application context
      * @param intent intent being received
      */
     @Override

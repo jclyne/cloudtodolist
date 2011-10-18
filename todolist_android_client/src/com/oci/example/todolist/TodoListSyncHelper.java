@@ -66,7 +66,7 @@ public class TodoListSyncHelper {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ctxt);
         int syncInterval = Integer.parseInt(
                 prefs.getString(res.getString(R.string.setting_sync_interval),
-                                res.getString(R.string.setting_sync_interval_default_value))
+                        res.getString(R.string.setting_sync_interval_default_value))
         );
 
         scheduleSyncAlarm(ctxt, syncIntent, syncInterval);
@@ -76,10 +76,10 @@ public class TodoListSyncHelper {
      * Requests that a sync be scheduled for the interval specified
      * by the syncInterval parameter
      *
-     * @param ctxt current application context
+     * @param ctxt         current application context
      * @param syncInterval interval to delay scheduling the sync
      */
-    public static void scheduleSync(Context ctxt,int syncInterval) {
+    public static void scheduleSync(Context ctxt, int syncInterval) {
         scheduleSyncAlarm(ctxt, syncIntent, syncInterval);
     }
 
@@ -99,9 +99,10 @@ public class TodoListSyncHelper {
     /**
      * Sets an alarm to handle a scheduled sync. This will cancel any pending sync alarms,
      * and schedule a new one to expire in when milliseconds
-     * @param ctxt current application context
+     *
+     * @param ctxt   current application context
      * @param action intent to deliver to the sync service
-     * @param when time the alarm should go off, in milliseconds
+     * @param when   time the alarm should go off, in milliseconds
      */
     private static void scheduleSyncAlarm(Context ctxt, Intent action, int when) {
         AlarmManager alarmManager = (AlarmManager) ctxt.getSystemService(Context.ALARM_SERVICE);

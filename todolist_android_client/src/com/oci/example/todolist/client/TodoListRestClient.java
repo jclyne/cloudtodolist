@@ -3,7 +3,7 @@ package com.oci.example.todolist.client;
 
 import android.content.ContentValues;
 import android.util.Log;
-import com.oci.example.todolist.client.HttpRestClient;
+import org.apache.http.auth.AuthenticationException;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,79 +18,79 @@ import java.util.List;
  * <p>Implements the service specific aspects of the TodoList REST API. The class
  * makes use of an HttpRestClient object to implement specifics of the api. All
  * defined responses are modeled in Response based object. </p>
- *
- *
+ * <p/>
+ * <p/>
  * <p>Protocol Definition:
- *
- *  Data Format:
- *      todolist_entry object
- *          {
- *            "id": entry ID,
- *            "title": title of the Entry,
- *            "notes": notes associated with the entry,
- *            "complete": flag indicating whether the entry is complete
- *          }
- *      todolist_entry array
- *          {
- *              timestamp: timestamp to be used in a get with a modified time
- *              entries:
- *              [
- *                {
- *                  "id": entry ID,
- *                  "title": title of the Entry,
- *                  "notes": notes associated with the entry,
- *                  "complete": flag indicating whether the entry is complete
- *                },
- *                 {
- *                  "id": entry ID,
- *                  "title": title of the Entry,
- *                  "notes": notes associated with the entry,
- *                  "complete": flag indicating whether the entry is complete
- *                },
- *                 ...
- *              ]
- *          }
- *
- *  Status Codes:
- *      200(ok) - request was successful
- *      201(created) - new entry as been created
- *      400(bad request) - invalid query string
- *      410(gone) - entry does not exist
- *
- *
- *  URIs:
- *      todolist/entries - list of todolist entries
- *          GET
- *              Format - todolist_entry array
- *              Query Parameters = id,modified (e.g. '?id=1;id=3;id=5' or "?modified=1317532850.83)
- *                  NOTE: Omitting the id parameter will retrieve all entries
- *                  NOTE: When a modified flag is used, deleted entries may be returned with a
- *                        deleted flag=true
- *              Status Codes - 200,400
- *
- *          POST
- *              Format - todolist_entry
- *              Query Parameters = title,notes,complete (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
- *              Status Codes - 201,400
- *
- *          DELETE
- *              Format - empty
- *              Query Parameters = id (e.g. '?id=1' or '?id=1+2+5')
- *              Status Codes - 200
- *
- *      todolist/entries/<id> - single todolist entry, referenced by entry id
- *          GET
- *              Format - todolist_entry
- *              Status Codes - 200,410
- *
- *          PUT
- *              Format - todolist_entry
- *              Query Parameters = title,notes,complete (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
- *              Status Codes - 200,400,410
- *
- *          DELETE
- *              Format - empty
- *              Status Codes - 200 </p>
+ * <p/>
+ * Data Format:
+ * todolist_entry object
+ * {
+ * "id": entry ID,
+ * "title": title of the Entry,
+ * "notes": notes associated with the entry,
+ * "complete": flag indicating whether the entry is complete
+ * }
+ * todolist_entry array
+ * {
+ * timestamp: timestamp to be used in a get with a modified time
+ * entries:
+ * [
+ * {
+ * "id": entry ID,
+ * "title": title of the Entry,
+ * "notes": notes associated with the entry,
+ * "complete": flag indicating whether the entry is complete
+ * },
+ * {
+ * "id": entry ID,
+ * "title": title of the Entry,
+ * "notes": notes associated with the entry,
+ * "complete": flag indicating whether the entry is complete
+ * },
+ * ...
+ * ]
+ * }
+ * <p/>
+ * Status Codes:
+ * 200(ok) - request was successful
+ * 201(created) - new entry as been created
+ * 400(bad request) - invalid query string
+ * 410(gone) - entry does not exist
+ * <p/>
+ * <p/>
+ * URIs:
+ * todolist/entries - list of todolist entries
+ * GET
+ * Format - todolist_entry array
+ * Query Parameters = id,modified (e.g. '?id=1;id=3;id=5' or "?modified=1317532850.83)
+ * NOTE: Omitting the id parameter will retrieve all entries
+ * NOTE: When a modified flag is used, deleted entries may be returned with a
+ * deleted flag=true
+ * Status Codes - 200,400
+ * <p/>
+ * POST
+ * Format - todolist_entry
+ * Query Parameters = title,notes,complete (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
+ * Status Codes - 201,400
+ * <p/>
+ * DELETE
+ * Format - empty
+ * Query Parameters = id (e.g. '?id=1' or '?id=1+2+5')
+ * Status Codes - 200
+ * <p/>
+ * todolist/entries/<id> - single todolist entry, referenced by entry id
+ * GET
+ * Format - todolist_entry
+ * Status Codes - 200,410
+ * <p/>
+ * PUT
+ * Format - todolist_entry
+ * Query Parameters = title,notes,complete (e.g. '?title=ENTRY' or '?title=ENTRY;notes=NOTES')
+ * Status Codes - 200,400,410
+ * <p/>
+ * DELETE
+ * Format - empty
+ * Status Codes - 200 </p>
  */
 public final class TodoListRestClient {
 
@@ -161,7 +161,8 @@ public final class TodoListRestClient {
 
         /**
          * Constructor
-         * @param response  HttpRestClient.response
+         *
+         * @param response    HttpRestClient.response
          * @param entryObject entry object as a JSONObject
          */
         public EntryObjectResponse(HttpRestClient.Response response, JSONObject entryObject) {
@@ -199,10 +200,10 @@ public final class TodoListRestClient {
         /**
          * Constructor  - parses the entry list object
          *
-         * @param response HttpRestClient.response
+         * @param response  HttpRestClient.response
          * @param entryList list of entry objects as a JSONObject
          * @throws JSONException indicates that the response is invalid or
-         * the schema was unexpected
+         *                       the schema was unexpected
          */
         public EntryListResponse(HttpRestClient.Response response, JSONObject entryList)
                 throws JSONException {
@@ -213,7 +214,7 @@ public final class TodoListRestClient {
                 for (int idx = 0; idx < entryArray.length(); idx++)
                     this.entryList.add(entryArray.getJSONObject(idx));
             } else {
-                this.timestamp=0;
+                this.timestamp = 0;
             }
         }
 
@@ -235,7 +236,7 @@ public final class TodoListRestClient {
     /**
      * Constructor
      *
-     * @param client  HttpRestClient to use for API requests
+     * @param client HttpRestClient to use for API requests
      */
     public TodoListRestClient(HttpRestClient client) {
         this.client = client;
@@ -245,7 +246,7 @@ public final class TodoListRestClient {
      * Builds a URI query string from an array of keys correlating to keys in
      * a ContentValues object
      *
-     * @param keys keys from the ContentValues object to include in the query string
+     * @param keys   keys from the ContentValues object to include in the query string
      * @param values ContentValues object containing query string values
      * @return constructed query string
      */
@@ -266,15 +267,15 @@ public final class TodoListRestClient {
      * Creates a new todolist entry via HTTP post request
      *
      * @param values ContantValues containing fields for the http post
-     * query string to create a new entry
+     *               query string to create a new entry
      * @return EntryObjectReponse encapsulating the newly created entry
      * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException indicates error in underlying network state or operation
-     * @throws JSONException indicates an error in the JSON response from the request, either
-     * the JSON is invalid or the schema was not expected
+     * @throws IOException        indicates error in underlying network state or operation
+     * @throws JSONException      indicates an error in the JSON response from the request, either
+     *                            the JSON is invalid or the schema was not expected
      */
     public EntryObjectResponse postEntry(ContentValues values)
-            throws IOException, URISyntaxException, JSONException {
+            throws IOException, URISyntaxException, JSONException, AuthenticationException {
 
         String uri = ENTRIES_PATH;
         String[] validParams = {ENTRY_TITLE, ENTRY_NOTES, ENTRY_COMPLETE};
@@ -297,17 +298,17 @@ public final class TodoListRestClient {
     /**
      * Updates a  todolist entry via HTTP put request
      *
-     * @param id id of the todolist entry to update
+     * @param id     id of the todolist entry to update
      * @param values ContantValues containing fields for the http put
-     * query string to update the entry
+     *               query string to update the entry
      * @return EntryObjectReponse encapsulating the newly updated entry
      * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException indicates error in underlying network state or operation
-     * @throws JSONException indicates an error in the JSON response from the request, either
-     * the JSON is invalid or the schema was not expected
+     * @throws IOException        indicates error in underlying network state or operation
+     * @throws JSONException      indicates an error in the JSON response from the request, either
+     *                            the JSON is invalid or the schema was not expected
      */
     public EntryObjectResponse putEntry(int id, ContentValues values)
-            throws IOException, URISyntaxException, JSONException {
+            throws IOException, URISyntaxException, JSONException, AuthenticationException {
 
         String uri = ENTRIES_PATH + "/" + id;
         String[] validParams = {ENTRY_TITLE, ENTRY_NOTES, ENTRY_COMPLETE};
@@ -333,9 +334,9 @@ public final class TodoListRestClient {
      * @param id id of the todolist entry to delete
      * @return EntryObjectReponse encapsulating the newly updated entry
      * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException indicates error in underlying network state or operation
+     * @throws IOException        indicates error in underlying network state or operation
      */
-    public Response deleteEntry(int id) throws IOException, URISyntaxException {
+    public Response deleteEntry(int id) throws IOException, URISyntaxException, AuthenticationException {
         String uri = ENTRIES_PATH + "/" + id;
 
         HttpRestClient.Response response = client.Delete(uri, null, HttpRestClient.ContentType.JSON);
@@ -354,38 +355,39 @@ public final class TodoListRestClient {
      *
      * @return EntryListResponse representing the response of the get request
      * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException indicates error in underlying network state or operation
-     * @throws JSONException indicates an error in the JSON response from the request, either
-     * the JSON is invalid or the schema was not expected
+     * @throws IOException        indicates error in underlying network state or operation
+     * @throws JSONException      indicates an error in the JSON response from the request, either
+     *                            the JSON is invalid or the schema was not expected
      */
     public EntryListResponse getEntries()
-            throws IOException, URISyntaxException, JSONException {
+            throws IOException, URISyntaxException, JSONException, AuthenticationException {
         return getEntries(null);
 
     }
+
     /**
      * Gets the current list of todolist entries via get request. Allows for a modified
      * qualifier that will return entries modified after the specified time stamp.
-     *
+     * <p/>
      * <p>Normally, the modified value will be a timestamp value returned from a
      * previous getEntries request. This allows an initial getEntries() followed by
      * getEntries(modified) to get updates since last request</p>
-     *
+     * <p/>
      * <p>This form of the get request may return deleted entries. The API defines an
      * archive time of 24hours for deleted entries. This means that a request with a
      * modified time that is more than 24 hours in the past, will fail with a
      * FAILED_BAD_REQUEST(401)</p>
      *
      * @param modified timestamp to filter responses having a modified time greater than
-     * the specified value
+     *                 the specified value
      * @return EntryListResponse representing the response of the get request
      * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException indicates error in underlying network state or operation
-     * @throws JSONException indicates an error in the JSON response from the request, either
-     * the JSON is invalid or the schema was not expected
+     * @throws IOException        indicates error in underlying network state or operation
+     * @throws JSONException      indicates an error in the JSON response from the request, either
+     *                            the JSON is invalid or the schema was not expected
      */
     public EntryListResponse getEntries(Double modified)
-            throws IOException, URISyntaxException, JSONException {
+            throws IOException, URISyntaxException, JSONException, AuthenticationException {
 
         String queryString = null;
         if (modified != null)

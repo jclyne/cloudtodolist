@@ -32,38 +32,40 @@ public class TodoListPreferencesActivity extends PreferenceActivity
 
         // Fill the list of accounts from the account manager
         ListPreference accountPref = (ListPreference) findPreference(getString(R.string.setting_google_account));
-        Account[] accounts = AccountManager.get(getBaseContext())
-                                     .getAccountsByType(getString(R.string.setting_account_type));
-        if (accounts.length > 0){
+        AccountManager accountManager = AccountManager.get(getBaseContext());
+        Account[] accounts = accountManager.getAccountsByType(getString(R.string.setting_account_type));
+
+        if (accounts.length > 0) {
             CharSequence[] entries = new CharSequence[accounts.length];
-            int idx=0;
-            for (Account account: accounts)
+            int idx = 0;
+            for (Account account : accounts)
                 entries[idx++] = account.name;
 
             accountPref.setEntries(entries);
             accountPref.setEntryValues(entries);
+        } else {
+            accountPref.setEnabled(false);
         }
 
         // Register the change listener
         PreferenceManager.getDefaultSharedPreferences(this)
-                         .registerOnSharedPreferenceChangeListener(this);
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     /**
      * Called when a shared preference is changed, added, or removed.
      *
      * @param prefs SharedPreferences that received the change.
-     * @param key key of the preference that was changed, added, or removed.
+     * @param key   key of the preference that was changed, added, or removed.
      */
     @Override
     public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
 
         if (key.equals(getString(R.string.setting_google_account))
-           ||key.equals(getString(R.string.setting_server_address)) ) {
+                || key.equals(getString(R.string.setting_server_address))) {
             // If the server address changes, request a full refresh
             TodoListSyncHelper.requestFullSync(this);
-        }
-        else if (key.equals(getString(R.string.setting_sync_interval))) {
+        } else if (key.equals(getString(R.string.setting_sync_interval))) {
             // On sync_interval change, reschedule a periodic sync
             TodoListSyncHelper.scheduleSync(this);
 

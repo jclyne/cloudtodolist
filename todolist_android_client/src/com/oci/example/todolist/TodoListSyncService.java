@@ -1,6 +1,7 @@
 package com.oci.example.todolist;
 
-import android.accounts.*;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -10,18 +11,25 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Bundle;
-import android.os.Handler;
+import android.net.SSLCertificateSocketFactory;
+import android.net.SSLSessionCache;
+import android.net.http.AndroidHttpClient;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import com.oci.example.todolist.client.HttpRestClient;
 import com.oci.example.todolist.provider.RestDataProvider;
 import com.oci.example.todolist.provider.TodoListProvider;
 import com.oci.example.todolist.provider.TodoListSchema;
-import org.apache.http.client.HttpClient;
+import org.apache.http.client.params.HttpClientParams;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.DefaultHttpClient;
-
-import java.io.IOException;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 /**
  * Service that handles sync and refresh request intents and handles
@@ -56,15 +64,13 @@ public class TodoListSyncService extends IntentService {
     // Reference to the content provider to sync
     private TodoListProvider provider;
 
-    // References the auth token for the selected account to sync against
-    String authToken;
+    // Apache http client to connect to rest service for sync
+    DefaultHttpClient httpClient;
 
     // HttpRest client to provide to the provider for sync
     private HttpRestClient client;
 
-    // Socket timeout setting configured in the REST client
-    @SuppressWarnings({"FieldCanBeLocal"})
-    private final int SOCKET_TIMEOUT = 5000;
+
     @SuppressWarnings({"FieldCanBeLocal"})
     private final int NETWORK_ERROR_RETRY = 30000;
 
@@ -92,16 +98,13 @@ public class TodoListSyncService extends IntentService {
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
 
-        // Build a new http client
-        HttpClient httpClient = new DefaultHttpClient();
-        httpClient.getParams().setParameter("http.socket.timeout", SOCKET_TIMEOUT);
-
         // Build a new rest client with the http client
-        client = new HttpRestClient(httpClient
-                , prefs.getString(
-                getString(R.string.setting_server_address), getString(R.string.app_host_name))
-                , prefs.getBoolean(getString(R.string.setting_https), false)
-        );
+        String serverAddr = prefs.getString(getString(R.string.setting_server_address),
+                                            getString(R.string.app_host_name));
+
+        boolean useHttps =  prefs.getBoolean( getString(R.string.setting_https),false) ;
+
+        client = new HttpRestClient(serverAddr,useHttps, getBaseContext());
 
 
         // Initialize the TodoListProvider reference
@@ -172,6 +175,10 @@ public class TodoListSyncService extends IntentService {
 
             if (res.updated()) {
                 showSyncResultNotification(res);
+            }
+
+            if (res.invalidCredentials) {
+                // Show invalid credentials notification
             }
 
             if (res.networkError())
