@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.util.Log;
 
-
 /**
  * Broadcast receiver that handles scheduling sync requests on resumption of
  * network access as well as scheduling periodic syncs at boot time

@@ -629,7 +629,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                 if (e instanceof InvalidCredentialsException) {
                     result.invalidCredentials = true;
                 }
-            }  catch (IOException e) {
+            } catch (IOException e) {
                 Log.e(TAG, "onPerformSync, Network Error: " + e.getMessage());
                 result.numIoExceptions += 1;
 
@@ -702,7 +702,7 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                             long deletes = db.delete(TodoListSchema.Entries.TABLE_NAME, idWhere, whereArgs);
                             if (deletes > 0) {
                                 result.numDeletes += deletes;
-                                result.numEntries += 1;
+                                result.numEntries++;
                                 notifyContentResolverOfChange();
                             }
                         } else {
@@ -722,13 +722,13 @@ public class TodoListProvider extends ContentProvider implements RestDataProvide
                                 long updates = db.update(TodoListSchema.Entries.TABLE_NAME, values, where, whereArgs);
                                 if (updates > 0) {
                                     result.numUpdates += updates;
-                                    result.numDeletes += 1;
+                                    result.numEntries++;
                                     notifyContentResolverOfChange();
                                 }
                             } else {
                                 db.insert(TodoListSchema.Entries.TABLE_NAME, TodoListSchema.Entries.TITLE, values);
-                                result.numInserts += 1;
-                                result.numEntries += 1;
+                                result.numInserts++;
+                                result.numEntries++;
                                 notifyContentResolverOfChange();
                             }
                         }

@@ -1,5 +1,6 @@
 package com.oci.example.todolist;
 
+import android.accounts.*;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.*;
@@ -20,6 +21,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 import com.oci.example.todolist.provider.TodoListSchema;
+
+import java.io.IOException;
 
 /**
  * Main activity for the TodoList application.
@@ -50,7 +53,6 @@ public class TodoListActivity extends FragmentActivity
     // Reference to an intenal broadcast receiver to handle connectivity events
     private BroadcastReceiver broadcastReceiver;
 
-
     /**
      * Called when the activity is starting
      *
@@ -61,6 +63,8 @@ public class TodoListActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
 
         Log.d(TAG, "Created" + " (" + Thread.currentThread().getName() + ")");
+
+        verifyValidAccountType();
 
         // Initialize the ConnectivityManager reference
         connManager = (ConnectivityManager) getBaseContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -180,6 +184,35 @@ public class TodoListActivity extends FragmentActivity
 
         // Finally, request an intial sync
         TodoListSyncHelper.requestSync(this);
+    }
+
+    /**
+     * Called when the activity is resumed
+     */
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    /**
+     * checks if a valid account of the required type "com.google" exists. If it doesn't, the user
+     * is prompted to create a new account or log in to an existing account.
+     */
+    private void verifyValidAccountType(){
+        final AccountManager accountManager = AccountManager.get(getApplicationContext());
+        final String accountType = getString(R.string.setting_account_type);
+        if  (accountManager.getAccountsByType(accountType).length == 0){
+            accountManager.addAccount(getString(R.string.setting_account_type),
+                                    null,null,null,this,new AccountManagerCallback<Bundle>() {
+                @Override
+                public void run(AccountManagerFuture result) {
+                    if  (accountManager.getAccountsByType(accountType).length > 0) {
+                        startActivity(new Intent(getBaseContext(),this.getClass()));
+                    }
+                }
+            },null);
+            finish();
+        }
     }
 
     /**

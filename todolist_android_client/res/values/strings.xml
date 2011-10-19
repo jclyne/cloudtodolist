@@ -24,6 +24,9 @@
     <string name="empty_notes"><i>None</i></string>
     <string name="sync_update_ticker">Todo List Updated </string>
     <string name="sync_update_text">Tap to view</string>
+    <string name="sync_invalid_credentials_ticker">Invalid Credentials </string>
+    <string name="sync_invalid_credentials_title">Invalid Username or Password</string>
+    <string name="sync_invalid_credentials_text">Tap to edit</string>
     <string name="setting_account_type">com.google</string>
     <string name="setting_google_account">account</string>
     <string name="setting_google_account_title">Google Account</string>

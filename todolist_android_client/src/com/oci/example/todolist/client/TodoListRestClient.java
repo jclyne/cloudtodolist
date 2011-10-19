@@ -269,10 +269,11 @@ public final class TodoListRestClient {
      * @param values ContantValues containing fields for the http post
      *               query string to create a new entry
      * @return EntryObjectReponse encapsulating the newly created entry
-     * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException        indicates error in underlying network state or operation
-     * @throws JSONException      indicates an error in the JSON response from the request, either
-     *                            the JSON is invalid or the schema was not expected
+     * @throws URISyntaxException      indicates invalid syntax in the request's resulting URI
+     * @throws IOException             indicates error in underlying network state or operation
+     * @throws JSONException           indicates an error in the JSON response from the request, either
+     *                                 the JSON is invalid or the schema was not expected
+     * @throws AuthenticationException indicates an error with the Authentication process
      */
     public EntryObjectResponse postEntry(ContentValues values)
             throws IOException, URISyntaxException, JSONException, AuthenticationException {
@@ -302,10 +303,11 @@ public final class TodoListRestClient {
      * @param values ContantValues containing fields for the http put
      *               query string to update the entry
      * @return EntryObjectReponse encapsulating the newly updated entry
-     * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException        indicates error in underlying network state or operation
-     * @throws JSONException      indicates an error in the JSON response from the request, either
-     *                            the JSON is invalid or the schema was not expected
+     * @throws URISyntaxException      indicates invalid syntax in the request's resulting URI
+     * @throws IOException             indicates error in underlying network state or operation
+     * @throws JSONException           indicates an error in the JSON response from the request, either
+     *                                 the JSON is invalid or the schema was not expected
+     * @throws AuthenticationException indicates an error with the Authentication process
      */
     public EntryObjectResponse putEntry(int id, ContentValues values)
             throws IOException, URISyntaxException, JSONException, AuthenticationException {
@@ -333,8 +335,9 @@ public final class TodoListRestClient {
      *
      * @param id id of the todolist entry to delete
      * @return EntryObjectReponse encapsulating the newly updated entry
-     * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException        indicates error in underlying network state or operation
+     * @throws URISyntaxException      indicates invalid syntax in the request's resulting URI
+     * @throws IOException             indicates error in underlying network state or operation
+     * @throws AuthenticationException indicates an error with the Authentication process
      */
     public Response deleteEntry(int id) throws IOException, URISyntaxException, AuthenticationException {
         String uri = ENTRIES_PATH + "/" + id;
@@ -354,10 +357,11 @@ public final class TodoListRestClient {
      * Gets the current list of todolist entries via get request
      *
      * @return EntryListResponse representing the response of the get request
-     * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException        indicates error in underlying network state or operation
-     * @throws JSONException      indicates an error in the JSON response from the request, either
-     *                            the JSON is invalid or the schema was not expected
+     * @throws URISyntaxException      indicates invalid syntax in the request's resulting URI
+     * @throws IOException             indicates error in underlying network state or operation
+     * @throws JSONException           indicates an error in the JSON response from the request, either
+     *                                 the JSON is invalid or the schema was not expected
+     * @throws AuthenticationException indicates an error with the Authentication process
      */
     public EntryListResponse getEntries()
             throws IOException, URISyntaxException, JSONException, AuthenticationException {
@@ -381,10 +385,11 @@ public final class TodoListRestClient {
      * @param modified timestamp to filter responses having a modified time greater than
      *                 the specified value
      * @return EntryListResponse representing the response of the get request
-     * @throws URISyntaxException indicates invalid syntax in the request's resulting URI
-     * @throws IOException        indicates error in underlying network state or operation
-     * @throws JSONException      indicates an error in the JSON response from the request, either
-     *                            the JSON is invalid or the schema was not expected
+     * @throws URISyntaxException      indicates invalid syntax in the request's resulting URI
+     * @throws IOException             indicates error in underlying network state or operation
+     * @throws JSONException           indicates an error in the JSON response from the request, either
+     *                                 the JSON is invalid or the schema was not expected
+     * @throws AuthenticationException indicates an error with the Authentication process
      */
     public EntryListResponse getEntries(Double modified)
             throws IOException, URISyntaxException, JSONException, AuthenticationException {

@@ -11,25 +11,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.SSLCertificateSocketFactory;
-import android.net.SSLSessionCache;
-import android.net.http.AndroidHttpClient;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import com.oci.example.todolist.client.HttpRestClient;
 import com.oci.example.todolist.provider.RestDataProvider;
 import com.oci.example.todolist.provider.TodoListProvider;
 import com.oci.example.todolist.provider.TodoListSchema;
-import org.apache.http.client.params.HttpClientParams;
-import org.apache.http.conn.ClientConnectionManager;
-import org.apache.http.conn.scheme.PlainSocketFactory;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpConnectionParams;
-import org.apache.http.params.HttpParams;
 
 /**
  * Service that handles sync and refresh request intents and handles
@@ -64,9 +51,6 @@ public class TodoListSyncService extends IntentService {
     // Reference to the content provider to sync
     private TodoListProvider provider;
 
-    // Apache http client to connect to rest service for sync
-    DefaultHttpClient httpClient;
-
     // HttpRest client to provide to the provider for sync
     private HttpRestClient client;
 
@@ -97,15 +81,13 @@ public class TodoListSyncService extends IntentService {
         // Initialize the PreferenceManager reference
         prefs = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
 
-
         // Build a new rest client with the http client
         String serverAddr = prefs.getString(getString(R.string.setting_server_address),
-                                            getString(R.string.app_host_name));
+                getString(R.string.app_host_name));
 
-        boolean useHttps =  prefs.getBoolean( getString(R.string.setting_https),false) ;
+        boolean useHttps = prefs.getBoolean(getString(R.string.setting_https), true);
 
-        client = new HttpRestClient(serverAddr,useHttps, getBaseContext());
-
+        client = new HttpRestClient(serverAddr, useHttps, getBaseContext());
 
         // Initialize the TodoListProvider reference
         provider = (TodoListProvider) getContentResolver()
@@ -167,6 +149,10 @@ public class TodoListSyncService extends IntentService {
 
             // Get the currently configured preferred account to use to sync against
             Account account = getPreferredAccount();
+            if (account == null) {
+                TodoListSyncHelper.scheduleSync(getBaseContext());
+                return;
+            }
 
             res = provider.onPerformSync(client, account, fullSync);
             if (res.fullSyncRequested) {
@@ -192,6 +178,14 @@ public class TodoListSyncService extends IntentService {
         }
     }
 
+    /**
+     * Retrieves the currently configured preferred account for syncing.
+     * There is a shared preference that indicates the  preferred account. This will validate
+     * that the preferred account setting still refers to a valid account. If there is no
+     * preferred account set, it will return the first account of the "com.google"  type
+     *
+     * @return Account object for the preferred account, or null if no accounts exists
+     */
     private Account getPreferredAccount() {
         AccountManager accountManager = AccountManager.get(getApplicationContext());
         Account account = null;
@@ -210,15 +204,11 @@ public class TodoListSyncService extends IntentService {
                     break;
                 }
             }
-
-            if (account == null) {
-                // account no longer exists
-                return null;
-            }
-
-        } else {
-            account = accounts[0];
         }
+        // The preferred account is not set or it  no longer exists, select the first one
+        // of the specified type
+        if (account == null)
+            account = accounts[0];
 
         return account;
     }
@@ -271,7 +261,9 @@ public class TodoListSyncService extends IntentService {
         // Set the latest event info, this display info regarding the very latest event being notified on
         notification.setLatestEventInfo(
                 getBaseContext(),
-                getResources().getQuantityString(R.plurals.sync_update_title, (int) syncResult.numEntries),
+                getResources().getQuantityString(R.plurals.sync_update_title,
+                        (int) syncResult.numEntries,
+                        (int) syncResult.numEntries),
                 getString(R.string.sync_update_text),
                 todoListActivityIntent);
 

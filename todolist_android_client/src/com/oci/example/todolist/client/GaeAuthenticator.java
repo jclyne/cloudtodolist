@@ -63,7 +63,7 @@ public class GaeAuthenticator implements HttpRestAuthenticator {
      * Constructor
      *
      * @param context context
-     * @param account
+     * @param account account to use for authentication
      */
     public GaeAuthenticator(Context context, Account account) {
         this.accountManager = AccountManager.get(context);
@@ -116,7 +116,7 @@ public class GaeAuthenticator implements HttpRestAuthenticator {
      * In the case of Google App Engine, all requests are authenticated
      * with a auth cookie returned from login, so nothing to do here.
      *
-     * @param request
+     * @param request http request to add authentication info to
      */
     @Override
     public void addAuthenticationInfoToRequest(HttpRequestBase request) {
@@ -173,41 +173,37 @@ public class GaeAuthenticator implements HttpRestAuthenticator {
     private boolean loginWithAuthToken(DefaultHttpClient client, String authToken, String scheme, String authority)
             throws ProtocolException, URISyntaxException, IOException {
 
-        try {
+        /**
+         * Don't follow redirects, once the login is complete, a redirect to the
+         * the "continue" param in the query string, will be issued. Just ignore it
+         * and use it as an indication of success
+         */
+        client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
 
-            /**
-             * Don't follow redirects, once the login is complete, a redirect to the
-             * the "continue" param in the query string, will be issued. Just ignore it
-             * and use it as an indication of success
-             */
-            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
+        HttpGet request = new HttpGet();
 
-            HttpGet request = new HttpGet();
+        // Build the login URI, for the specified scheme and authority
+        request.setURI(new URI(scheme,
+                authority,
+                ENTRIES_PATH,
+                "continue=http://localhost/&auth=" + authToken,
+                null)
+        );
 
-            // Build the login URI, for the specified scheme and authority
-            request.setURI(new URI(scheme,
-                    authority,
-                    ENTRIES_PATH,
-                    "continue=http://localhost/&auth=" + authToken,
-                    null)
-            );
-
-            HttpResponse response = client.execute(request);
-            // Response should be a redirect on success
-            if (response.getStatusLine().getStatusCode() == 302) {
-                // The secure cookies are specific to the secure connection, and are
-                //  prefixed by and S
-                if (scheme.equals("https"))
-                    authCookieName = "S" + authCookieName;
-                for (Cookie cookie : client.getCookieStore().getCookies()) {
-                    if (cookie.getName().equals(authCookieName))
-                        return true;
-                }
-                return false;
+        HttpResponse response = client.execute(request);
+        // Response should be a redirect on success
+        if (response.getStatusLine().getStatusCode() == 302) {
+            // The secure cookies are specific to the secure connection, and are
+            //  prefixed by and S
+            if (scheme.equals("https"))
+                authCookieName = "S" + authCookieName;
+            for (Cookie cookie : client.getCookieStore().getCookies()) {
+                if (cookie.getName().equals(authCookieName))
+                    return true;
             }
-        } finally {
-            client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, true);
+            return false;
         }
+
 
         return false;
     }

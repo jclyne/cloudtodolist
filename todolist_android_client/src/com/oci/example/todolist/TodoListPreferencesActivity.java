@@ -20,7 +20,7 @@ public class TodoListPreferencesActivity extends PreferenceActivity
 
     /**
      * Called when the activity is starting. Inflates the preferences UI
-     * from the settings xml and binds the view with the shared
+     * from the preferences xml and binds the view with the shared
      * preferences data. Also registers a onSharedPreferenceChanged
      * listener that handles required system updates on changes
      *
@@ -28,7 +28,7 @@ public class TodoListPreferencesActivity extends PreferenceActivity
      */
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.settings);
+        addPreferencesFromResource(R.xml.preferences);
 
         // Fill the list of accounts from the account manager
         ListPreference accountPref = (ListPreference) findPreference(getString(R.string.setting_google_account));
