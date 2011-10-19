@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/todolist_android_client" dialect="SQLite" />
-    <file url="file://$PROJECT_DIR$/todolist_server" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/cloudtodolist_android" dialect="SQLite" />
+    <file url="file://$PROJECT_DIR$/cloudtodolist_server" dialect="MySQL" />
   </component>
 </project>
 

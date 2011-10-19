@@ -1,10 +1,10 @@
 <component name="ArtifactManager">
   <artifact name="todolist_client:GWT">
-    <output-path>$PROJECT_DIR$/todolist_server/todolist</output-path>
+    <output-path>$PROJECT_DIR$/cloudtodolist_server/todolist</output-path>
     <root id="root">
-      <element id="javaee-facet-resources" facet="todolist_client/web/Web" />
+      <element id="javaee-facet-resources" facet="cloudtodolist_client/web/Web" />
       <element id="directory" name="static">
-        <element id="gwt-compiler-output" facet="todolist_client/gwt/GWT" />
+        <element id="gwt-compiler-output" facet="cloudtodolist_client/gwt/GWT" />
       </element>
     </root>
   </artifact>

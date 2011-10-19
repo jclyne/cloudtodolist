@@ -5,11 +5,13 @@
       <root url="jar://$USER_HOME$/gwt-2.4.0/validation-api-1.0.0.GA.jar!/" />
       <root url="jar://$USER_HOME$/gwt-2.4.0/validation-api-1.0.0.GA-sources.jar!/" />
       <root url="jar://$USER_HOME$/gwt-2.4.0/gwt-dev.jar!/" />
+      <root url="jar://$PROJECT_DIR$/cloudtodolist_client/libs/gwt-gae-channel-0.4-alpha.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
       <root url="jar://$USER_HOME$/gwt-2.4.0/gwt-user.jar!/" />
       <root url="jar://$USER_HOME$/gwt-2.4.0/gwt-dev.jar!/" />
+      <root url="jar://$PROJECT_DIR$/cloudtodolist_client/libs/gwt-gae-channel-0.4-alpha.jar!/" />
     </SOURCES>
   </library>
 </component>
