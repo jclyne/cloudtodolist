@@ -4,3 +4,5 @@ out/
 *.pyc
 jar/
 *.db
+*/bin
+.metadata

@@ -18,125 +18,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a48de36-16e4-49c5-b7b4-b1e8f9695f60" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cloudtodolist_client/war/static/clouds.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/cloudtodolist_client/war/static/todolist.css" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/AndroidManifest.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/build.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/build.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/libs/android-support-v4.jar" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/local.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/proguard.cfg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-hdpi/ic_dirty.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-hdpi/ic_menu_delete.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-hdpi/ic_menu_preferences.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-hdpi/ic_menu_refresh.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-hdpi/ic_synced.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-hdpi/icon.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-ldpi/ic_dirty.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-ldpi/ic_menu_delete.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-ldpi/ic_menu_preferences.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-ldpi/ic_menu_refresh.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-ldpi/ic_synced.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-ldpi/icon.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-mdpi/ic_dirty.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-mdpi/ic_menu_delete.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-mdpi/ic_menu_preferences.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-mdpi/ic_menu_refresh.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-mdpi/ic_synced.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/drawable-mdpi/icon.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/layout/edit_entry_layout.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/layout/entry_layout.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/layout/todolist_layout.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/menu/entry_menu.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/menu/todolist_menu.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/values/arrays.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/values/string_plurals.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/values/strings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/values/styles.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/res/xml/preferences.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListActivity.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListCursorAdapter.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListEditEntryActivity.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListPreferencesActivity.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListSyncHelper.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListSyncScheduler.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/TodoListSyncService.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/client/GaeAuthenticator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/client/HttpRestAuthenticator.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/client/HttpRestClient.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/client/TodoListRestClient.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/provider/RestDataProvider.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/provider/TodoListProvider.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/src/com/oci/example/todolist/provider/TodoListSchema.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client/todolist_android_client.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client_tests/default.properties" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_android_client_tests/src/com/oci/example/todolist/provider/TodoListProviderTest.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoList.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntry.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/client/TodoListEntryList.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_client/src/com/oci/example/todolist/todolist.gwt.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_client/war/static/todolist.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_client/war/templates/todolist.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/app.yaml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/cron.yaml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/index.yaml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/0326AF455425F6065C00E0361659A798.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/038C998014AC45E271266D78C0A16B7E.cache.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/0A9476898799A150D840F0B1C3672921.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/0F89659FF3F324AE4116F700257E32BD.cache.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/13D2931874E71D07F248A0CDF051CC85.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/223E04DC70F69BC559571D1C0E0667E5.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/27ED90B24F28CDBC111BCFE42F7652B9.cache.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/2FA570938FFEA6909C1AF4A60BF355F4.cache.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/33DB9EF4F0507EBB6735B8F666A8C10C.cache.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/396F806CD63ABD414BFBB9D57429F05B.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/3E13412DD77AE068AAF96B6978824A75.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/976C6ADA1B5F422B64C9A84B67A5A907.cache.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/A58B2E00ABB220987AF75CE829F4E6AA.cache.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/AB196D9D7834625802449A82C5811B43.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/DF7764EEC1903CD03C9545B354D8D8E4.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/E44767377485D18D6B6864F65BA8EF73.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/EDC7827FEEA59EE44AD790B1C6430C45.cache.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/clear.cache.gif" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/favicon.ico" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/corner.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/corner_ie6.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/hborder.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/hborder_ie6.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/ie6/corner_dialog_topleft.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/ie6/corner_dialog_topright.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/ie6/hborder_blue_shadow.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/ie6/hborder_gray_shadow.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/ie6/vborder_blue_shadow.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/ie6/vborder_gray_shadow.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/splitPanelThumb.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/vborder.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/images/vborder_ie6.png" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/standard.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/gwt/standard/standard_rtl.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/hosted.html" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/todolist.css" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist/static/todolist.nocache.js" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist_server.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist_server.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/todolist_server/todolist_update_handler.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_android_client/default.properties" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/default.properties" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_android_client_tests/AndroidManifest.xml" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/AndroidManifest.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_android_client_tests/build.properties" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/build.properties" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_android_client_tests/build.xml" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/build.xml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_android_client_tests/local.properties" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/local.properties" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_android_client_tests/proguard.cfg" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/proguard.cfg" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_android_client_tests/todolist_android_client_tests.iml" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/cloudtodolist_android_tests.iml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_client/libs/gwt-gae-channel-0.4-alpha.jar" afterPath="$PROJECT_DIR$/cloudtodolist_client/libs/gwt-gae-channel-0.4-alpha.jar" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_client/todolist_client.iml" afterPath="$PROJECT_DIR$/cloudtodolist_client/cloudtodolist_client.iml" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_client/war/static/favicon.ico" afterPath="$PROJECT_DIR$/cloudtodolist_client/war/static/favicon.ico" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/todolist_server/todolist/templates/todolist.html" afterPath="$PROJECT_DIR$/cloudtodolist_client/war/templates/todolist.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/artifacts/todolist_client_GWT.xml" afterPath="$PROJECT_DIR$/.idea/artifacts/todolist_client_GWT.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/Google_App_Engine_SDK.xml" afterPath="$PROJECT_DIR$/.idea/libraries/Google_App_Engine_SDK.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/libraries/gwt_user.xml" afterPath="$PROJECT_DIR$/.idea/libraries/gwt_user.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_android/AndroidManifest.xml" afterPath="$PROJECT_DIR$/cloudtodolist_android/AndroidManifest.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_android/default.properties" afterPath="$PROJECT_DIR$/cloudtodolist_android/default.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_android_tests/AndroidManifest.xml" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/AndroidManifest.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_android_tests/default.properties" afterPath="$PROJECT_DIR$/cloudtodolist_android_tests/default.properties" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_client/cloudtodolist_client.iml" afterPath="$PROJECT_DIR$/cloudtodolist_client/cloudtodolist_client.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_server/cloudtodolist_server.iml" afterPath="$PROJECT_DIR$/cloudtodolist_server/cloudtodolist_server.iml" />
     </list>
     <ignored path="todolist.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -226,8 +117,8 @@
       <property name="field_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByClasses" value="true" />
       <property name="exception_breakpoints_viewId" value="TABLE" />
-      <property name="exception_breakpoints_groupByClasses" value="true" />
       <property name="field_breakpoints_viewId" value="TABLE" />
+      <property name="exception_breakpoints_groupByClasses" value="true" />
       <property name="method_breakpoints_groupByMethods" value="false" />
     </ui_properties>
   </component>
@@ -236,93 +127,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="TodoListProviderTest.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_android_tests/src/com/oci/example/cloudtodolist/provider/TodoListProviderTest.java">
+      <file leaf-file-name="AndroidManifest.xml" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cloudtodolist_android/AndroidManifest.xml">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="312" column="0" selection-start="12001" selection-end="12001" vertical-scroll-proportion="0.0">
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state line="48" column="67" selection-start="2258" selection-end="2258" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TodoListActivity.java" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="TodoListActivity.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListActivity.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="124" column="0" selection-start="5040" selection-end="5040" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TodoListSyncService.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListSyncService.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="189" column="0" selection-start="7527" selection-end="7527" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="todolist_server.py" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_server/todolist_server.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="408" column="31" selection-start="13494" selection-end="13494" vertical-scroll-proportion="-9.92">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="app.yaml" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_server/app.yaml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="18" selection-start="18" selection-end="18" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TodoList.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="35" column="13" selection-start="1494" selection-end="1494" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="todolist.gwt.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/todolist.gwt.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="index.yaml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_server/index.yaml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="cron.yaml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_server/cron.yaml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="2" column="8" selection-start="52" selection-end="52" vertical-scroll-proportion="0.0">
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="TodoListCursorAdapter.java" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListCursorAdapter.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="140" column="8" selection-start="6025" selection-end="6025" vertical-scroll-proportion="0.0">
+            <state line="124" column="0" selection-start="5040" selection-end="5040" vertical-scroll-proportion="0.029565217">
               <folding />
             </state>
           </provider>
@@ -375,6 +192,9 @@
   </component>
   <component name="MavenProjectNavigator">
     <treeState />
+  </component>
+  <component name="MavenRunner">
+    <option name="jreName" value="#JAVA_INTERNAL" />
   </component>
   <component name="ModuleEditorState">
     <option name="LAST_EDITED_MODULE_NAME" />
@@ -442,9 +262,6 @@
             <id>Properties Files</id>
           </State>
           <State>
-            <id>Python</id>
-          </State>
-          <State>
             <id>RELAX NG</id>
           </State>
           <State>
@@ -490,8 +307,8 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="PackagesPane" />
+      <pane id="Favorites" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -510,22 +327,32 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloudtodolist" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="cloudtodolist_client" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
-      <pane id="Favorites" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="project.structure.last.edited" value="Facets" />
+    <property name="project.structure.last.edited" value="Modules" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="124" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="142" />
-    <property name="project.structure.proportion" value="0.14243028" />
     <property name="OverrideImplement.combined" value="true" />
+    <property name="project.structure.proportion" value="0.14243028" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="142" />
     <property name="options.splitter.main.proportions" value="0.3" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="139" />
-    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
-    <property name="MemberChooser.sorted" value="false" />
     <property name="recentsLimit" value="5" />
+    <property name="MemberChooser.sorted" value="false" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="139" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/todolist_android_client/res/values" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="144" />
@@ -541,16 +368,16 @@
     <property name="MemberChooser.showClasses" value="true" />
     <property name="GoToClass.includeLibraries" value="false" />
     <property name="options.splitter.details.proportions" value="0.2" />
-    <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder0" value="0" />
+    <property name="GoToFile.includeJavaFiles" value="false" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
-    <property name="options.lastSelected" value="Errors" />
-    <property name="project.structure.side.proportion" value="0.29340762" />
+    <property name="options.lastSelected" value="reference.settingsdialog.IDE.editor.colors.Font" />
+    <property name="project.structure.side.proportion" value="0.27866971" />
     <property name="MemberChooser.copyJavadoc" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="dynamic.classpath" value="false" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -563,22 +390,40 @@
       <recent name="com.oci.example.todolist.client" />
     </key>
   </component>
-  <component name="RunManager" selected="App Engine server.server">
-    <configuration default="true" type="PythonUnitTestConfigurationType" factoryName="Python's unittest">
+  <component name="RunManager" selected="GWT Configuration.web_client">
+    <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
+      <module name="" />
+      <option name="TESTING_TYPE" value="0" />
+      <option name="INSTRUMENTATION_RUNNER_CLASS" value="" />
+      <option name="METHOD_NAME" value="" />
+      <option name="CLASS_NAME" value="" />
+      <option name="PACKAGE_NAME" value="" />
+      <option name="CHOOSE_DEVICE_MANUALLY" value="false" />
+      <option name="PREFERRED_AVD" value="" />
+      <option name="COMMAND_LINE" value="" />
+      <option name="WIPE_USER_DATA" value="false" />
+      <option name="DISABLE_BOOT_ANIMATION" value="false" />
+      <option name="NETWORK_SPEED" value="full" />
+      <option name="NETWORK_LATENCY" value="none" />
+      <option name="CLEAR_LOGCAT" value="false" />
+      <method>
+        <option name="AntTarget" enabled="false" />
+        <option name="BuildArtifacts" enabled="false" />
+        <option name="Make" enabled="true" />
+        <option name="Maven.BeforeRunTask" enabled="false" />
+        <option name="PhingTarget" enabled="false" />
+      </method>
+    </configuration>
+    <configuration default="true" type="Python.AppEngineServer" factoryName="App Engine server">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="" />
       <option name="IS_MODULE_SDK" value="false" />
-      <module name="cloudtodolist_server" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
-      <option name="PUREUNITTEST" value="true" />
+      <module name="" />
+      <option name="browserUrl" value="" />
+      <option name="additionalOptions" value="" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -630,103 +475,6 @@
         <option name="PhingTarget" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="JUnit" factoryName="JUnit">
-      <extension name="coverage" enabled="false" merge="false" />
-      <module name="" />
-      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
-      <option name="ALTERNATIVE_JRE_PATH" />
-      <option name="PACKAGE_NAME" />
-      <option name="MAIN_CLASS_NAME" />
-      <option name="METHOD_NAME" />
-      <option name="TEST_OBJECT" value="class" />
-      <option name="VM_PARAMETERS" />
-      <option name="PARAMETERS" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="ENV_VARIABLES" />
-      <option name="PASS_PARENT_ENVS" value="true" />
-      <option name="TEST_SEARCH_SCOPE">
-        <value defaultName="moduleWithDependencies" />
-      </option>
-      <envs />
-      <patterns />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="PhingTarget" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
-      <module name="" />
-      <option name="TESTING_TYPE" value="0" />
-      <option name="INSTRUMENTATION_RUNNER_CLASS" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="PACKAGE_NAME" value="" />
-      <option name="CHOOSE_DEVICE_MANUALLY" value="false" />
-      <option name="PREFERRED_AVD" value="" />
-      <option name="COMMAND_LINE" value="" />
-      <option name="WIPE_USER_DATA" value="false" />
-      <option name="DISABLE_BOOT_ANIMATION" value="false" />
-      <option name="NETWORK_SPEED" value="full" />
-      <option name="NETWORK_LATENCY" value="none" />
-      <option name="CLEAR_LOGCAT" value="false" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="PhingTarget" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="Python.AppEngineServer" factoryName="App Engine server">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <module name="todolist_android_client" />
-      <option name="browserUrl" value="" />
-      <option name="additionalOptions" value="" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="PhingTarget" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <module name="todolist_server" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="PhingTarget" enabled="false" />
-      </method>
-    </configuration>
-    <configuration default="true" type="FlexUnitRunConfigurationType" factoryName="FlexUnit" adl_options="" air_descriptor_path="" air_program_params="" air_publisher_id="" air_root_dir_path="" air_run_mode="AppDescriptor" browser_family="FIREFOX" class_name="" debugger_sdk="Module SDK" html_or_swf_file_path="" launcher_type="OSDefault" main_class_name="" method_name="" module_name="" output_log_level="" package_name="" player_path="/usr/bin/flashplayer" port="0" run_mode="HtmlOrSwfFile" run_trusted="false" scope="Class" socket_policy_port="0" url_to_launch="http://">
-      <method>
-        <option name="AntTarget" enabled="false" />
-        <option name="BuildArtifacts" enabled="false" />
-        <option name="Make" enabled="true" />
-        <option name="Maven.BeforeRunTask" enabled="false" />
-        <option name="PhingTarget" enabled="false" />
-      </method>
-    </configuration>
     <configuration default="true" type="Application" factoryName="Application">
       <extension name="coverage" enabled="false" merge="false" />
       <option name="MAIN_CLASS_NAME" />
@@ -748,20 +496,8 @@
         <option name="PhingTarget" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="PythonDocTestRunConfigurationType" factoryName="Python's doctests">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <module name="cloudtodolist_server" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="CLASS_NAME" value="" />
-      <option name="METHOD_NAME" value="" />
-      <option name="FOLDER_NAME" value="" />
-      <option name="TEST_TYPE" value="TEST_SCRIPT" />
-      <option name="PATTERN" value="" />
+    <configuration default="true" type="GWT.ConfigurationType" factoryName="GWT Configuration">
+      <module name="" />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -782,8 +518,25 @@
         <option name="PhingTarget" enabled="false" />
       </method>
     </configuration>
-    <configuration default="true" type="GWT.ConfigurationType" factoryName="GWT Configuration">
+    <configuration default="true" type="JUnit" factoryName="JUnit">
+      <extension name="coverage" enabled="false" merge="false" />
       <module name="" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" />
+      <option name="PACKAGE_NAME" />
+      <option name="MAIN_CLASS_NAME" />
+      <option name="METHOD_NAME" />
+      <option name="TEST_OBJECT" value="class" />
+      <option name="VM_PARAMETERS" />
+      <option name="PARAMETERS" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <option name="TEST_SEARCH_SCOPE">
+        <value defaultName="moduleWithDependencies" />
+      </option>
+      <envs />
+      <patterns />
       <method>
         <option name="AntTarget" enabled="false" />
         <option name="BuildArtifacts" enabled="false" />
@@ -857,7 +610,7 @@
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs />
-      <option name="SDK_HOME" value="/usr/bin/python2.5" />
+      <option name="SDK_HOME" value="C:/Python25/python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/cloudtodolist_server" />
       <option name="IS_MODULE_SDK" value="true" />
       <module name="cloudtodolist_server" />
@@ -872,7 +625,7 @@
     <configuration default="false" name="web_client" type="GWT.ConfigurationType" factoryName="GWT Configuration">
       <module name="cloudtodolist_client" />
       <option name="SHELL_PARAMETERS" value="-noserver" />
-      <option name="RUN_PAGE" value="templates/todolist.html" />
+      <option name="RUN_PAGE" value="http://localhost:8080/" />
       <RunnerSettings RunnerId="Debug">
         <option name="DEBUG_PORT" value="53790" />
         <option name="TRANSPORT" value="0" />
@@ -945,26 +698,26 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="1275" y="0" width="1290" height="1029" extended-state="0" />
-    <editor active="true" />
+    <frame x="1272" y="-8" width="1296" height="1040" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32744783" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Phing Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24940239" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30464327" sideWeight="0.476494" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30429864" sideWeight="0.476494" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32905295" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32842582" sideWeight="0.0" order="11" side_tool="false" content_ui="tabs" />
-      <window_info id="Web" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32350597" sideWeight="0.9909502" order="9" side_tool="true" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3280543" sideWeight="0.0" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32842582" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Web" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32350597" sideWeight="0.9909502" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32350597" sideWeight="0.0" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39935064" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.29243028" sideWeight="0.7497169" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25028312" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.34023905" sideWeight="0.69570136" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24886878" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Android Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30464327" sideWeight="0.51713145" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4061086" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="7" side_tool="false" content_ui="combo" />
@@ -1059,114 +812,67 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/provider/TodoListSchema.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="18" column="85" selection-start="941" selection-end="941" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/android-sdk-linux_86/platforms/android-10/android.jar!/android/content/ContentProvider.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/android-sdk-linux_86/platforms/android-10/android.jar!/android/test/mock/MockContentResolver.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="jar://$USER_HOME$/android-sdk-linux_86/platforms/android-10/android.jar!/android/content/ContentResolver.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="42" column="33" selection-start="2927" selection-end="2927" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="18" column="85" selection-start="941" selection-end="941" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/provider/TodoListProvider.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="279" column="0" selection-start="10991" selection-end="10991" vertical-scroll-proportion="-7.04">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_android_tests/src/com/oci/example/cloudtodolist/provider/TodoListProviderTest.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="312" column="0" selection-start="12001" selection-end="12001" vertical-scroll-proportion="0.0">
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListActivity.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="124" column="0" selection-start="5040" selection-end="5040" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_android/AndroidManifest.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="48" column="67" selection-start="2256" selection-end="2256" vertical-scroll-proportion="1.1851852">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListCursorAdapter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="140" column="8" selection-start="6025" selection-end="6025" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListSyncService.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="189" column="0" selection-start="7527" selection-end="7527" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_server/index.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_server/cron.yaml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="2" column="8" selection-start="52" selection-end="52" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="35" column="13" selection-start="1494" selection-end="1494" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/todolist.gwt.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
+        <state line="279" column="0" selection-start="10991" selection-end="10991" vertical-scroll-proportion="-7.04" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cloudtodolist_server/todolist_server.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="408" column="31" selection-start="13494" selection-end="13494" vertical-scroll-proportion="-9.92">
-          <folding />
-        </state>
+        <state line="408" column="31" selection-start="13494" selection-end="13494" vertical-scroll-proportion="-9.92" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_android_tests/src/com/oci/example/cloudtodolist/provider/TodoListProviderTest.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="312" column="0" selection-start="12001" selection-end="12001" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListSyncService.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="189" column="0" selection-start="7527" selection-end="7527" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/cloudtodolist_server/app.yaml">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="18" selection-start="18" selection-end="18" vertical-scroll-proportion="0.0">
+        <state line="0" column="18" selection-start="18" selection-end="18" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="35" column="13" selection-start="1494" selection-end="1494" vertical-scroll-proportion="0.019767443" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/todolist.gwt.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_server/index.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_server/cron.yaml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="2" column="8" selection-start="52" selection-end="52" vertical-scroll-proportion="0.039534885" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListCursorAdapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="140" column="8" selection-start="6025" selection-end="6025" vertical-scroll-proportion="0.019767443" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_android/AndroidManifest.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="48" column="67" selection-start="2258" selection-end="2258" vertical-scroll-proportion="0.0" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_android/src/com/oci/example/cloudtodolist/TodoListActivity.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="124" column="0" selection-start="5040" selection-end="5040" vertical-scroll-proportion="0.029565217">
           <folding />
         </state>
       </provider>
@@ -1181,7 +887,7 @@
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.29340762" />
+                <option value="0.27866971" />
                 <option value="0.5" />
               </list>
             </option>
@@ -1190,11 +896,11 @@
       </state>
       <state key="FacetStructureConfigurable.UI">
         <settings>
-          <last-edited>GWT (cloudtodolist_client)|GWT</last-edited>
+          <last-edited>Google App Engine (Python) (cloudtodolist_server)|Google App Engine (Python)</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.29340762" />
+                <option value="0.27866971" />
               </list>
             </option>
           </splitter-proportions>
@@ -1202,11 +908,11 @@
       </state>
       <state key="GlobalLibrariesConfigurable.UI">
         <settings>
-          <last-edited>Python 2.5.5 (/usr/bin/python2.5) interpreter library</last-edited>
+          <last-edited>Python 2.5 (C:/Python25/python.exe) interpreter library</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.29340762" />
+                <option value="0.27866971" />
               </list>
             </option>
           </splitter-proportions>
@@ -1214,11 +920,11 @@
       </state>
       <state key="JdkListConfigurable.UI">
         <settings>
-          <last-edited>Android 2.3.3 Platform</last-edited>
+          <last-edited>Python 2.5 (C:/Python25/python.exe)</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.29340762" />
+                <option value="0.27866971" />
               </list>
             </option>
           </splitter-proportions>
@@ -1226,11 +932,11 @@
       </state>
       <state key="ModuleStructureConfigurable.UI">
         <settings>
-          <last-edited>Android|cloudtodolist_android</last-edited>
+          <last-edited>GWT|cloudtodolist_client</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.29340762" />
+                <option value="0.27866971" />
               </list>
             </option>
           </splitter-proportions>
@@ -1242,7 +948,7 @@
           <splitter-proportions>
             <option name="proportions">
               <list>
-                <option value="0.29340762" />
+                <option value="0.27866971" />
               </list>
             </option>
           </splitter-proportions>

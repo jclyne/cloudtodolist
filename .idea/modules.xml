@@ -3,8 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/cloudtodolist_android/cloudtodolist_android.iml" filepath="$PROJECT_DIR$/cloudtodolist_android/cloudtodolist_android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/cloudtodolist_android/cloudtodolist_android.iml" filepath="$PROJECT_DIR$/cloudtodolist_android/cloudtodolist_android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/cloudtodolist_android_tests/cloudtodolist_android_tests.iml" filepath="$PROJECT_DIR$/cloudtodolist_android_tests/cloudtodolist_android_tests.iml" />
       <module fileurl="file://$PROJECT_DIR$/cloudtodolist_android_tests/cloudtodolist_android_tests.iml" filepath="$PROJECT_DIR$/cloudtodolist_android_tests/cloudtodolist_android_tests.iml" />
       <module fileurl="file://$PROJECT_DIR$/cloudtodolist_client/cloudtodolist_client.iml" filepath="$PROJECT_DIR$/cloudtodolist_client/cloudtodolist_client.iml" />
       <module fileurl="file://$PROJECT_DIR$/cloudtodolist_server/cloudtodolist_server.iml" filepath="$PROJECT_DIR$/cloudtodolist_server/cloudtodolist_server.iml" />

@@ -18,4 +18,5 @@
     <instrumentation android:name="android.test.InstrumentationTestRunner"
                      android:targetPackage="com.oci.example.cloudtodolist"
                      android:label="Tests for com.oci.example.todolist"/>
+    <uses-sdk android:maxSdkVersion="10" android:targetSdkVersion="10" android:minSdkVersion="10"/>
 </manifest>
