@@ -111,7 +111,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.ext import db
 from django.utils import simplejson as json
 
-from todolist_update_handler import generate_token,add_update_client,remove_update_client,send_update
+from todolist_update_handler import *
 
 
 __author__ = "Jeff Clyne"
@@ -125,7 +125,7 @@ __status__ = "released"
 
 
 # Specify the base path for the templates directory
-templates="../todolist/templates/"
+templates="todolist/templates/"
 
 # Make duration to archive deleted entries. The deleted
 #  entries are necessary for Gets on the entrylist with a

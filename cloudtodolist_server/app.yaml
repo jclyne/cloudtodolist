@@ -6,31 +6,31 @@ api_version: 1
 
 handlers:
 - url: /todolist/entries
-  script: src/todolist_server.py
+  script: todolist_server.py
   login: required
 
 - url: /todolist/entries/\d+
-  script: src/todolist_server.py
+  script: todolist_server.py
   login: required
 
 - url: /todolist/tasks/.*
-  script: src/todolist_server.py
+  script: todolist_server.py
   login: admin
 
 - url: /todolist/update_channel
-  script: src/todolist_server.py
+  script: todolist_server.py
 
 - url: /_ah/channel/connected/
-  script: src/todolist_server.py
+  script: todolist_server.py
 
 - url: /_ah/channel/disconnected/
-  script: src/todolist_server.py
+  script: todolist_server.py
 
 - url: /todolist
   static_dir: todolist/static/
 
 - url: /
-  script: src/todolist_server.py
+  script: todolist_server.py
   login: required
 
 - url: /favicon.ico
