@@ -16,7 +16,7 @@
     <facet type="web" name="Web">
       <configuration>
         <webroots>
-          <root url="file://$MODULE_DIR$/war" relative="/" />
+          <root url="file://$MODULE_DIR$/todolist" relative="/" />
         </webroots>
         <sourceRoots />
       </configuration>

@@ -6,3 +6,4 @@ jar/
 *.db
 */bin
 .metadata
+*/war

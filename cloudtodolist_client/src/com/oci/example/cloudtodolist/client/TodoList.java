@@ -32,7 +32,6 @@ import java.util.*;
 /**
  * Entry point classes define <code>onModuleLoad()</code>
  */
-@SuppressWarnings({"GWTStyleCheck"})
 public class TodoList implements EntryPoint {
 
     private static final String TODOLIST_BASE_URL = Window.Location.getProtocol() + "//"
