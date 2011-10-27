@@ -5,4 +5,6 @@ out/
 jar/
 *.db
 */bin
+.metadata
+
 
