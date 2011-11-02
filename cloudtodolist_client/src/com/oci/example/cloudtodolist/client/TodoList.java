@@ -32,6 +32,7 @@ import java.util.*;
 /**
  * Entry point classes define <code>onModuleLoad()</code>
  */
+@SuppressWarnings({"GWTStyleCheck"})
 public class TodoList implements EntryPoint {
 
     private static final String TODOLIST_BASE_URL = Window.Location.getProtocol() + "//"
@@ -47,15 +48,18 @@ public class TodoList implements EntryPoint {
         }
     };
 
-    Map<Integer, TodoListEntry> todolistEntryMap = new HashMap<Integer, TodoListEntry>();
+    private final Map<Integer, TodoListEntry> todolistEntryMap = new HashMap<Integer, TodoListEntry>();
     private final NoSelectionModel<TodoListEntry> noEntrySelectionModel = new NoSelectionModel<TodoListEntry>();
     private final ListDataProvider<TodoListEntry> todoListDataProvider = new ListDataProvider<TodoListEntry>();
 
     private final String HeaderText = "Cloud Todo List";
+    private final String emptyText = "List is Empty.. you've been busy";
     private final String newEntryHelpText = "Add a new entry";
+
 
     private final VerticalPanel mainPanel = new VerticalPanel();
     private final Label header = new Label(HeaderText);
+    private final Label emptyListLabel = new Label(emptyText);
     private final VerticalPanel todoListPanel = new VerticalPanel();
     private final CellTable<TodoListEntry> todoList = new CellTable<TodoListEntry>(todoListEntryKeyProvider);
     private final HorizontalPanel toolPanel = new HorizontalPanel();
@@ -183,6 +187,11 @@ public class TodoList implements EntryPoint {
         todoList.setStyleName("todoList");
         todoList.addColumnStyleName(0, "todoListColumn");
         todoList.addColumnStyleName(1, "todoListColumn");
+        todoList.setVisible(false);
+
+        //emptyListLabel.setStyleName("todoList");
+        emptyListLabel.addStyleName("todoListText");
+        emptyListLabel.setVisible(true);
 
         newEntry.setStyleName("newEntry");
         newEntry.addStyleName("newEntryHelpText");
@@ -190,6 +199,7 @@ public class TodoList implements EntryPoint {
 
         todoListPanel.setStyleName("todoListPanel");
         todoListPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+        todoListPanel.add(emptyListLabel);
         todoListPanel.add(todoList);
         todoListPanel.add(newEntry);
         todoListPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
@@ -210,7 +220,17 @@ public class TodoList implements EntryPoint {
     private void refreshTodoListDisplay() {
         List<TodoListEntry> data = new ArrayList<TodoListEntry>(todolistEntryMap.values());
         Collections.sort(data, new TodoListEntry.CompareCreated());
-        todoList.setPageSize(data.size());
+
+        int size = data.size();
+        if (size == 0){
+            emptyListLabel.setVisible(true);
+            todoList.setVisible(false);
+        }  else {
+            emptyListLabel.setVisible(false);
+            todoList.setVisible(true);
+        }
+
+        todoList.setPageSize(size);
         todoListDataProvider.setList(data);
         todoListDataProvider.refresh();
 

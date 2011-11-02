@@ -5,6 +5,7 @@
       <w>appspot</w>
       <w>ctxt</w>
       <w>datastore</w>
+      <w>eval</w>
       <w>gzip</w>
       <w>inflater</w>
       <w>prefs</w>

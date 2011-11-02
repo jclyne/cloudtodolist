@@ -18,9 +18,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8a48de36-16e4-49c5-b7b4-b1e8f9695f60" name="Default" comment="">
+      <change type="DELETED" beforePath="C:\Users\jclyne\Dropbox\workspace\cloudtodolist\cloudtodolist_server\todolist\static\33C270000F4D245AF8FE865882064DDF.cache.html" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\jclyne\Dropbox\workspace\cloudtodolist\cloudtodolist_server\todolist\static\868451BF92DDDEAE314C8CA2C709C92F.cache.html" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\jclyne\Dropbox\workspace\cloudtodolist\cloudtodolist_server\todolist\static\9C385CA12ECDCEB33506DBBA2208F448.cache.html" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\jclyne\Dropbox\workspace\cloudtodolist\cloudtodolist_server\todolist\static\B62BAA5EBC563495BE6B39E4A0041E03.cache.html" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\jclyne\Dropbox\workspace\cloudtodolist\cloudtodolist_server\todolist\static\D860232E3B005F23A4E07B897DEE389E.cache.html" afterPath="" />
+      <change type="DELETED" beforePath="C:\Users\jclyne\Dropbox\workspace\cloudtodolist\cloudtodolist_server\todolist\static\EC0998D29DDEE7E8532B05FC1F867EEB.cache.html" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/jclyne.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/jclyne.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_client/todolist/templates/todolist.html" afterPath="$PROJECT_DIR$/cloudtodolist_client/todolist/templates/todolist.html" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_server/todolist/templates/todolist.html" afterPath="$PROJECT_DIR$/cloudtodolist_server/todolist/templates/todolist.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java" afterPath="$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_client/todolist/static/todolist.css" afterPath="$PROJECT_DIR$/cloudtodolist_client/todolist/static/todolist.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_server/todolist/static/todolist.css" afterPath="$PROJECT_DIR$/cloudtodolist_server/todolist/static/todolist.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cloudtodolist_server/todolist/static/todolist.nocache.js" afterPath="$PROJECT_DIR$/cloudtodolist_server/todolist/static/todolist.nocache.js" />
     </list>
     <ignored path="todolist.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -105,10 +115,38 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="todolist.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="todolist.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/cloudtodolist_client/todolist/templates/todolist.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="8" column="17" selection-start="179" selection-end="179" vertical-scroll-proportion="0.22628951">
+            <state line="8" column="17" selection-start="179" selection-end="179" vertical-scroll-proportion="-5.230769">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="TodoList.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="193" column="38" selection-start="8444" selection-end="8444" vertical-scroll-proportion="0.55123675">
+              <folding>
+                <element signature="imports" expanded="true" />
+                <marker date="1320252119594" expanded="true" signature="13612:13674" placeholder="{...}" />
+                <marker date="1320252119594" expanded="true" signature="13612:13674" placeholder="{...}" />
+                <marker date="1320252119594" expanded="true" signature="13612:13674" placeholder="{...}" />
+                <marker date="1320252119594" expanded="true" signature="13740:13802" placeholder="{...}" />
+                <marker date="1320252119594" expanded="true" signature="13740:13802" placeholder="{...}" />
+                <marker date="1320252119594" expanded="true" signature="13740:13802" placeholder="{...}" />
+                <marker date="1320252119594" expanded="true" signature="13861:13929" placeholder="{...}" />
+                <marker date="1320252119594" expanded="true" signature="13861:13929" placeholder="{...}" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="todolist.css" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/cloudtodolist_client/todolist/static/todolist.css">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="54" column="20" selection-start="955" selection-end="955" vertical-scroll-proportion="0.0">
               <folding />
             </state>
           </provider>
@@ -144,11 +182,11 @@
         <option value="$PROJECT_DIR$/cloudtodolist_server/src/todolist_server.py" />
         <option value="$PROJECT_DIR$/cloudtodolist_server/app.yaml" />
         <option value="$PROJECT_DIR$/cloudtodolist_server/todolist_server.py" />
+        <option value="$PROJECT_DIR$/cloudtodolist_server/todolist/templates/todolist.html" />
+        <option value="$PROJECT_DIR$/cloudtodolist_client/todolist/templates/todolist.html" />
         <option value="$PROJECT_DIR$/cloudtodolist_server/todolist/static/todolist.css" />
         <option value="$PROJECT_DIR$/cloudtodolist_client/todolist/static/todolist.css" />
         <option value="$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java" />
-        <option value="$PROJECT_DIR$/cloudtodolist_server/todolist/templates/todolist.html" />
-        <option value="$PROJECT_DIR$/cloudtodolist_client/todolist/templates/todolist.html" />
       </list>
     </option>
   </component>
@@ -277,8 +315,6 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="Favorites" />
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -297,54 +333,10 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloudtodolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloudtodolist_client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloudtodolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloudtodolist_client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="templates" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloudtodolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="cloudtodolist_client" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="todolist" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="static" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
         </subPane>
       </pane>
+      <pane id="Favorites" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -395,7 +387,7 @@
       <recent name="com.oci.example.todolist.client" />
     </key>
   </component>
-  <component name="RunManager" selected="GWT Configuration.gwt_client">
+  <component name="RunManager" selected="App Engine server.server">
     <configuration default="true" type="PythonUnitTestConfigurationType" factoryName="Python's unittest">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -732,8 +724,9 @@
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32744783" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
       <window_info id="Phing Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32352942" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24940239" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30326945" sideWeight="0.476494" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.30326945" sideWeight="0.476494" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32905295" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
@@ -744,15 +737,14 @@
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39935064" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Dependency Viewer" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28924304" sideWeight="0.7519729" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.263745" sideWeight="0.69673055" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39233372" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24802706" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="REST Client" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4061086" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="7" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Data Sources" active="true" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32988048" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" x="388" y="70" width="414" height="623" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32352942" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39253393" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Android Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30464327" sideWeight="0.51713145" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Command Line Tools Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32842582" sideWeight="0.5" order="13" side_tool="false" content_ui="tabs" />
     </layout>
@@ -848,11 +840,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_client/todolist/static/todolist.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="5" column="0" selection-start="84" selection-end="84" vertical-scroll-proportion="0.1491228" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cloudtodolist_server/app.yaml">
       <provider selected="true" editor-type-id="text-editor">
         <state line="16" column="82" selection-start="285" selection-end="285" vertical-scroll-proportion="0.0" />
@@ -863,21 +850,6 @@
         <state line="127" column="11" selection-start="4508" selection-end="4508" vertical-scroll-proportion="0.0" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="187" column="31" selection-start="8152" selection-end="8152" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_server/todolist/templates/todolist.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="7" column="4" selection-start="107" selection-end="160" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cloudtodolist_server/todolist/static/todolist.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="0.0" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/cloudtodolist_server/todolist_update_handler.py">
       <provider selected="true" editor-type-id="text-editor">
         <state line="9" column="18" selection-start="166" selection-end="180" vertical-scroll-proportion="0.17790698" />
@@ -885,8 +857,32 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/cloudtodolist_client/todolist/templates/todolist.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="8" column="17" selection-start="179" selection-end="179" vertical-scroll-proportion="0.22628951">
+        <state line="8" column="17" selection-start="179" selection-end="179" vertical-scroll-proportion="-5.230769">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_client/todolist/static/todolist.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="54" column="20" selection-start="955" selection-end="955" vertical-scroll-proportion="0.0">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/cloudtodolist_client/src/com/oci/example/cloudtodolist/client/TodoList.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="193" column="38" selection-start="8444" selection-end="8444" vertical-scroll-proportion="0.55123675">
+          <folding>
+            <element signature="imports" expanded="true" />
+            <marker date="1320252119594" expanded="true" signature="13612:13674" placeholder="{...}" />
+            <marker date="1320252119594" expanded="true" signature="13612:13674" placeholder="{...}" />
+            <marker date="1320252119594" expanded="true" signature="13612:13674" placeholder="{...}" />
+            <marker date="1320252119594" expanded="true" signature="13740:13802" placeholder="{...}" />
+            <marker date="1320252119594" expanded="true" signature="13740:13802" placeholder="{...}" />
+            <marker date="1320252119594" expanded="true" signature="13740:13802" placeholder="{...}" />
+            <marker date="1320252119594" expanded="true" signature="13861:13929" placeholder="{...}" />
+            <marker date="1320252119594" expanded="true" signature="13861:13929" placeholder="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -933,7 +929,7 @@
       </state>
       <state key="JdkListConfigurable.UI">
         <settings>
-          <last-edited>Python 2.5 (C:/Python25/python.exe)</last-edited>
+          <last-edited>Python 2.7.2 (C:/Python27/python.exe)</last-edited>
           <splitter-proportions>
             <option name="proportions">
               <list>
@@ -950,7 +946,6 @@
             <option name="proportions">
               <list>
                 <option value="0.27866971" />
-                <option value="0.5" />
               </list>
             </option>
           </splitter-proportions>
